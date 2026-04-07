@@ -40,4 +40,12 @@ app-example
 
 # generated native folders
 /ios
-/android
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+.kotlin/
+
