@@ -1,13 +1,10 @@
-import { setAuthorizationStatus, setInitialized } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
-import { getAccessTokenFromSecureStore } from '@/src/utils/localStorageKey';
-import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, Text, View } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 const { width } = Dimensions.get('window');
+const DOT_CYCLE = 1400;
 
 export default function SplashScreen() {
   const logoScale = useRef(new Animated.Value(0)).current;
@@ -15,35 +12,22 @@ export default function SplashScreen() {
   const textOpacity = useRef(new Animated.Value(0)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
 
-  // One animated value per dot
   const dot0 = useRef(new Animated.Value(0.4)).current;
   const dot1 = useRef(new Animated.Value(0.4)).current;
   const dot2 = useRef(new Animated.Value(0.4)).current;
 
-  const router = useRouter();
-  const dispatch = useDispatch();
+  const dotAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const token = await getAccessTokenFromSecureStore();
-        if (token) {
-          dispatch(setAuthorizationStatus(true));
-          router.replace('/(tabs)')
-        } else {
-          dispatch(setAuthorizationStatus(false));
-          router.replace('/(auth)/Login')
-        }
-      } catch (error) {
-        console.error('Auth init error:', error);
-        dispatch(setAuthorizationStatus(false));
-        setTimeout(() => router.replace('/(auth)/Login'), 1500);
-      } finally {
-        dispatch(setInitialized(true));
-      }
-    };
+    // Reset all animated values on mount
+    logoScale.setValue(0);
+    logoOpacity.setValue(0);
+    textOpacity.setValue(0);
+    taglineOpacity.setValue(0);
+    dot0.setValue(0.4);
+    dot1.setValue(0.4);
+    dot2.setValue(0.4);
 
-    // Animate dots in a looping pulse with stagger
     const makeDotPulse = (dot: Animated.Value, delay: number) =>
       Animated.loop(
         Animated.sequence([
@@ -58,17 +42,16 @@ export default function SplashScreen() {
             duration: 350,
             useNativeDriver: true,
           }),
-          Animated.delay(700 - delay), // keep the cycle aligned
+          Animated.delay(DOT_CYCLE - delay - 700),
         ])
       );
 
-    const dotAnimation = Animated.parallel([
+    dotAnimationRef.current = Animated.parallel([
       makeDotPulse(dot0, 0),
       makeDotPulse(dot1, 200),
       makeDotPulse(dot2, 400),
     ]);
 
-    // Entrance sequence, then kick off auth + dot animations
     Animated.sequence([
       Animated.parallel([
         Animated.spring(logoScale, {
@@ -94,16 +77,13 @@ export default function SplashScreen() {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      dotAnimation.start();
-      setTimeout(() => {
-        initializeAuth();
-      }, 800);
+      dotAnimationRef.current?.start();
     });
 
     return () => {
-      dotAnimation.stop();
+      dotAnimationRef.current?.stop();
     };
-  }, [dispatch, router]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -133,13 +113,13 @@ export default function SplashScreen() {
 
       {/* Animated dot loader */}
       <View style={styles.loaderRow}>
-        {[dot0, dot1, dot2].map((dot, i) => (
+        {(['dot0', 'dot1', 'dot2'] as const).map((key, i) => (
           <Animated.View
-            key={i}
+            key={key}
             style={[
               styles.dot,
               i === 1 && styles.dotWide,
-              { opacity: dot },
+              { opacity: [dot0, dot1, dot2][i] },
             ]}
           />
         ))}

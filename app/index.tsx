@@ -1,21 +1,45 @@
-import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
+import SplashScreen from '@/src/components/Splash/SplashScreen';
+import { setAuthorizationStatus, setInitialized } from '@/src/redux/slices/auth.slice';
+import { getAccessTokenFromSecureStore } from '@/src/utils/localStorageKey';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-export default function Index() {
+export default function index() {
+  const { initialized, isAuthenticated } = useSelector((state: any) => state.auth);
   const router = useRouter();
+  const [isSplashVisible, setSplashVisible] = useState(true);
   const dispatch = useDispatch();
 
-  const handleLogout = async () => {
-    try {
-      await SecureStore.deleteItemAsync('authToken');
-      await SecureStore.deleteItemAsync('userEmail');
-      await SecureStore.deleteItemAsync('userName');
-      dispatch(setAuthorizationStatus(false));
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const token = await getAccessTokenFromSecureStore();
+        dispatch(setAuthorizationStatus(!!token));
+      } catch (error) {
+        dispatch(setAuthorizationStatus(false));
+      } finally {
+        dispatch(setInitialized(true));
+      }
+    };
+    
+    initializeAuth();
+
+    const splashTimeout = setTimeout(() => {
+      setSplashVisible(false);
+    }, 5000);
+
+    return () => clearTimeout(splashTimeout);
+  }, []);
+  
+  useEffect(() => {
+    if (!initialized || isSplashVisible) return;
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    } else {
       router.replace('/(auth)/Login');
-    } catch (error) {
-      console.error('Logout error:', error);
     }
-  };
+  }, [initialized, isAuthenticated, isSplashVisible]);
+
+  return <SplashScreen />;
 }
