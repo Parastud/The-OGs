@@ -1,10 +1,10 @@
 import PrimaryButton from '@/src/components/buttons/PrimaryButton';
 import LabelTextInput from '@/src/components/inputs/LabelTextInput';
+import useAuthApi from '@/src/hooks/apiHooks/useAuthApi';
 import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -19,13 +19,13 @@ import {
 import { useDispatch } from 'react-redux';
 
 export default function Register() {
-  const [fullName, setFullName] = useState('');
+  const [fullname, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const {isLoading, registerUser} = useAuthApi()
   const [errors, setErrors] = useState({
-    fullName: '',
+    fullname: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -35,18 +35,18 @@ export default function Register() {
 
   const validateForm = () => {
     const newErrors = {
-      fullName: '',
+      fullname: '',
       email: '',
       password: '',
       confirmPassword: '',
     };
     let isValid = true;
 
-    if (!fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+    if (!fullname.trim()) {
+      newErrors.fullname = 'Full name is required';
       isValid = false;
-    } else if (fullName.trim().length < 3) {
-      newErrors.fullName = 'Full name must be at least 3 characters';
+    } else if (fullname.trim().length < 3) {
+      newErrors.fullname = 'Full name must be at least 3 characters';
       isValid = false;
     }
 
@@ -81,32 +81,10 @@ export default function Register() {
   const handleRegister = async () => {
     if (!validateForm()) return;
 
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      console.log('Register attempt:', { fullName, email, password });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // For demo purposes, simulate registration success
-      const token = `token_${Date.now()}_${Math.random()}`;
-
-      // Store token and user info
-      await SecureStore.setItemAsync('authToken', token);
-      await SecureStore.setItemAsync('userEmail', email);
-      await SecureStore.setItemAsync('userName', fullName);
-
+    const isRegistered = await registerUser({ fullname, email, password });
+    if (isRegistered) {
       dispatch(setAuthorizationStatus(true));
       router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Register error:', error);
-      setErrors({
-        ...errors,
-        email: 'Registration failed. Please try again.',
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -131,12 +109,12 @@ export default function Register() {
             <LabelTextInput
               label="Full Name"
               placeholder="John Doe"
-              value={fullName}
+              value={fullname}
               onChangeText={(text) => {
                 setFullName(text);
-                if (errors.fullName) setErrors({ ...errors, fullName: '' });
+                if (errors.fullname) setErrors({ ...errors, fullname: '' });
               }}
-              error={errors.fullName}
+              error={errors.fullname}
               autoCapitalize="words"
             />
 
@@ -184,8 +162,8 @@ export default function Register() {
             <PrimaryButton
               text="Create Account"
               onPress={handleRegister}
-              isLoading={loading}
-              disabled={loading}
+              isLoading={isLoading}
+              disabled={isLoading}
             />
           </View>
 

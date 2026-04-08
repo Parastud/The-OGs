@@ -2,7 +2,7 @@ import PrimaryButton from '@/src/components/buttons/PrimaryButton';
 import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
-import { removeTokensFromSecureStore } from '@/src/utils/localStorageKey';
+import { removeTokenFromSecureStore } from '@/src/utils/localStorageKey';
 import { useRouter } from 'expo-router';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -13,7 +13,7 @@ export default function HomeTab() {
 
   const handleLogout = async () => {
     try {
-      await removeTokensFromSecureStore();
+      await removeTokenFromSecureStore();
       dispatch(setAuthorizationStatus(false));
       router.replace('/(auth)/Login');
     } catch (error) {

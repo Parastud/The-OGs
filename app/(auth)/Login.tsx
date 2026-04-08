@@ -1,11 +1,10 @@
 import PrimaryButton from '@/src/components/buttons/PrimaryButton';
 import LabelTextInput from '@/src/components/inputs/LabelTextInput';
+import useAuthApi from '@/src/hooks/apiHooks/useAuthApi';
 import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
-import { saveTokensToSecureStore } from '@/src/utils/localStorageKey';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -20,13 +19,12 @@ import {
 import { useDispatch } from 'react-redux';
 
 export default function Login() {
-  console.log('Rendering Login Screen');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
   const router = useRouter();
   const dispatch = useDispatch();
+  const { loginUser, isLoading } = useAuthApi()
 
   const validateForm = () => {
     const newErrors = { email: '', password: '' };
@@ -54,33 +52,10 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      console.log('Login attempt:', { email, password });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // For demo purposes, accept any valid email/password
-      // In production, this would be an actual API call
-      const token = `token_${Date.now()}_${Math.random()}`;
-
-      // Store token
-      await saveTokensToSecureStore(token);
-      await SecureStore.setItemAsync('userEmail', email);
-
+    const isLogin = await loginUser({ email, password });
+    if (isLogin) {
       dispatch(setAuthorizationStatus(true));
       router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrors({
-        ...errors,
-        password: 'Login failed. Please try again.',
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -138,8 +113,8 @@ export default function Login() {
             <PrimaryButton
               text="Sign In"
               onPress={handleLogin}
-              isLoading={loading}
-              disabled={loading}
+              isLoading={isLoading}
+              disabled={isLoading}
             />
           </View>
 

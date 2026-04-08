@@ -49,3 +49,4 @@ local.properties
 .cxx/
 .kotlin/
 
+app.env.ts
