@@ -1,24 +1,20 @@
 import React, { useCallback, useState } from 'react';
 import {
+  RefreshControl,
   StatusBar,
+  StatusBarStyle,
   StyleSheet,
   View,
-  ViewStyle,
-  StatusBarStyle,
-  ImageBackground,
-  Platform,
-  RefreshControl,
+  ViewStyle
 } from 'react-native';
 import {
   KeyboardAwareScrollView,
   KeyboardAwareScrollViewProps,
 } from 'react-native-keyboard-aware-scroll-view';
-import { COLORS } from '../../theme/colors';
-import { IMAGES } from '../../theme/images';
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+  useSafeAreaInsets
 } from 'react-native-safe-area-context';
+import { COLORS } from '../../theme/colors';
 
 interface Props {
   children: React.ReactNode;

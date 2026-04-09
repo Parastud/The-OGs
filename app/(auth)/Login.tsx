@@ -1,21 +1,13 @@
 import PrimaryButton from '@/src/components/buttons/PrimaryButton';
 import LabelTextInput from '@/src/components/inputs/LabelTextInput';
+import { ScreenWrapper } from '@/src/components/wrapper';
 import useAuthApi from '@/src/hooks/apiHooks/useAuthApi';
 import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 export default function Login() {
@@ -24,7 +16,7 @@ export default function Login() {
   const [errors, setErrors] = useState({ email: '', password: '' });
   const router = useRouter();
   const dispatch = useDispatch();
-  const { loginUser, isLoading } = useAuthApi()
+  const { loginUser, isLoading } = useAuthApi();
 
   const validateForm = () => {
     const newErrors = { email: '', password: '' };
@@ -60,84 +52,71 @@ export default function Login() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to your account</Text>
-          </View>
+    <ScreenWrapper
+      contentContainerStyle={styles.scrollContent}
+      safeArea
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>Sign in to your account</Text>
+      </View>
 
-          {/* Form */}
-          <View style={styles.form}>
-            <LabelTextInput
-              label="Email"
-              placeholder="your@email.com"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (errors.email) setErrors({ ...errors, email: '' });
-              }}
-              keyboardType="email-address"
-              error={errors.email}
-              autoCapitalize="none"
-            />
+      {/* Form */}
+      <View style={styles.form}>
+        <LabelTextInput
+          label="Email"
+          placeholder="your@email.com"
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (errors.email) setErrors({ ...errors, email: '' });
+          }}
+          keyboardType="email-address"
+          error={errors.email}
+          autoCapitalize="none"
+        />
 
-            <LabelTextInput
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (errors.password) setErrors({ ...errors, password: '' });
-              }}
-              variant="password"
-              error={errors.password}
-            />
+        <LabelTextInput
+          label="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (errors.password) setErrors({ ...errors, password: '' });
+          }}
+          variant="password"
+          error={errors.password}
+        />
 
-            {/* Forgot Password Link */}
-            <TouchableOpacity style={styles.forgotPasswordContainer}>
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-            </TouchableOpacity>
-          </View>
+        <TouchableOpacity style={styles.forgotPasswordContainer}>
+          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+        </TouchableOpacity>
+      </View>
 
-          {/* Login Button */}
-          <View style={styles.buttonContainer}>
-            <PrimaryButton
-              text="Sign In"
-              onPress={handleLogin}
-              isLoading={isLoading}
-              disabled={isLoading}
-            />
-          </View>
+      {/* Login Button */}
+      <View style={styles.buttonContainer}>
+        <PrimaryButton
+          text="Sign In"
+          onPress={handleLogin}
+          isLoading={isLoading}
+          disabled={isLoading}
+        />
+      </View>
 
-          {/* Sign Up Link */}
-          <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => router.replace('/(auth)/Register')}>
-              <Text style={styles.signupLink}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      {/* Sign Up Link */}
+      <View style={styles.signupContainer}>
+        <Text style={styles.signupText}>Don't have an account? </Text>
+        <TouchableOpacity onPress={() => router.replace('/(auth)/Register')}>
+          <Text style={styles.signupLink}>Sign Up</Text>
+        </TouchableOpacity>
+      </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.appBackground,
-  },
   scrollContent: {
-    flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 20,
     justifyContent: 'space-between',
