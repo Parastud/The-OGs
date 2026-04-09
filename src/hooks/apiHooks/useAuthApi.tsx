@@ -1,6 +1,6 @@
 import { showSnackbarError, showSnackbarSuccess } from '@/src/redux/slices/snackbar.slice';
 import { setUser } from '@/src/redux/slices/user.slice';
-import { loginUserService, registerUserService } from '@/src/services/authServices';
+import { loginUserService, registerUserService } from '@/src/services';
 import { LoginUser, RegisterUser } from '@/src/types/auth.types';
 import { saveTokenToSecureStore } from '@/src/utils/localStorageKey';
 import { getErrorMessage } from '@/src/utils/utils';

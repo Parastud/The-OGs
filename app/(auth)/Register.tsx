@@ -1,21 +1,13 @@
 import PrimaryButton from '@/src/components/buttons/PrimaryButton';
 import LabelTextInput from '@/src/components/inputs/LabelTextInput';
+import { ScreenWrapper } from '@/src/components/wrapper';
 import useAuthApi from '@/src/hooks/apiHooks/useAuthApi';
 import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 export default function Register() {
@@ -23,7 +15,7 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const {isLoading, registerUser} = useAuthApi()
+  const { isLoading, registerUser } = useAuthApi();
   const [errors, setErrors] = useState({
     fullname: '',
     email: '',
@@ -34,12 +26,7 @@ export default function Register() {
   const dispatch = useDispatch();
 
   const validateForm = () => {
-    const newErrors = {
-      fullname: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    };
+    const newErrors = { fullname: '', email: '', password: '', confirmPassword: '' };
     let isValid = true;
 
     if (!fullname.trim()) {
@@ -80,7 +67,6 @@ export default function Register() {
 
   const handleRegister = async () => {
     if (!validateForm()) return;
-
     const isRegistered = await registerUser({ fullname, email, password });
     if (isRegistered) {
       dispatch(setAuthorizationStatus(true));
@@ -89,104 +75,91 @@ export default function Register() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join us to get started</Text>
-          </View>
+    <ScreenWrapper
+      contentContainerStyle={styles.scrollContent}
+      safeArea
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Join us to get started</Text>
+      </View>
 
-          {/* Form */}
-          <View style={styles.form}>
-            <LabelTextInput
-              label="Full Name"
-              placeholder="John Doe"
-              value={fullname}
-              onChangeText={(text) => {
-                setFullName(text);
-                if (errors.fullname) setErrors({ ...errors, fullname: '' });
-              }}
-              error={errors.fullname}
-              autoCapitalize="words"
-            />
+      {/* Form */}
+      <View style={styles.form}>
+        <LabelTextInput
+          label="Full Name"
+          placeholder="John Doe"
+          value={fullname}
+          onChangeText={(text) => {
+            setFullName(text);
+            if (errors.fullname) setErrors({ ...errors, fullname: '' });
+          }}
+          error={errors.fullname}
+          autoCapitalize="words"
+        />
 
-            <LabelTextInput
-              label="Email"
-              placeholder="your@email.com"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (errors.email) setErrors({ ...errors, email: '' });
-              }}
-              keyboardType="email-address"
-              error={errors.email}
-              autoCapitalize="none"
-            />
+        <LabelTextInput
+          label="Email"
+          placeholder="your@email.com"
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (errors.email) setErrors({ ...errors, email: '' });
+          }}
+          keyboardType="email-address"
+          error={errors.email}
+          autoCapitalize="none"
+        />
 
-            <LabelTextInput
-              label="Password"
-              placeholder="Create a password"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (errors.password) setErrors({ ...errors, password: '' });
-              }}
-              variant="password"
-              error={errors.password}
-            />
+        <LabelTextInput
+          label="Password"
+          placeholder="Create a password"
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (errors.password) setErrors({ ...errors, password: '' });
+          }}
+          variant="password"
+          error={errors.password}
+        />
 
-            <LabelTextInput
-              label="Confirm Password"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChangeText={(text) => {
-                setConfirmPassword(text);
-                if (errors.confirmPassword)
-                  setErrors({ ...errors, confirmPassword: '' });
-              }}
-              variant="password"
-              error={errors.confirmPassword}
-            />
-          </View>
+        <LabelTextInput
+          label="Confirm Password"
+          placeholder="Confirm your password"
+          value={confirmPassword}
+          onChangeText={(text) => {
+            setConfirmPassword(text);
+            if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
+          }}
+          variant="password"
+          error={errors.confirmPassword}
+        />
+      </View>
 
-          {/* Register Button */}
-          <View style={styles.buttonContainer}>
-            <PrimaryButton
-              text="Create Account"
-              onPress={handleRegister}
-              isLoading={isLoading}
-              disabled={isLoading}
-            />
-          </View>
+      {/* Register Button */}
+      <View style={styles.buttonContainer}>
+        <PrimaryButton
+          text="Create Account"
+          onPress={handleRegister}
+          isLoading={isLoading}
+          disabled={isLoading}
+        />
+      </View>
 
-          {/* Sign In Link */}
-          <View style={styles.signinContainer}>
-            <Text style={styles.signinText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.replace('/(auth)/Login')}>
-              <Text style={styles.signinLink}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      {/* Sign In Link */}
+      <View style={styles.signinContainer}>
+        <Text style={styles.signinText}>Already have an account? </Text>
+        <TouchableOpacity onPress={() => router.replace('/(auth)/Login')}>
+          <Text style={styles.signinLink}>Sign In</Text>
+        </TouchableOpacity>
+      </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.appBackground,
-  },
   scrollContent: {
-    flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 20,
     justifyContent: 'space-between',

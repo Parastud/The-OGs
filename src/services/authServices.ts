@@ -1,5 +1,5 @@
-import api from '.';
 import { LoginUser, RegisterUser } from '../types/auth.types';
+import api from './api';
 
 
 export const loginUserService = async (payload: LoginUser) => {
