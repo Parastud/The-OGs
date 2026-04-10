@@ -48,5 +48,3 @@ local.properties
 *.hprof
 .cxx/
 .kotlin/
-
-app.env.ts

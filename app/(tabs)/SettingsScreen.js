@@ -2,24 +2,22 @@ import { removeTokenFromSecureStore } from '@/src/utils/localStorageKey';
 import { router } from 'expo-router';
 import { useContext } from 'react';
 import {
-    Alert,
-    Linking,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  Linking,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSelector } from 'react-redux';
+import { ACCOUNT_DELETION_URL, PRIVACY_POLICY_URL } from '../../app.env';
 import { GlobalState } from '../../src/state';
 
 const SettingsScreen = () => {
   const { fullname } = useSelector(state => state.user);
   const value = useContext(GlobalState);
   const dark = value.isDarkMode;
-
-  const PRIVACY_POLICY_URL = "https://google.com";
-  const ACCOUNT_DELETION_URL = "https://google.com";
 
   const openPrivacyPolicy = () => Linking.openURL(PRIVACY_POLICY_URL);
   const openAccountDeletion = () => Linking.openURL(ACCOUNT_DELETION_URL);
