@@ -1,20 +1,16 @@
 import { showSnackbarError, showSnackbarSuccess } from '@/src/redux/slices/snackbar.slice';
 import { setUser } from '@/src/redux/slices/user.slice';
 import { loginUserService, registerUserService } from '@/src/services';
-import { getTodoService } from '@/src/services/todoServices';
 import { LoginUser, RegisterUser } from '@/src/types/auth.types';
 import { saveTokenToSecureStore } from '@/src/utils/localStorageKey';
 import { getErrorMessage } from '@/src/utils/utils';
 import { useState } from 'react';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { useDispatch } from 'react-redux';
 
 interface useAuthApiReturnType {
   isLoading: boolean;
-  getTodos: (payload: LoginUser) => any;
-  createTodos: (payload: RegisterUser) => any;
-  deleteTodo: (id:string) => any;
-  toggleTodo: (id:string) => any;
+  loginUser: (payload: LoginUser) => any;
+  registerUser: (payload: RegisterUser) => any;
 }
 
 export default function useAuthApi(): useAuthApiReturnType {
@@ -22,12 +18,13 @@ export default function useAuthApi(): useAuthApiReturnType {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const getTodos = async () => {
+  const loginUser = async (payload: LoginUser) => {
     setIsLoading(true);
     try {
-      const { message, token, user, success } = await getTodoService();
+      const { message, token, user, success } = await loginUserService(payload);
       if (success) {
         await saveTokenToSecureStore(token);
+        dispatch(setUser({ fullname: user.fullname, email: user.email }));
         dispatch(showSnackbarSuccess({ message }));
         return true
       }

@@ -1,197 +1,64 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useContext, useState } from 'react';
-import { Alert, ScrollView, StatusBar, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { useContext } from 'react';
+import { Linking, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { GlobalState } from '../../src/state';
 
 const SettingsScreen = () => {
+  const { fullname } = useSelector(state => state.user);
   const value = useContext(GlobalState);
-  const [notificationEnabled, setNotificationEnabled] = useState(false);
-  const [reminderTime, setReminderTime] = useState(null);
+  const dark = value.isDarkMode;
 
-  // Handle dark mode toggle
-  const toggleDarkMode = async () => {
-    const newMode = !value.isDarkMode;
-    value.setIsDarkMode(newMode);
-    await AsyncStorage.setItem('darkMode', newMode.toString());
-  };
-
-
-
-
-
-
-
-
-  // Clear all tasks
-  const clearAllTasks = () => {
-    Alert.alert(
-      "Clear All Tasks",
-      "Are you sure you want to delete all tasks? This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Delete",
-          onPress: async () => {
-            value.setTasks([]);
-            await AsyncStorage.setItem('tasks', JSON.stringify([]));
-          },
-          style: "destructive"
-        }
-      ]
-    );
-  };
+  const openPrivacyPolicy = () => Linking.openURL(PRIVACY_POLICY_URL);
+  const openAccountDeletion = () => Linking.openURL(ACCOUNT_DELETION_URL);
 
   return (
-    <View style={[styles.container, { backgroundColor: value.isDarkMode ? '#232931' : '#EEEEEE' }]}>
-      <StatusBar 
-        barStyle={value.isDarkMode ? "light-content" : "dark-content"} 
-        backgroundColor={value.isDarkMode ? '#232931' : '#EEEEEE'}
+    <View style={[styles.container, { backgroundColor: dark ? '#0F1117' : '#F2F3F7' }]}>
+      <StatusBar
+        barStyle={dark ? 'light-content' : 'dark-content'}
+        backgroundColor={dark ? '#0F1117' : '#F2F3F7'}
       />
-      
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* App Appearance Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-            Appearance
+
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={[styles.avatar, { backgroundColor: dark ? '#1E2736' : '#DCE0F0' }]}>
+          <Text style={[styles.avatarText, { color: dark ? '#7B9CFF' : '#3D5AFE' }]}>
+            {(fullname || 'User').charAt(0).toUpperCase()}
           </Text>
-          
-          <View style={[styles.card, { backgroundColor: value.isDarkMode ? '#393E46' : 'white' }]}>
-            <View style={styles.settingItem}>
-              <View style={styles.settingInfo}>
-                <MaterialIcons 
-                  name="dark-mode" 
-                  size={22} 
-                  color={value.isDarkMode ? '#4ECCA3' : '#4ECCA3'} 
-                  style={styles.settingIcon} 
-                />
-                <Text style={[styles.settingText, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-                  Dark Mode
-                </Text>
-              </View>
-              <Switch
-                value={value.isDarkMode}
-                onValueChange={toggleDarkMode}
-                trackColor={{ false: '#767577', true: '#4ECCA3' }}
-                thumbColor={'#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-              />
-            </View>
-          </View>
         </View>
-        
-        {/* Notifications Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-            Notifications
-          </Text>
-          
-          <View style={[styles.card, { backgroundColor: value.isDarkMode ? '#393E46' : 'white' }]}>
-            <View style={styles.settingItem}>
-              <View style={styles.settingInfo}>
-                <Ionicons 
-                  name="notifications-outline" 
-                  size={22} 
-                  color={value.isDarkMode ? '#4ECCA3' : '#4ECCA3'} 
-                  style={styles.settingIcon} 
-                />
-                <Text style={[styles.settingText, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-                  Task Reminders
-                </Text>
-              </View>
-              <Switch
-                value={notificationEnabled}
-                onValueChange={toggleNotifications}
-                trackColor={{ false: '#767577', true: '#4ECCA3' }}
-                thumbColor={'#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-              />
-            </View>
-            
-            {notificationEnabled && (
-              <TouchableOpacity 
-                style={styles.settingSubItem} 
-                onPress={showReminderTimeOptions}
-              >
-                <View style={styles.settingInfo}>
-                  <Ionicons 
-                    name="time-outline" 
-                    size={22} 
-                    color={value.isDarkMode ? '#4ECCA3' : '#4ECCA3'} 
-                    style={[styles.settingIcon, { marginLeft: 30 }]} 
-                  />
-                  <Text style={[styles.settingSubText, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-                    Reminder Time
-                  </Text>
-                </View>
-                <View style={styles.settingRight}>
-                  <Text style={[styles.settingValue, { color: value.isDarkMode ? '#AAAAAA' : '#777777' }]}>
-                    {formatReminderTime(reminderTime)}
-                  </Text>
-                  <MaterialIcons 
-                    name="chevron-right" 
-                    size={20} 
-                    color={value.isDarkMode ? '#AAAAAA' : '#777777'} 
-                  />
-                </View>
-              </TouchableOpacity>
-            )}
+        <Text style={[styles.fullname, { color: dark ? '#EAEAEA' : '#1A1A2E' }]}>
+          {fullname || 'User'}
+        </Text>
+        <Text style={[styles.subtitle, { color: dark ? '#6B7280' : '#9CA3AF' }]}>
+          Manage your account
+        </Text>
+      </View>
+
+      {/* Account Section */}
+      <Text style={[styles.sectionLabel, { color: dark ? '#4B5563' : '#9CA3AF' }]}>ACCOUNT</Text>
+      <View style={[styles.card, { backgroundColor: dark ? '#1A1F2E' : '#FFFFFF' }]}>
+        <TouchableOpacity style={styles.row} onPress={openPrivacyPolicy} activeOpacity={0.7}>
+          <View style={[styles.iconWrap, { backgroundColor: dark ? '#1C2D4A' : '#EEF2FF' }]}>
+            <Text style={styles.icon}>🔒</Text>
           </View>
-        </View>
-        
-        {/* Data Management Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-            Data Management
-          </Text>
-          
-          <View style={[styles.card, { backgroundColor: value.isDarkMode ? '#393E46' : 'white' }]}>
-            <TouchableOpacity style={styles.settingItem} onPress={clearAllTasks}>
-              <View style={styles.settingInfo}>
-                <MaterialIcons 
-                  name="delete-outline" 
-                  size={22} 
-                  color="#F44336" 
-                  style={styles.settingIcon} 
-                />
-                <Text style={[styles.settingText, { color: '#F44336' }]}>
-                  Clear All Tasks
-                </Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={20} color={value.isDarkMode ? '#AAAAAA' : '#777777'} />
-            </TouchableOpacity>
+          <Text style={[styles.rowLabel, { color: dark ? '#E5E7EB' : '#1F2937' }]}>Privacy Policy</Text>
+          <Text style={[styles.chevron, { color: dark ? '#374151' : '#D1D5DB' }]}>›</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Danger Section */}
+      <Text style={[styles.sectionLabel, { color: dark ? '#4B5563' : '#9CA3AF' }]}>DANGER ZONE</Text>
+      <View style={[styles.card, { backgroundColor: dark ? '#1A1F2E' : '#FFFFFF' }]}>
+        <TouchableOpacity style={styles.row} onPress={openAccountDeletion} activeOpacity={0.7}>
+          <View style={[styles.iconWrap, { backgroundColor: dark ? '#2A1515' : '#FEF2F2' }]}>
+            <Text style={styles.icon}>🗑️</Text>
           </View>
-        </View>
-        
-        {/* About Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-            About
-          </Text>
-          
-          <View style={[styles.card, { backgroundColor: value.isDarkMode ? '#393E46' : 'white' }]}>
-            <View style={styles.settingItem}>
-              <View style={styles.settingInfo}>
-                <MaterialIcons 
-                  name="info-outline" 
-                  size={22} 
-                  color={value.isDarkMode ? '#4ECCA3' : '#4ECCA3'} 
-                  style={styles.settingIcon} 
-                />
-                <Text style={[styles.settingText, { color: value.isDarkMode ? '#EEEEEE' : '#393E46' }]}>
-                  Version
-                </Text>
-              </View>
-              <Text style={[styles.settingValue, { color: value.isDarkMode ? '#AAAAAA' : '#777777' }]}>
-                1.0.0
-              </Text>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+          <Text style={[styles.rowLabel, { color: '#EF4444' }]}>Delete Account</Text>
+          <Text style={[styles.chevron, { color: dark ? '#374151' : '#D1D5DB' }]}>›</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Version */}
+      <Text style={[styles.version, { color: dark ? '#374151' : '#D1D5DB' }]}>Version 1.0.0</Text>
     </View>
   );
 };
@@ -201,66 +68,94 @@ export default SettingsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 20,
   },
-  section: {
-    marginBottom: 24,
+
+  header: {
+    alignItems: 'center',
+    marginTop: 60,
+    marginBottom: 36,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 12,
+  },
+
+  avatarText: {
+    fontSize: 28,
+    fontWeight: '600',
+  },
+
+  fullname: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+
+  subtitle: {
+    fontSize: 13,
+  },
+
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginBottom: 8,
     marginLeft: 4,
   },
+
   card: {
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    marginBottom: 24,
   },
-  settingItem: {
+
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(150, 150, 150, 0.2)',
+    gap: 12,
   },
-  settingSubItem: {
-    flexDirection: 'row',
+
+  iconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    justifyContent: 'center',
   },
-  settingInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingIcon: {
-    marginRight: 12,
-  },
-  settingText: {
+
+  icon: {
     fontSize: 16,
-    fontWeight: '500',
   },
-  settingSubText: {
-    fontSize: 14,
+
+  rowLabel: {
+    flex: 1,
+    fontSize: 15,
     fontWeight: '400',
   },
-  settingRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+
+  chevron: {
+    fontSize: 22,
+    fontWeight: '300',
+    lineHeight: 24,
   },
-  settingValue: {
-    fontSize: 14,
-    marginRight: 4,
+
+  divider: {
+    height: 0.5,
+    marginHorizontal: 16,
   },
-}); 
+
+  version: {
+    textAlign: 'center',
+    fontSize: 12,
+    marginTop: 'auto',
+    paddingBottom: 32,
+  },
+});

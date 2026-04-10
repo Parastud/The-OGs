@@ -33,7 +33,7 @@ export default function RootLayout() {
             name="index"
             options={{
               drawerLabel: 'Home',
-              title: 'Planzo',
+              title: 'The OGs',
               href: null,
               headerRight: () => (
                 <View style={{ flexDirection: 'row' }}>
@@ -56,7 +56,7 @@ export default function RootLayout() {
             name="homeScreen"
             options={{
               drawerLabel: 'Home',
-              title: 'Planzo',
+              title: 'The OGs',
               headerRight: () => (
                 <View style={{ flexDirection: 'row' }}>
                   <TouchableOpacity
