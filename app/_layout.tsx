@@ -45,7 +45,6 @@ function AppContent() {
         {message}
       </Snackbar>
 
-      <EnvFlag />
     </PaperProvider>
   );
 }
