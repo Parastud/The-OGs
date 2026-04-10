@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.theogs.app"
+      "package": "com.the_ogs.app"
     },
     "web": {
       "output": "static",
