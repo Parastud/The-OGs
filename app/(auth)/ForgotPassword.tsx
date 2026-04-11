@@ -16,6 +16,7 @@ export default function ForgotPassword() {
   const { requestOtp, verifyOtp, isLoading } = useAuthApi();
 
   const [step, setStep] = useState<1 | 2>(1);
+  const [debugOtp, setDebugOtp] = useState('');
   const [email, setEmail] = useState(params?.email ? String(params.email) : '');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
@@ -40,15 +41,16 @@ export default function ForgotPassword() {
     const next = { ...errors };
     let valid = true;
     if (otp.length < 4) { next.otp = 'Enter the 4-digit OTP'; valid = false; }
-    if (password.length < 6) { next.password = 'Min. 6 characters'; valid = false; }
+    if (password.length < 8) { next.password = 'Min. 8 characters'; valid = false; }
     setErrors(next);
     return valid;
   };
 
   const handleRequestOtp = async () => {
     if (!validateStep1()) return;
-    const ok = await requestOtp({ email });
-    if (ok) { setOtp(''); setStep(2); }
+    const {success, debugOtp} = await requestOtp({ email });
+    setDebugOtp(debugOtp);
+    if (success) { setOtp(''); setStep(2); }
   };
 
   const handleVerifyOtp = async () => {
@@ -120,7 +122,8 @@ export default function ForgotPassword() {
           <>
             {/* OTP label + boxes */}
             <View style={styles.otpBlock}>
-              <Text style={styles.inputLabel}>OTP CODE</Text>
+              <Text style={styles.inputLabel}>OTP CODE</Text> 
+              <Text style={{color: COLORS.textSecondary, fontSize: 12}}>Debug OTP: {debugOtp}</Text>
               <OtpInput
                 value={otp}
                 onChange={(val) => { setOtp(val); clearError('otp'); }}
@@ -133,7 +136,7 @@ export default function ForgotPassword() {
 
             <LabelTextInput
               label="New password"
-              placeholder="Min. 6 characters"
+              placeholder="Min. 8 characters"
               value={password}
               onChangeText={(t) => { setPassword(t); clearError('password'); }}
               variant="password"

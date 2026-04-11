@@ -60,10 +60,10 @@ export default function useAuthApi(): useAuthApiReturnType {
   const requestOtp = async (payload: { email: string }) => {
     setIsLoading(true);
     try {
-      const { message, success } = await requestOtpService(payload);
+      const { message, success, debugOtp } = await requestOtpService(payload);
       if (success) {
         dispatch(showSnackbarSuccess({ message }));
-        return true
+        return { success, debugOtp }
       }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
