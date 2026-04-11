@@ -20,6 +20,12 @@ export default function AuthLayout() {
           title: 'Register',
         }}
       />
+      <Stack.Screen
+        name="ForgotPassword"
+        options={{
+          title: 'Forgot Password',
+        }}
+      />
     </Stack>
   );
 }

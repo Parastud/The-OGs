@@ -89,7 +89,13 @@ export default function Login() {
           error={errors.password}
         />
 
-        <TouchableOpacity style={styles.forgotPasswordContainer}>
+        <TouchableOpacity style={styles.forgotPasswordContainer}
+          onPress={
+            () => router.push({
+              pathname: "/(auth)/ForgotPassword",
+              params: { email }
+            })}
+        >
           <Text style={styles.forgotPasswordText}>Forgot password?</Text>
         </TouchableOpacity>
       </View>
@@ -111,7 +117,7 @@ export default function Login() {
           <Text style={styles.signupLink}>Sign Up</Text>
         </TouchableOpacity>
       </View>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 

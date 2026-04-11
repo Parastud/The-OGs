@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "The-OGs",
+    "name": "The OGs",
     "slug": "The-OGs",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -23,28 +23,9 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.theogs.app"
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "package": "com.the_ogs.app"
     },
     "plugins": [
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          },
-          "ios": {
-            "infoPlist": {
-              "NSAppTransportSecurity": {
-                "NSAllowsArbitraryLoads": true
-              }
-            }
-          }
-        }
-      ],
       "expo-router",
       [
         "expo-font",
