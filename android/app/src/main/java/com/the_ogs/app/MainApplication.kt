@@ -1,4 +1,4 @@
-package com.theogs.app
+package com.the_ogs.app
 import com.facebook.react.common.assets.ReactFontManager
 
 import android.app.Application

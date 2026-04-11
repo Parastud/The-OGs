@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "The-OGs",
+    "name": "The OGs",
     "slug": "The-OGs",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -30,21 +30,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          },
-          "ios": {
-            "infoPlist": {
-              "NSAppTransportSecurity": {
-                "NSAllowsArbitraryLoads": true
-              }
-            }
-          }
-        }
-      ],
       "expo-router",
       [
         "expo-font",

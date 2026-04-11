@@ -27,7 +27,7 @@ export default function index() {
 
     const splashTimeout = setTimeout(() => {
       setSplashVisible(false);
-    }, 5000);
+    }, 2000);
 
     return () => clearTimeout(splashTimeout);
   }, []);

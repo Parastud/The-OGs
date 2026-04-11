@@ -1,4 +1,4 @@
-package com.theogs.app
+package com.the_ogs.app
 
 import android.os.Build
 import android.os.Bundle
