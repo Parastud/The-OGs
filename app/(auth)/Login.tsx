@@ -2,174 +2,95 @@ import PrimaryButton from '@/src/components/buttons/PrimaryButton';
 import LabelTextInput from '@/src/components/inputs/LabelTextInput';
 import { ScreenWrapper } from '@/src/components/wrapper';
 import useAuthApi from '@/src/hooks/apiHooks/useAuthApi';
-import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { StyleSheet, Text, View } from 'react-native';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({ email: '', password: '' });
+export default function PhoneLogin() {
+
   const router = useRouter();
-  const dispatch = useDispatch();
-  const { loginUser, isLoading } = useAuthApi();
+  const { requestOtp, isLoading } = useAuthApi();
 
-  const validateForm = () => {
-    const newErrors = { email: '', password: '' };
-    let isValid = true;
+  const [phone, setPhone] = useState('');
 
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
-      isValid = false;
+  const handleSendOtp = async () => {
+
+    if (phone.length < 10) {
+      return;
     }
 
-    if (!password) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-      isValid = false;
-    }
+    const response = await requestOtp({ phone });
 
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleLogin = async () => {
-    if (!validateForm()) return;
-    const isLogin = await loginUser({ email, password });
-    if (isLogin) {
-      dispatch(setAuthorizationStatus(true));
-      router.replace('/(tabs)');
+    if (response?.success) {
+      router.push({
+        pathname: "/(auth)/VerifyOTP",
+        params: { phone, debugOtp: response.debugOtp }
+      });
     }
   };
 
   return (
-    <ScreenWrapper
-      contentContainerStyle={styles.scrollContent}
-      safeArea
-    >
-      {/* Header */}
+    <ScreenWrapper contentContainerStyle={styles.container} safeArea>
+
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
+        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.subtitle}>
+          Enter your phone number to continue
+        </Text>
       </View>
 
-      {/* Form */}
-      <View style={styles.form}>
-        <LabelTextInput
-          label="Email"
-          placeholder="your@email.com"
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            if (errors.email) setErrors({ ...errors, email: '' });
-          }}
-          keyboardType="email-address"
-          error={errors.email}
-          autoCapitalize="none"
-        />
+      <View style={styles.formCard}>
 
         <LabelTextInput
-          label="Password"
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            if (errors.password) setErrors({ ...errors, password: '' });
-          }}
-          variant="password"
-          error={errors.password}
+          label="Phone Number"
+          placeholder="Enter phone number"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
         />
 
-        <TouchableOpacity style={styles.forgotPasswordContainer}
-          onPress={
-            () => router.push({
-              pathname: "/(auth)/ForgotPassword",
-              params: { email }
-            })}
-        >
-          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Login Button */}
-      <View style={styles.buttonContainer}>
         <PrimaryButton
-          text="Sign In"
-          onPress={handleLogin}
+          text="Send OTP"
+          onPress={handleSendOtp}
           isLoading={isLoading}
-          disabled={isLoading}
+          disabled={phone.length < 10}
         />
+
       </View>
 
-      {/* Sign Up Link */}
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.replace('/(auth)/Register')}>
-          <Text style={styles.signupLink}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    justifyContent: 'space-between',
+
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "center"
   },
+
   header: {
-    marginVertical: 30,
+    marginBottom: 30
   },
+
   title: {
-    fontFamily: FONTS.BOLD,
     fontSize: 28,
-    color: COLORS.textPrimary,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-  form: {
-    gap: 16,
-    marginVertical: 20,
-  },
-  forgotPasswordContainer: {
-    alignSelf: 'flex-end',
-    marginTop: 8,
-  },
-  forgotPasswordText: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 13,
-    color: COLORS.primary,
-  },
-  buttonContainer: {
-    marginVertical: 20,
-  },
-  signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingBottom: 20,
-  },
-  signupText: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  signupLink: {
     fontFamily: FONTS.BOLD,
-    fontSize: 13,
-    color: COLORS.primary,
+    color: COLORS.textPrimary
   },
+
+  subtitle: {
+    fontSize: 14,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+    marginTop: 6
+  },
+
+  formCard: {
+    gap: 18
+  }
+
 });
