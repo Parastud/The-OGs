@@ -2,7 +2,6 @@
 import PrimaryButton from "@/src/components/buttons/PrimaryButton";
 import { ScreenWrapper } from "@/src/components/wrapper";
 import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
-import { showSnackbarSuccess } from "@/src/redux/slices/snackbar.slice";
 import { UserState } from "@/src/redux/slices/user.slice";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
@@ -373,7 +372,7 @@ export default function Login() {
     }
     const isSuccess = await verifyOtp({ phone: phone.trim(), otp: otp.trim() });
     if (isSuccess) {
-      router.replace("/(tabs)");
+      router.replace("/Provider/dashboard");
     } else {
       setErrors({ ...errors, otp: "Incorrect OTP. Please try again." });
     }

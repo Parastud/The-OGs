@@ -417,7 +417,7 @@ export default function Register() {
     if (role === "provider") {
       router.replace("/Provider/Step1");
     } else {
-      router.replace("/(tabs)");
+      router.replace("/Provider");
     }
   };
 

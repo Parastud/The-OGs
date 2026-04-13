@@ -52,7 +52,7 @@ export default function ForgotPassword() {
   const handleVerifyOtp = async () => {
     if (!validateStep2()) return;
     const ok = await verifyOtp({ phone, otp });
-    if (ok) router.replace('/(tabs)');
+    if (ok) router.replace('/Provider');
   };
 
   const handleEditPhone = () => {

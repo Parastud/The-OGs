@@ -2,16 +2,16 @@ import { FONTS } from '@/src/theme/fonts';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
-    Animated,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Animated,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const BRAND = '#3B30C4';
@@ -359,7 +359,7 @@ export default function ProviderOnboarding2() {
       Animated.timing(btnScale, { toValue: 0.95, duration: 80, useNativeDriver: true }),
       Animated.timing(btnScale, { toValue: 1, duration: 120, useNativeDriver: true }),
     ]).start(() => {
-      router.replace('/(tabs)');
+      router.replace('/Provider');
     });
   };
 

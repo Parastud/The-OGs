@@ -1,18 +1,17 @@
-import EnvFlag from "@/src/components/flags/EnvFlag";
+import { apolloClient } from "@/src/lib/apolloClient";
 import { hideSnackbar, SnackbarType } from "@/src/redux/slices/snackbar.slice";
-import { store, RootState } from "@/src/redux/store";
+import { RootState, store } from "@/src/redux/store";
+import { ApolloProvider } from "@apollo/client/react";
 import { Stack } from "expo-router";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider, Snackbar } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Provider as ReduxProvider,
   useDispatch,
   useSelector,
 } from "react-redux";
-import { ApolloProvider } from "@apollo/client/react";
-import { apolloClient } from "@/src/lib/apolloClient";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 function RootLayoutNav() {
   return (
@@ -20,7 +19,7 @@ function RootLayoutNav() {
       <Stack.Screen name="index" />
       <Stack.Screen name="Onboarding/index" />
       <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="Provider" />
     </Stack>
   );
 }
@@ -52,8 +51,6 @@ function AppContent() {
       >
         {message}
       </Snackbar>
-
-      <EnvFlag />
     </PaperProvider>
   );
 }
