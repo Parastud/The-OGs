@@ -43,7 +43,8 @@ export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [signin, { loading: signinLoading }] = useMutation<SigninResponse>(SIGNIN_MUTATION);
+  const [signin, { loading: signinLoading }] =
+    useMutation<SigninResponse>(SIGNIN_MUTATION);
   const [verifyOtp, { loading: verifyLoading }] =
     useMutation<VerifyOtpResponse>(VERIFY_OTP_MUTATION);
 
@@ -54,6 +55,7 @@ export default function Login() {
     }
     try {
       const { data } = await signin({ variables: { phone: phone.trim() } });
+      console.log(data);
       if (data?.signin?.success) {
         dispatch(showSnackbarSuccess({ message: data.signin.message }));
         if (data.signin.debugOtp) {
@@ -156,13 +158,13 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginBottom: 30
+    marginBottom: 30,
   },
 
   title: {
     fontSize: 28,
     fontFamily: FONTS.BOLD,
-    color: COLORS.textPrimary
+    color: COLORS.textPrimary,
   },
 
   subtitle: {
