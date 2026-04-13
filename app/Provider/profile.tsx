@@ -1,12 +1,14 @@
 import {
+  ActivityIndicator,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
+  Alert,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import {
@@ -23,28 +25,62 @@ import {
 import { ScreenWrapper } from "@/src/components/wrapper";
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+
+type ProviderProfile = {
+  profilePhotoUrl?: string;
+  fullname?: string;
+  location?: string;
+  skills?: string[];
+  trustScore?: number;
+  verified?: boolean;
+  rating?: number;
+  reviews?: number;
+  jobsDone?: number;
+  bio?: string;
+  availability?: {
+    availableDays?: string[];
+    preferredWorkHours?: string[];
+  };
+  portfolioPhotos?: string[];
+};
 
 export default function ProfileScreen() {
-  const { getProviderProfile, isLoading } = useProviderApi();
-  const [profileData, setProfileData] = useState<any>(null);
+  const { getProviderProfile } = useProviderApi();
+  const [profileData, setProfileData] = useState<ProviderProfile | null>(null);
+  const [isFetching, setIsFetching] = useState(true);
 
   const router = useRouter();
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const data = await getProviderProfile();
-      if (data) {
-        setProfileData(data);
-      }
-    };
+  const loadProfile = useCallback(async () => {
+    setIsFetching(true);
+    const data = await getProviderProfile();
+    if (data) {
+      setProfileData(data);
+    }
+    setIsFetching(false);
+  }, [getProviderProfile]);
 
+  useEffect(() => {
     loadProfile();
-  }, []);
+  }, [loadProfile]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile]),
+  );
+
+  const handleContactSupport = () => {
+    Alert.alert("Support", "Support chat will be available soon.");
+  };
 
   return (
     <View style={styles.container}>
-      <ScreenWrapper contentContainerStyle={styles.scrollContent}>
+      <ScreenWrapper
+        contentContainerStyle={styles.scrollContent}
+        onRefresh={loadProfile}
+      >
         <LinearGradient
           colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
           start={{ x: 0, y: 0 }}
@@ -73,131 +109,148 @@ export default function ProfileScreen() {
           </View>
         </LinearGradient>
 
-        <View style={styles.profileOverlap}>
-          <Image
-            source={{
-              uri: profileData?.profilePhotoUrl || "https://i.pravatar.cc/150",
-            }}
-            style={styles.avatar}
-          />
-          <Text style={styles.name}>
-            {profileData?.fullname || "Provider Name"}
-          </Text>
-          <Text style={styles.locationText}>
-            {profileData?.location || "Mathura, UP"}
-          </Text>
-
-          <View style={styles.skills}>
-            {profileData?.skills?.map((skill: string, idx: number) => (
-              <Text key={idx} style={styles.skill}>
-                {skill}
+        {isFetching && !profileData ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#6D5DF6" />
+            <Text style={styles.loadingText}>Loading profile...</Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.profileOverlap}>
+              <Image
+                source={{
+                  uri:
+                    profileData?.profilePhotoUrl || "https://i.pravatar.cc/150",
+                }}
+                style={styles.avatar}
+              />
+              <Text style={styles.name}>
+                {profileData?.fullname || "Provider Name"}
               </Text>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <View style={styles.trustHeader}>
-            <Star size={20} color="#F59E0B" fill="#F59E0B" />
-            <Text style={styles.trustTitle}>Trust Score</Text>
-            <Text style={styles.trustScore}>
-              {profileData?.trustScore || "92"}/100
-            </Text>
-          </View>
-
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${profileData?.trustScore || 92}%` },
-              ]}
-            />
-          </View>
-
-          <View style={styles.badgesRow}>
-            <View style={styles.badge}>
-              <Clock size={16} color="#4B5563" />
-              <Text style={styles.badgeText}>On Time</Text>
-            </View>
-            <View style={styles.badge}>
-              <CheckCircle2 size={16} color="#4B5563" />
-              <Text style={styles.badgeText}>
-                {profileData?.verified || true ? "Verified" : "Unverified"}
+              <Text style={styles.locationText}>
+                {profileData?.location || "Mathura, UP"}
               </Text>
-            </View>
-          </View>
-        </View>
 
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>
-              {profileData?.rating || "4.8"}
-            </Text>
-            <Text style={styles.statLabel}>RATING</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>
-              {profileData?.reviews || "120"}
-            </Text>
-            <Text style={styles.statLabel}>REVIEWS</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>
-              {profileData?.jobsDone || "34"}
-            </Text>
-            <Text style={styles.statLabel}>JOBS</Text>
-          </View>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>About Me</Text>
-          <Text style={styles.aboutText}>
-            {profileData?.bio ||
-              "Certified technician with professional experience in the field."}
-          </Text>
-        </View>
-
-        <View style={styles.availableCard}>
-          <CalendarCheck size={20} color="#6D5DF6" />
-          <View>
-            <Text style={styles.availableTitle}>Availability</Text>
-            <Text style={styles.availableTime}>
-              {profileData?.availability?.availableDays?.join(", ") ||
-                "Mon - Sat"}
-              {" • "}
-              {profileData?.availability?.preferredWorkHours?.join(", ") ||
-                "9 AM - 7 PM"}
-            </Text>
-          </View>
-        </View>
-
-        {profileData?.portfolioPhotos &&
-          profileData.portfolioPhotos.length > 0 && (
-            <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Portfolio</Text>
-              <View style={styles.portfolioGrid}>
-                {profileData.portfolioPhotos.map(
-                  (photo: string, idx: number) => (
-                    <Image
-                      key={idx}
-                      source={{ uri: photo }}
-                      style={styles.portfolioImage}
-                    />
-                  ),
-                )}
+              <View style={styles.skills}>
+                {profileData?.skills?.map((skill: string, idx: number) => (
+                  <Text key={`${skill}-${idx}`} style={styles.skill}>
+                    {skill}
+                  </Text>
+                ))}
               </View>
             </View>
-          )}
 
-        <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.editBtn}>
-            <Text style={styles.editBtnText}>Edit Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn}>
-            <MessageSquare size={18} color="#6D5DF6" />
-            <Text style={styles.contactBtnText}>Contact Support</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.sectionCard}>
+              <View style={styles.trustHeader}>
+                <Star size={20} color="#F59E0B" fill="#F59E0B" />
+                <Text style={styles.trustTitle}>Trust Score</Text>
+                <Text style={styles.trustScore}>
+                  {profileData?.trustScore || "92"}/100
+                </Text>
+              </View>
+
+              <View style={styles.progressTrack}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: `${profileData?.trustScore || 92}%` },
+                  ]}
+                />
+              </View>
+
+              <View style={styles.badgesRow}>
+                <View style={styles.badge}>
+                  <Clock size={16} color="#4B5563" />
+                  <Text style={styles.badgeText}>On Time</Text>
+                </View>
+                <View style={styles.badge}>
+                  <CheckCircle2 size={16} color="#4B5563" />
+                  <Text style={styles.badgeText}>
+                    {profileData?.verified || true ? "Verified" : "Unverified"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.statsRow}>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>
+                  {profileData?.rating || "4.8"}
+                </Text>
+                <Text style={styles.statLabel}>RATING</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>
+                  {profileData?.reviews || "120"}
+                </Text>
+                <Text style={styles.statLabel}>REVIEWS</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>
+                  {profileData?.jobsDone || "34"}
+                </Text>
+                <Text style={styles.statLabel}>JOBS</Text>
+              </View>
+            </View>
+
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>About Me</Text>
+              <Text style={styles.aboutText}>
+                {profileData?.bio ||
+                  "Certified technician with professional experience in the field."}
+              </Text>
+            </View>
+
+            <View style={styles.availableCard}>
+              <CalendarCheck size={20} color="#6D5DF6" />
+              <View>
+                <Text style={styles.availableTitle}>Availability</Text>
+                <Text style={styles.availableTime}>
+                  {profileData?.availability?.availableDays?.join(", ") ||
+                    "Mon - Sat"}
+                  {" • "}
+                  {profileData?.availability?.preferredWorkHours?.join(", ") ||
+                    "9 AM - 7 PM"}
+                </Text>
+              </View>
+            </View>
+
+            {profileData?.portfolioPhotos &&
+              profileData.portfolioPhotos.length > 0 && (
+                <View style={styles.sectionCard}>
+                  <Text style={styles.sectionTitle}>Portfolio</Text>
+                  <View style={styles.portfolioGrid}>
+                    {profileData.portfolioPhotos.map(
+                      (photo: string, idx: number) => (
+                        <Image
+                          key={`${photo}-${idx}`}
+                          source={{ uri: photo }}
+                          style={styles.portfolioImage}
+                        />
+                      ),
+                    )}
+                  </View>
+                </View>
+              )}
+
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.editBtn}
+                onPress={() => router.push("/Provider/personal-information")}
+              >
+                <Text style={styles.editBtnText}>Edit Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.contactBtn}
+                onPress={handleContactSupport}
+              >
+                <MessageSquare size={18} color="#6D5DF6" />
+                <Text style={styles.contactBtnText}>Contact Support</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+        <View style={{ height: 80 }} />
       </ScreenWrapper>
     </View>
   );
