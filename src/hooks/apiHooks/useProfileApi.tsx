@@ -1,10 +1,6 @@
 
-import {
-    showSnackbarError
-} from "@/src/redux/slices/snackbar.slice";
 
 import { getProfileService } from "@/src/services/profileServices";
-import { getErrorMessage } from "@/src/utils/utils";
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 
@@ -27,8 +23,6 @@ export default function useProfileApi(): useProfileApiReturnType {
             setprofile(data?.profile || data);
             return true
         } catch (error) {
-            const errorMessage = getErrorMessage(error);
-            dispatch(showSnackbarError({ message: errorMessage }));
             return [];
         } finally {
             setIsLoading(false);

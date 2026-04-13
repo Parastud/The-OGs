@@ -432,12 +432,10 @@ const handleSubmit = () => {
   ]).start(async () => {
     const phone = String(params?.phone || "").trim();
     const fullname = String(params?.name || "").trim();
-    const email = String(params?.email || "").trim();
 
     console.log(params)
     const providerInput = {
       fullname,
-      email, // ✅ now real email
 
       profilePhotoUrl:
         String(params?.photoUri || "").trim() || undefined,

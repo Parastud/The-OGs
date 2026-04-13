@@ -9,12 +9,12 @@ import {
   Star,
 } from "lucide-react-native";
 
-import { useRouter } from "expo-router";
 import { ScreenWrapper } from "@/src/components/wrapper";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const { getProviderProfile, isLoading } = useProviderApi();
