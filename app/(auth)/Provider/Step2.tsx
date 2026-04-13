@@ -389,7 +389,6 @@ const badgeStyles = StyleSheet.create({
   },
 });
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 export default function ProviderOnboarding2() {
   const router = useRouter();
   const params = useLocalSearchParams();
