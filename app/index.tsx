@@ -39,6 +39,7 @@ export default function Index() {
 
   useEffect(() => {
     if (!initialized || isSplashVisible) return;
+
     if (isAuthenticated) {
       router.replace("/(tabs)");
     } else {

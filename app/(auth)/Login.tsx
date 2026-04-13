@@ -154,17 +154,18 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     justifyContent: "space-between",
   },
+
   header: {
-    marginVertical: 30,
+    marginBottom: 30
   },
+
   title: {
-    fontFamily: FONTS.BOLD,
     fontSize: 28,
-    color: COLORS.textPrimary,
-    marginBottom: 8,
+    fontFamily: FONTS.BOLD,
+    color: COLORS.textPrimary
   },
+
   subtitle: {
-    fontFamily: FONTS.REGULAR,
     fontSize: 14,
     color: COLORS.textSecondary,
   },
