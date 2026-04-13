@@ -75,10 +75,7 @@ export default function MyJobsScreen() {
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
-              style={[
-                styles.tab,
-                activeTab === tab && styles.activeTab,
-              ]}
+              style={[styles.tab, activeTab === tab && styles.activeTab]}
             >
               <Text
                 style={[
@@ -115,12 +112,8 @@ export default function MyJobsScreen() {
                 style={styles.providerImg}
               />
               <View>
-                <Text style={styles.providerText}>
-                  {job.provider}
-                </Text>
-                <Text style={styles.rating}>
-                  ⭐ {job.rating}
-                </Text>
+                <Text style={styles.providerText}>{job.provider}</Text>
+                <Text style={styles.rating}>⭐ {job.rating}</Text>
               </View>
             </View>
 
@@ -147,7 +140,6 @@ export default function MyJobsScreen() {
           </View>
         ))}
       </ScrollView>
-
     </SafeAreaView>
   );
 }
@@ -303,5 +295,4 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
-
 });
