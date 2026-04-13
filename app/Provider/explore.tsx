@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
   categoriesList: {
     paddingHorizontal: 16,
     gap: 8,
-    paddingVertical: 12,
   },
   category: {
     paddingHorizontal: 16,
@@ -226,6 +225,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
   },
   categoryActive: {
     backgroundColor: COLORS.primary,
@@ -247,6 +249,7 @@ const styles = StyleSheet.create({
   jobCard: {
     marginHorizontal: 16,
     marginBottom: 12,
+    marginTop: 12,
     backgroundColor: COLORS.surface,
     borderRadius: 12,
     padding: 12,
