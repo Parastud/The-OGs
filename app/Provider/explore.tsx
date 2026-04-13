@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
+    flexGrow: 0,
     paddingBottom: 100,
   },
   header: {
@@ -217,6 +218,7 @@ const styles = StyleSheet.create({
   categoriesList: {
     paddingHorizontal: 16,
     gap: 8,
+    paddingBottom: 4,
   },
   category: {
     paddingHorizontal: 16,
@@ -249,7 +251,7 @@ const styles = StyleSheet.create({
   jobCard: {
     marginHorizontal: 16,
     marginBottom: 12,
-    marginTop: 12,
+    marginTop: 0,
     backgroundColor: COLORS.surface,
     borderRadius: 12,
     padding: 12,
