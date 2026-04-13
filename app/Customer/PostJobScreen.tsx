@@ -321,6 +321,7 @@ export default function PostJobScreen() {
             {isSubmitting ? "Posting..." : "Post Job ->"}
           </Text>
         </TouchableOpacity>
+        <View style={{ height: 30 }} />
       </ScrollView>
     </SafeAreaView>
   );

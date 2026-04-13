@@ -68,5 +68,13 @@ export const completeConsumerJobService = async (jobId: string) => {
   return response.data;
 };
 
+export const getConsumerJobBidsService = async (jobId: string) => {
+  const response = await api.get(`/api/consumers/jobs/${jobId}/bids`, {
+    headers: await getAuthHeaders(),
+  });
+
+  return response.data;
+};
+
 export * from "./authServices";
 export * from "./providerServices";

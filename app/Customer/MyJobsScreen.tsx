@@ -6,6 +6,7 @@ import {
   MessageCircle,
 } from "lucide-react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { router } from "expo-router";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   ActivityIndicator,
@@ -57,6 +58,7 @@ export default function MyJobsScreen() {
     try {
       setIsLoading(true);
       const response = await getConsumerJobsService(statusParam);
+      console.log(response);
       if (response?.success && Array.isArray(response?.data)) {
         setJobs(response.data);
       } else {
@@ -236,7 +238,15 @@ export default function MyJobsScreen() {
                 </View>
 
                 <View style={styles.actions}>
-                  <TouchableOpacity style={styles.chatBtn}>
+                  <TouchableOpacity
+                    style={styles.chatBtn}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/Customer/JobBidsScreen",
+                        params: { jobId: job.id, title: job.title },
+                      })
+                    }
+                  >
                     <MessageCircle size={16} color="#6C63FF" />
                   </TouchableOpacity>
 
