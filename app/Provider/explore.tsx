@@ -1,323 +1,342 @@
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { COLORS, Radius, Shadows, Spacing } from "@/src/theme/colors";
+import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import { MapPin, Search, SlidersHorizontal } from "lucide-react-native";
-import { useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
-const CATEGORIES = ["Plumbing", "Electrical", "Cleaning", "AC Repair", "Carpentry"];
-
-const jobs = [
-    {
-        id: 1,
-        title: "Leaking Faucet & Sink Repair",
-        distance: "2.4 km",
-        price: "₹500 – ₹800",
-        match: "94%",
-        image: "https://picsum.photos/200",
-    },
-    {
-        id: 2,
-        title: "Ceiling Fan Installation",
-        distance: "4.1 km",
-        price: "₹1,200 – ₹1,500",
-        match: "89%",
-        image: "https://picsum.photos/201",
-    },
-    {
-        id: 3,
-        title: "Deep Sofa Cleaning",
-        distance: "0.8 km",
-        price: "₹900 – ₹1,100",
-        match: "82%",
-        image: "https://picsum.photos/202",
-    },
+const CATEGORIES = [
+  "Plumbing",
+  "Electrical",
+  "Cleaning",
+  "AC Repair",
+  "Carpentry",
 ];
 
 export default function ExploreScreen() {
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
-    const [searchFocused, setSearchFocused] = useState(false);
+  const { getAvailableJobs, isLoading } = useProviderApi();
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
-    return (
-        <ScreenWrapper
-            safeArea
-            style={styles.container}
-            contentContainerStyle={styles.scrollContent}
+  useEffect(() => {
+    const loadJobs = async () => {
+      const filters: any = {};
+      if (activeCategory) filters.category = activeCategory;
+      if (deferredSearchQuery) filters.search = deferredSearchQuery;
+
+      const jobsData = await getAvailableJobs(filters);
+      if (jobsData) {
+        setJobs(jobsData);
+      }
+    };
+
+    loadJobs();
+  }, [activeCategory, deferredSearchQuery]);
+
+  return (
+    <ScreenWrapper
+      safeArea
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>Explore Jobs</Text>
+        <Text style={styles.subtitle}>Find work near you</Text>
+      </View>
+
+      <View style={styles.searchRow}>
+        <View
+          style={[styles.searchBox, searchFocused && styles.searchBoxFocused]}
         >
+          <Search size={17} color={COLORS.textTertiary} />
+          <TextInput
+            placeholder="Search jobs..."
+            placeholderTextColor={COLORS.textTertiary}
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+          />
+        </View>
+        <TouchableOpacity style={styles.filterBtn} activeOpacity={0.8}>
+          <SlidersHorizontal size={18} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
 
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>Explore Jobs</Text>
-                    <Text style={styles.subtitle}>Find work near you</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesList}
+      >
+        {CATEGORIES.map((item) => {
+          const active = activeCategory === item;
+          return (
+            <TouchableOpacity
+              key={item}
+              style={[styles.category, active && styles.categoryActive]}
+              onPress={() => setActiveCategory(active ? null : item)}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  active && styles.categoryTextActive,
+                ]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : jobs.length > 0 ? (
+        <>
+          {jobs.map((job) => (
+            <View key={job.id} style={styles.jobCard}>
+              <View style={styles.jobTop}>
+                <Image source={{ uri: job.imageUrl }} style={styles.jobImage} />
+                <View style={styles.jobInfo}>
+                  <Text style={styles.jobTitle}>{job.title}</Text>
+                  <View style={styles.jobDistance}>
+                    <MapPin size={12} color={COLORS.textSecondary} />
+                    <Text style={styles.distanceText}>{job.distance}</Text>
+                  </View>
                 </View>
+              </View>
 
-                {/* Search */}
-                <View style={styles.searchRow}>
-                    <View style={[styles.searchBox, searchFocused && styles.searchBoxFocused]}>
-                        <Search size={17} color={COLORS.textTertiary} />
-                        <TextInput
-                            placeholder="Search jobs..."
-                            placeholderTextColor={COLORS.textTertiary}
-                            style={styles.searchInput}
-                            onFocus={() => setSearchFocused(true)}
-                            onBlur={() => setSearchFocused(false)}
-                        />
-                    </View>
-                    <TouchableOpacity style={styles.filterBtn} activeOpacity={0.8}>
-                        <SlidersHorizontal size={18} color={COLORS.primary} />
-                    </TouchableOpacity>
+              <View style={styles.jobFooter}>
+                <Text style={styles.jobPrice}>{job.price}</Text>
+                <View style={styles.matchBadge}>
+                  <Text style={styles.matchText}>{job.match}</Text>
                 </View>
+              </View>
 
-                {/* Categories */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.categoriesList}
-                >
-                    {CATEGORIES.map((item) => {
-                        const active = activeCategory === item;
-                        return (
-                            <TouchableOpacity
-                                key={item}
-                                style={[styles.category, active && styles.categoryActive]}
-                                onPress={() => setActiveCategory(active ? null : item)}
-                                activeOpacity={0.8}
-                            >
-                                <Text style={[styles.categoryText, active && styles.categoryTextActive]}>
-                                    {item}
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </ScrollView>
-
-                {/* Section */}
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Recommended for you</Text>
-                    <Text style={styles.count}>{jobs.length} jobs</Text>
-                </View>
-
-                {/* Job Cards */}
-                {jobs.map((job) => (
-                    <View key={job.id} style={styles.card}>
-                        <View style={styles.cardTop}>
-                            <Image source={{ uri: job.image }} style={styles.jobImage} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.jobTitle}>{job.title}</Text>
-                                <View style={styles.metaRow}>
-                                    <View style={styles.metaItem}>
-                                        <MapPin size={13} color={COLORS.textSecondary} />
-                                        <Text style={styles.metaText}>{job.distance}</Text>
-                                    </View>
-                                    <Text style={styles.metaText}>{job.price}</Text>
-                                </View>
-                            </View>
-                            <View style={styles.matchBadge}>
-                                <Text style={styles.matchText}>{job.match}</Text>
-                            </View>
-                        </View>
-                        <TouchableOpacity style={styles.bidBtn} activeOpacity={0.8}>
-                            <Text style={styles.bidText}>Place Bid</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
-
-        </ScreenWrapper>
-    );
+              <TouchableOpacity style={styles.bidBtn} activeOpacity={0.7}>
+                <Text style={styles.bidBtnText}>View & Bid</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+          <View style={styles.listEndSpacer} />
+        </>
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No jobs available</Text>
+          <Text style={styles.emptySubText}>
+            Try a different category or search
+          </Text>
+        </View>
+      )}
+    </ScreenWrapper>
+  );
 }
 
 const styles = StyleSheet.create({
-
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    scrollContent: {
-        paddingHorizontal: 0,
-        paddingVertical: 0,
-        paddingBottom: Spacing.xl,
-    },
-
-    // ── Header ──────────────────────────────────────────────────────────────
-    header: {
-        paddingHorizontal: Spacing.lg,
-        paddingTop: Spacing.md,
-        paddingBottom: Spacing.sm,
-    },
-    title: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 26,
-        color: COLORS.textPrimary,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontFamily: FONTS.REGULAR,
-        fontSize: 13,
-        color: COLORS.textSecondary,
-        marginTop: 2,
-    },
-
-    // ── Search ──────────────────────────────────────────────────────────────
-    searchRow: {
-        flexDirection: "row",
-        paddingHorizontal: Spacing.lg,
-        gap: Spacing.sm,
-        marginBottom: Spacing.base,
-    },
-    searchBox: {
-        flex: 1,
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: COLORS.surface,
-        borderRadius: Radius.lg,
-        borderWidth: 1.5,
-        borderColor: COLORS.border,
-        paddingHorizontal: Spacing.md,
-        paddingVertical: 11,
-        gap: 8,
-    },
-    searchBoxFocused: {
-        borderColor: COLORS.primary,
-        backgroundColor: COLORS.primaryLight,
-    },
-    searchInput: {
-        flex: 1,
-        fontFamily: FONTS.REGULAR,
-        fontSize: 14,
-        color: COLORS.textPrimary,
-        padding: 0,
-    },
-    filterBtn: {
-        backgroundColor: COLORS.primaryLight,
-        borderWidth: 1.5,
-        borderColor: COLORS.primaryMuted,
-        padding: Spacing.md,
-        borderRadius: Radius.lg,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    // ── Categories ──────────────────────────────────────────────────────────
-    categoriesList: {
-        paddingHorizontal: Spacing.lg,
-        gap: Spacing.sm,
-        paddingBottom: Spacing.sm,
-    },
-    category: {
-        backgroundColor: COLORS.surface,
-        borderWidth: 1.5,
-        borderColor: COLORS.border,
-        paddingHorizontal: Spacing.base,
-        paddingVertical: 8,
-        borderRadius: Radius.full,
-    },
-    categoryActive: {
-        backgroundColor: COLORS.primaryLight,
-        borderColor: COLORS.primaryMuted,
-    },
-    categoryText: {
-        fontFamily: FONTS.SEMIBOLD,
-        fontSize: 13,
-        color: COLORS.textSecondary,
-    },
-    categoryTextActive: {
-        color: COLORS.primary,
-    },
-
-    // ── Section Header ──────────────────────────────────────────────────────
-    sectionHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: Spacing.lg,
-        marginTop: Spacing.sm,
-        marginBottom: Spacing.md,
-    },
-    sectionTitle: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 17,
-        color: COLORS.textPrimary,
-    },
-    count: {
-        fontFamily: FONTS.REGULAR,
-        fontSize: 13,
-        color: COLORS.textSecondary,
-    },
-
-    // ── Job Card ────────────────────────────────────────────────────────────
-    card: {
-        backgroundColor: COLORS.surface,
-        marginHorizontal: Spacing.lg,
-        marginBottom: Spacing.md,
-        padding: Spacing.base,
-        borderRadius: Radius.xl,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        ...Shadows.sm,
-    },
-    cardTop: {
-        flexDirection: "row",
-        gap: Spacing.md,
-        alignItems: "flex-start",
-    },
-    jobImage: {
-        width: 60,
-        height: 60,
-        borderRadius: Radius.md,
-    },
-    jobTitle: {
-        fontFamily: FONTS.SEMIBOLD,
-        fontSize: 15,
-        color: COLORS.textPrimary,
-    },
-    metaRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: 6,
-        alignItems: "center",
-    },
-    metaItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 3,
-    },
-    metaText: {
-        fontFamily: FONTS.REGULAR,
-        fontSize: 13,
-        color: COLORS.textSecondary,
-    },
-    matchBadge: {
-        backgroundColor: COLORS.primaryLight,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: Radius.full,
-        alignSelf: "flex-start",
-    },
-    matchText: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 12,
-        color: COLORS.primary,
-    },
-    bidBtn: {
-        borderWidth: 1.5,
-        borderColor: COLORS.primary,
-        paddingVertical: 11,
-        borderRadius: Radius.md,
-        marginTop: Spacing.md,
-        alignItems: "center",
-    },
-    bidText: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 14,
-        color: COLORS.primary,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 0,
+    paddingBottom: 180,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: FONTS.BOLD,
+    color: COLORS.textPrimary,
+  },
+  subtitle: {
+    fontSize: 14,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+  },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    gap: 12,
+    marginVertical: 12,
+  },
+  searchBox: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.surface,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  searchBoxFocused: {
+    borderColor: COLORS.primary,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontFamily: FONTS.REGULAR,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+  filterBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: COLORS.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  categoriesList: {
+    paddingHorizontal: 16,
+    gap: 8,
+    paddingBottom: 4,
+  },
+  category: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  categoryActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  categoryText: {
+    fontSize: 12,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.textSecondary,
+  },
+  categoryTextActive: {
+    color: COLORS.white,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  jobCard: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    marginTop: 0,
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  jobTop: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 12,
+  },
+  jobImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: COLORS.surfaceSecondary,
+  },
+  jobInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  jobTitle: {
+    fontSize: 14,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.textPrimary,
+    marginBottom: 6,
+  },
+  jobDistance: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  distanceText: {
+    fontSize: 12,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+  },
+  jobFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  jobPrice: {
+    fontSize: 13,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.primary,
+  },
+  matchBadge: {
+    backgroundColor: "#E8F5E9",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  matchText: {
+    fontSize: 11,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.success,
+  },
+  bidBtn: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  bidBtnText: {
+    fontSize: 13,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.white,
+  },
+  listEndSpacer: {
+    height: 96,
+  },
+  emptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  emptySubText: {
+    fontSize: 13,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+  },
 });

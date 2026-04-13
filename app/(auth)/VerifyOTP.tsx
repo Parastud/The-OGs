@@ -15,13 +15,10 @@ export default function VerifyOTP() {
   const router = useRouter();
 
   const { verifyOtp, isLoading } = useAuthApi();
-  const { updateProviderProfile, isLoading: isProfileLoading } =
-    useProviderApi();
+  const { isLoading: isProfileLoading } = useProviderApi();
 
   const phone = String(params?.phone || "");
   const debugOtp = String(params?.debugOtp || "");
-  const mode = String(params?.mode || "");
-  const providerInputRaw = String(params?.providerInput || "");
 
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
