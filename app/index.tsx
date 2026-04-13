@@ -4,8 +4,9 @@ import { getAccessTokenFromSecureStore } from '@/src/utils/localStorageKey';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { View } from 'react-native';
 
-export default function index() {
+export default function Index() {
   const { initialized, isAuthenticated } = useSelector((state: any) => state.auth);
   const router = useRouter();
   const [isSplashVisible, setSplashVisible] = useState(true);
@@ -22,7 +23,7 @@ export default function index() {
         dispatch(setInitialized(true));
       }
     };
-    
+
     initializeAuth();
 
     const splashTimeout = setTimeout(() => {
@@ -31,9 +32,10 @@ export default function index() {
 
     return () => clearTimeout(splashTimeout);
   }, []);
-  
+
   useEffect(() => {
     if (!initialized || isSplashVisible) return;
+
     if (isAuthenticated) {
       router.replace('/(tabs)');
     } else {
@@ -41,5 +43,10 @@ export default function index() {
     }
   }, [initialized, isAuthenticated, isSplashVisible]);
 
-  return <SplashScreen />;
+  // 👇 important fix
+  if (isSplashVisible || !initialized) {
+    return <SplashScreen />;
+  }
+
+  return <View />;
 }
