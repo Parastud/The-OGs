@@ -3,7 +3,6 @@ import PrimaryButton from "@/src/components/buttons/PrimaryButton";
 import { ScreenWrapper } from "@/src/components/wrapper";
 import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
 import { hideSnackbar } from "@/src/redux/slices/snackbar.slice";
-import { showSnackbarSuccess } from "@/src/redux/slices/snackbar.slice";
 import { UserState } from "@/src/redux/slices/user.slice";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
@@ -366,9 +365,7 @@ export default function Login() {
 
     const normalizedMessage = (message || lastError || "").toLowerCase();
     const shouldShowCreateAccount =
-      normalizedMessage.includes("account not found") ||
-      normalizedMessage.includes("role is required") ||
-      normalizedMessage.includes("role must be customer or provider");
+      normalizedMessage.includes("account not found");
 
     if (shouldShowCreateAccount) {
       dispatch(hideSnackbar());

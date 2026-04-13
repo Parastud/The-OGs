@@ -1,3 +1,4 @@
+import { ScreenWrapper } from "@/src/components/wrapper";
 import { FONTS } from "@/src/theme/fonts";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -15,32 +16,18 @@ const GRAY_BORDER = "#E2E2EC";
 const DARK = "#111118";
 const GRAY_TEXT = "#9898AA";
 
-// ─── Illustration placeholders (swap with your actual images/lottie) ──────────
-function CustomerIllustration() {
+/* ───────── Illustrations ───────── */
+function CustomerIllustration({selected}: {selected?: boolean}) {
   return (
-    <View style={[illustStyles.wrap, illustStyles.wrapActive]}>
+    <View
+      style={[
+        illustStyles.wrap,
+        selected ? illustStyles.wrapActive : illustStyles.wrapGray,
+      ]}
+    >
       <View style={illustStyles.avatarCircle}>
         <Text style={illustStyles.emoji}>🔍</Text>
       </View>
-      {/* decorative dots */}
-      <View
-        style={[
-          illustStyles.dot,
-          { top: 16, left: 24, width: 6, height: 6, opacity: 0.5 },
-        ]}
-      />
-      <View
-        style={[
-          illustStyles.dot,
-          { top: 30, right: 32, width: 4, height: 4, opacity: 0.4 },
-        ]}
-      />
-      <View
-        style={[
-          illustStyles.dot,
-          { bottom: 18, right: 48, width: 5, height: 5, opacity: 0.35 },
-        ]}
-      />
     </View>
   );
 }
@@ -53,51 +40,19 @@ function ProviderIllustration({ selected }: { selected: boolean }) {
         selected ? illustStyles.wrapActive : illustStyles.wrapGray,
       ]}
     >
-      <View
-        style={[
-          illustStyles.avatarCircle,
-          !selected && illustStyles.avatarCircleGray,
-        ]}
-      >
+      <View style={illustStyles.avatarCircle}>
         <Text style={illustStyles.emoji}>🛠️</Text>
       </View>
-      <View
-        style={[
-          illustStyles.dot,
-          {
-            top: 16,
-            left: 24,
-            width: 6,
-            height: 6,
-            opacity: selected ? 0.5 : 0.3,
-          },
-        ]}
-      />
-      <View
-        style={[
-          illustStyles.dot,
-          {
-            top: 30,
-            right: 32,
-            width: 4,
-            height: 4,
-            opacity: selected ? 0.4 : 0.2,
-          },
-        ]}
-      />
     </View>
   );
 }
 
 const illustStyles = StyleSheet.create({
   wrap: {
-    height: 160,
+    height: 140, // reduced → prevents overflow
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    overflow: "hidden",
   },
   wrapActive: {
     backgroundColor: "#2D1F8A",
@@ -106,36 +61,26 @@ const illustStyles = StyleSheet.create({
     backgroundColor: "#C8C8D4",
   },
   avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarCircleGray: {
-    backgroundColor: "rgba(255,255,255,0.85)",
-  },
   emoji: {
-    fontSize: 32,
-  },
-  dot: {
-    position: "absolute",
-    borderRadius: 99,
-    backgroundColor: "#7B6EF0",
+    fontSize: 28,
   },
 });
 
-// ─── Role Card ────────────────────────────────────────────────────────────────
+/* ───────── Card ───────── */
 function RoleCard({
-  emoji,
   title,
   description,
   selected,
   onPress,
   illustration,
 }: {
-  emoji: string;
   title: string;
   description: string;
   selected: boolean;
@@ -146,12 +91,10 @@ function RoleCard({
     <TouchableOpacity
       style={[styles.card, selected && styles.cardSelected]}
       onPress={onPress}
-      activeOpacity={0.85}
+      activeOpacity={0.9}
     >
-      {/* Illustration */}
       {illustration}
 
-      {/* Info row */}
       <View style={styles.cardInfoRow}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, !selected && styles.cardTitleGray]}>
@@ -160,7 +103,6 @@ function RoleCard({
           <Text style={styles.cardDesc}>{description}</Text>
         </View>
 
-        {/* Radio / Checkmark */}
         {selected ? (
           <View style={styles.checkCircle}>
             <Text style={styles.checkMark}>✓</Text>
@@ -173,16 +115,13 @@ function RoleCard({
   );
 }
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
+/* ───────── Screen ───────── */
 export default function RoleSelect() {
   const [role, setRole] = useState<"customer" | "provider">("customer");
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
   const btnScale = useRef(new Animated.Value(1)).current;
 
   const handleContinue = () => {
-    if (!role) return;
     Animated.sequence([
       Animated.timing(btnScale, {
         toValue: 0.96,
@@ -195,21 +134,20 @@ export default function RoleSelect() {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      if (role === "customer") {
-        router.push({
-          pathname: "/(auth)/Register",
-        });
-      } else {
-        router.push({
-          pathname: "/(auth)/Provider/Step1",
-        });
-      }
+      router.push(
+        role === "customer"
+          ? "/(auth)/Register"
+          : "/(auth)/Provider/Step1"
+      );
     });
   };
 
   return (
-    <View style={styles.screen}>
-      {/* Watermark */}
+    <ScreenWrapper
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.container}
+      safeArea
+    >
       <Text style={styles.watermark}>Gigly</Text>
 
       {/* Header */}
@@ -224,17 +162,15 @@ export default function RoleSelect() {
       {/* Cards */}
       <View style={styles.cardsWrap}>
         <RoleCard
-          emoji="🔍"
           title="Customer"
-          description="I'm looking to hire experts for a task"
+          description="I'm looking to hire experts"
           selected={role === "customer"}
           onPress={() => setRole("customer")}
-          illustration={<CustomerIllustration />}
+          illustration={<CustomerIllustration selected={role === "customer"} />}
         />
         <RoleCard
-          emoji="🛠️"
           title="Provider"
-          description="I want to offer my professional skills"
+          description="I want to offer my skills"
           selected={role === "provider"}
           onPress={() => setRole("provider")}
           illustration={<ProviderIllustration selected={role === "provider"} />}
@@ -243,193 +179,128 @@ export default function RoleSelect() {
 
       {/* Bottom */}
       <View style={styles.bottom}>
-        {/* Step indicator */}
-        <View style={styles.stepIndicator}>
-          <Text style={styles.stepText}>STEP 2 OF 4</Text>
-          <View style={styles.stepDots}>
-            {[0, 1, 2, 3].map((i) => (
-              <View
-                key={i}
-                style={[styles.stepDot, i === 1 && styles.stepDotActive]}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* CTA */}
         <Animated.View style={{ transform: [{ scale: btnScale }] }}>
-          <TouchableOpacity
-            style={[styles.cta, !role && styles.ctaDisabled]}
-            onPress={handleContinue}
-            disabled={!role || isLoading}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.ctaText}>Continue to next step →</Text>
+          <TouchableOpacity style={styles.cta} onPress={handleContinue}>
+            <Text style={styles.ctaText}>Continue →</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
-    </View>
+    </ScreenWrapper>
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+/* ───────── Styles ───────── */
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
+  container: {
+    flexGrow: 1,
     backgroundColor: "#F7F7FB",
     paddingHorizontal: 20,
-    paddingTop: 56,
-    paddingBottom: 32,
-    justifyContent: "space-between",
+    paddingBottom: 30,
   },
 
   watermark: {
     position: "absolute",
-    fontSize: 110,
+    fontSize: 100,
     fontFamily: FONTS.BOLD,
     color: "rgba(59,48,196,0.04)",
-    top: "30%",
+    top: "35%",
     alignSelf: "center",
-    letterSpacing: -4,
-    pointerEvents: "none",
   },
 
-  // ── Header ──
   header: {
     alignItems: "center",
-    gap: 8,
+    marginTop: 20,
+    marginBottom: 20,
   },
   logo: {
     fontFamily: FONTS.BOLD,
-    fontSize: 22,
+    fontSize: 20,
     color: BRAND,
-    marginBottom: 16,
+    marginBottom: 10,
   },
   title: {
     fontFamily: FONTS.BOLD,
-    fontSize: 30,
-    color: DARK,
+    fontSize: 26,
     textAlign: "center",
-    lineHeight: 38,
-    marginBottom: 6,
+    color: DARK,
   },
   subtitle: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 14,
+    fontSize: 13,
     color: GRAY_TEXT,
     textAlign: "center",
-    lineHeight: 22,
+    marginTop: 6,
   },
 
-  // ── Cards ──
   cardsWrap: {
-    flex: 1,
-    justifyContent: "center",
     gap: 14,
-    marginVertical: 24,
+    marginTop: 10,
   },
+
   card: {
-    borderRadius: 20,
-    borderWidth: 2,
+    borderRadius: 18,
+    borderWidth: 2, // FIXED (no jump)
     borderColor: GRAY_BORDER,
     backgroundColor: "#fff",
     overflow: "hidden",
   },
   cardSelected: {
     borderColor: BRAND,
-    borderWidth: 2.5,
     backgroundColor: BRAND_LIGHT,
   },
+
   cardInfoRow: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    gap: 12,
+    padding: 14,
   },
+
   cardTitle: {
     fontFamily: FONTS.BOLD,
-    fontSize: 17,
+    fontSize: 16,
     color: DARK,
-    marginBottom: 3,
   },
   cardTitleGray: {
     color: GRAY_TEXT,
   },
   cardDesc: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 13,
+    fontSize: 12,
     color: GRAY_TEXT,
-    lineHeight: 18,
   },
 
-  // ── Radio / Check ──
   radio: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: GRAY_BORDER,
-    flexShrink: 0,
   },
   checkCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: BRAND,
     alignItems: "center",
     justifyContent: "center",
-    flexShrink: 0,
   },
   checkMark: {
     color: "#fff",
-    fontSize: 14,
-    fontFamily: FONTS.BOLD,
+    fontSize: 12,
   },
 
-  // ── Bottom ──
   bottom: {
-    gap: 16,
-  },
-  stepIndicator: {
-    alignItems: "center",
-    gap: 10,
-  },
-  stepText: {
-    fontFamily: FONTS.BOLD,
-    fontSize: 11,
-    color: GRAY_TEXT,
-    letterSpacing: 1.5,
-  },
-  stepDots: {
-    flexDirection: "row",
-    gap: 6,
-  },
-  stepDot: {
-    width: 20,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: GRAY_BORDER,
-  },
-  stepDotActive: {
-    backgroundColor: BRAND,
-    width: 32,
+    marginTop: 20,
   },
 
-  // ── CTA ──
   cta: {
+    height: 54,
+    borderRadius: 14,
     backgroundColor: BRAND,
-    borderRadius: 16,
-    height: 56,
     alignItems: "center",
     justifyContent: "center",
   },
-  ctaDisabled: {
-    opacity: 0.5,
-  },
   ctaText: {
-    fontFamily: FONTS.BOLD,
-    fontSize: 16,
     color: "#fff",
-    letterSpacing: 0.3,
+    fontFamily: FONTS.BOLD,
+    fontSize: 15,
   },
 });

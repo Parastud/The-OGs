@@ -32,6 +32,7 @@ export default function ProviderOnboarding1() {
     setExperience,
     setBio,
     setPhotoUri,
+    setPhone,
     handleCategorySelect,
     toggleSkill,
     toggleLanguage,
@@ -49,35 +50,41 @@ export default function ProviderOnboarding1() {
     }
   }, [params?.fullname, setName]);
 
-  const handleNext = () => {
-    Animated.sequence([
-      Animated.timing(btnScale, {
-        toValue: 0.95,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-      Animated.timing(btnScale, {
-        toValue: 1,
-        duration: 120,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      router.push({
-        pathname: "/Provider/Step2",
-        params: {
-          name: form.name,
-          phone: String(params?.phone || ""),
-          city: form.city,
-          category: form.selectedCategory,
-          skills: JSON.stringify(form.selectedSkills),
-          languages: JSON.stringify(form.selectedLanguages),
-          experience: form.experience,
-          bio: form.bio,
-          photoUri: form.photoUri ?? "",
-        },
-      });
+const handleNext = () => {
+  if (!form.phone || form.phone.length < 10) {
+    console.log("❌ Invalid phone");
+    return;
+  }
+
+  Animated.sequence([
+    Animated.timing(btnScale, {
+      toValue: 0.95,
+      duration: 80,
+      useNativeDriver: true,
+    }),
+    Animated.timing(btnScale, {
+      toValue: 1,
+      duration: 120,
+      useNativeDriver: true,
+    }),
+  ]).start(() => {
+    router.push({
+      pathname: "/Provider/Step2",
+      params: {
+        name: form.name,
+        phone: form.phone, // ✅ USE THIS (NOT params)
+        email: String(params?.email || ""),
+        city: form.city,
+        category: form.selectedCategory,
+        skills: JSON.stringify(form.selectedSkills),
+        languages: JSON.stringify(form.selectedLanguages),
+        experience: form.experience,
+        bio: form.bio,
+        photoUri: form.photoUri ?? "",
+      },
     });
-  };
+  });
+};
 
   return (
     <KeyboardAvoidingView
@@ -115,6 +122,14 @@ export default function ProviderOnboarding1() {
           placeholder="e.g. Ramesh Kumar"
           value={form.name}
           onChangeText={setName}
+        />
+
+        <SectionLabel text="PHONE NUMBER" />
+        <StyledInput
+          placeholder="e.g. 9876543210"
+          value={form.phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
         />
 
         {/* City */}

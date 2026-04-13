@@ -1,9 +1,9 @@
-import { FONTS } from "@/src/theme/fonts";
 import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { FONTS } from "@/src/theme/fonts";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Image,
   KeyboardAvoidingView,
@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 const BRAND = "#3B30C4";
@@ -26,11 +26,12 @@ const SUCCESS = "#16A34A";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIME_SLOTS = [
-  "Morning (6–12)",
-  "Afternoon (12–17)",
-  "Evening (17–22)",
-  "Flexible",
+  { label: "Morning (6–12)", value: "morning" },
+  { label: "Afternoon (12–17)", value: "afternoon" },
+  { label: "Evening (17–22)", value: "evening" },
+  { label: "Flexible", value: "flexible" },
 ];
+
 const ID_TYPES = [
   "Aadhaar Card",
   "PAN Card",
@@ -162,20 +163,22 @@ function TimeSlots({
 }) {
   return (
     <View style={{ gap: 8 }}>
-      {TIME_SLOTS.map((t) => {
-        const active = selected.includes(t);
+      {TIME_SLOTS.map((slot) => {
+        const active = selected.includes(slot.value);
+
         return (
           <TouchableOpacity
-            key={t}
-            onPress={() => onToggle(t)}
+            key={slot.value}
+            onPress={() => onToggle(slot.value)} // ✅ store backend value
             activeOpacity={0.75}
             style={[timeStyles.row, active && timeStyles.rowActive]}
           >
             <View style={[timeStyles.radio, active && timeStyles.radioActive]}>
               {active && <View style={timeStyles.radioDot} />}
             </View>
+
             <Text style={[timeStyles.label, active && timeStyles.labelActive]}>
-              {t}
+              {slot.label} {/* UI label */}
             </Text>
           </TouchableOpacity>
         );
@@ -391,7 +394,8 @@ const badgeStyles = StyleSheet.create({
 export default function ProviderOnboarding2() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { requestOtp, isLoading } = useAuthApi();
+  const { isLoading } = useAuthApi();
+  const { updateProviderProfile } = useProviderApi();
 
   const [days, setDays] = useState<string[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
@@ -410,78 +414,89 @@ export default function ProviderOnboarding2() {
       prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d],
     );
 
-  const toggleTime = (t: string) =>
-    setTimeSlots((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
-    );
+const toggleTime = (t: string) =>
+  setTimeSlots((prev) =>
+    prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
+  );
 
-  const handleSubmit = () => {
-    Animated.sequence([
-      Animated.timing(btnScale, {
-        toValue: 0.95,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-      Animated.timing(btnScale, {
-        toValue: 1,
-        duration: 120,
-        useNativeDriver: true,
-      }),
-    ]).start(async () => {
-      const phone = String(params?.phone || "").trim();
-      const fullname = String(params?.name || "").trim();
+const handleSubmit = () => {
+  Animated.sequence([
+    Animated.timing(btnScale, {
+      toValue: 0.95,
+      duration: 80,
+      useNativeDriver: true,
+    }),
+    Animated.timing(btnScale, {
+      toValue: 1,
+      duration: 120,
+      useNativeDriver: true,
+    }),
+  ]).start(async () => {
+    const phone = String(params?.phone || "").trim();
+    const fullname = String(params?.name || "").trim();
+    const email = String(params?.email || "").trim();
 
-      const providerInput = {
-        fullname,
-        cityArea: String(params?.city || "").trim(),
-        category: String(params?.category || "").trim(),
-        yearsOfExperience:
-          Number.parseInt(
-            String(params?.experience || "").replace(/[^0-9]/g, ""),
-            10,
-          ) || undefined,
-        skills: JSON.parse(String(params?.skills || "[]")),
-        bio: String(params?.bio || "").trim(),
-        profilePhotoUrl: String(params?.photoUri || "").trim() || undefined,
-        availability: {
-          availableDays: days,
-          preferredWorkHours: timeSlots,
-        },
-        startingPrice: Number.parseFloat(minRate) || undefined,
-        portfolioPhotos,
-        certifications: certText.trim() ? [{ text: certText.trim() }] : [],
-        govtId:
-          idType || idNumber
-            ? {
-                idType: idType || undefined,
-                idNumber: idNumber || undefined,
-              }
-            : undefined,
-        whatsappNumber: whatsapp.trim() || undefined,
-        languagesSpoken: JSON.parse(String(params?.languages || "[]")),
-      };
+    console.log(params)
+    const providerInput = {
+      fullname,
+      email, // ✅ now real email
 
-      const { success, debugOtp } = await requestOtp({
-        phone,
-        role: "provider",
-      });
+      profilePhotoUrl:
+        String(params?.photoUri || "").trim() || undefined,
 
-      if (!success) return;
+      cityArea: String(params?.city || "").trim(),
 
-      if (debugOtp) {
-        Alert.alert("DEBUG OTP", debugOtp);
-      }
+      govtId: {
+        idType: idType || undefined,
+        idNumber: idNumber || undefined,
+      },
 
-      router.replace({
-        pathname: "/(auth)/VerifyOTP",
-        params: {
-          phone,
-          mode: "provider-signup",
-          providerInput: JSON.stringify(providerInput),
-        },
-      });
+      category: String(params?.category || "").trim(),
+
+      yearsOfExperience:
+        Number.parseInt(
+          String(params?.experience || "").replace(/[^0-9]/g, ""),
+          10
+        ) || 0,
+
+      skills: JSON.parse(String(params?.skills || "[]")),
+
+      bio: String(params?.bio || "").trim(),
+
+      availability: {
+        availableDays: days,
+        preferredWorkHours: timeSlots,
+      },
+
+      startingPrice: Number.parseFloat(minRate) || 0,
+
+      portfolioPhotos,
+
+      certifications: certText.trim()
+        ? [{ text: certText.trim(), photoUrl: "" }]
+        : [],
+
+      whatsappNumber: whatsapp.trim() || phone,
+
+      languagesSpoken: JSON.parse(String(params?.languages || "[]")),
+    };
+
+    const { success, debugOtp } = await updateProviderProfile({
+      phone,
+      input: providerInput,
     });
-  };
+
+    if (!success) return;
+
+    router.push({
+      pathname: "/(auth)/VerifyOTP",
+      params: {
+        phone,
+        debugOtp,
+      },
+    });
+  });
+};
 
   return (
     <KeyboardAvoidingView
@@ -556,7 +571,7 @@ export default function ProviderOnboarding2() {
           Show your best work — before/after shots work great.
         </Text>
         <View style={{ marginTop: 12 }}>
-          <PortfolioGrid photos={portfolioPhotos} onAdd={() => {}} />
+          <PortfolioGrid photos={portfolioPhotos} onAdd={() => { }} />
         </View>
 
         {/* Certifications */}

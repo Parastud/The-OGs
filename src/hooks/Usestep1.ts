@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 export interface Step1FormState {
     name: string;
+    phone: string; // ✅ ADDED
     city: string;
     selectedCategory: string;
     selectedSkills: string[];
@@ -13,23 +14,23 @@ export interface Step1FormState {
 }
 
 export interface UseStep1Return {
-    // form state
     form: Step1FormState;
+
     setName: (v: string) => void;
+    setPhone: (v: string) => void; // ✅ ADDED
     setCity: (v: string) => void;
     setExperience: (v: string) => void;
     setBio: (v: string) => void;
     setPhotoUri: (v: string | null) => void;
+
     handleCategorySelect: (cat: string) => void;
     toggleSkill: (v: string) => void;
     toggleLanguage: (v: string) => void;
 
-    // remote data
     categories: string[];
     skills: string[];
     languages: string[];
 
-    // loading states
     categoriesLoading: boolean;
     skillsLoading: boolean;
     isSubmitting: boolean;
@@ -37,8 +38,6 @@ export interface UseStep1Return {
 
 export const LANGUAGES = ['Hindi', 'English', 'Marathi', 'Tamil', 'Telugu', 'Bengali', 'Kannada', 'Punjabi'];
 export const EXPERIENCE_OPTIONS = ['< 1 yr', '1–2 yrs', '3–5 yrs', '5–10 yrs', '10+ yrs'];
-
-
 
 export default function useStep1(): UseStep1Return {
     const { getCategories, getSkills, isLoading: isSubmitting } = useProviderApi();
@@ -51,6 +50,7 @@ export default function useStep1(): UseStep1Return {
 
     // ── Form state ───────────────────────────────────────────────────────────
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState(''); // ✅ ADDED
     const [city, setCity] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -59,7 +59,7 @@ export default function useStep1(): UseStep1Return {
     const [bio, setBio] = useState('');
     const [photoUri, setPhotoUri] = useState<string | null>(null);
 
-    // ── Fetch categories on mount ────────────────────────────────────────────
+    // ── Fetch categories ─────────────────────────────────────────────────────
     useEffect(() => {
         (async () => {
             setCategoriesLoading(true);
@@ -69,7 +69,7 @@ export default function useStep1(): UseStep1Return {
         })();
     }, []);
 
-    // ── Fetch skills whenever category changes ───────────────────────────────
+    // ── Fetch skills ─────────────────────────────────────────────────────────
     const handleCategorySelect = useCallback(async (cat: string) => {
         if (selectedCategory === cat) {
             setSelectedCategory('');
@@ -77,10 +77,13 @@ export default function useStep1(): UseStep1Return {
             setSelectedSkills([]);
             return;
         }
+
         setSelectedCategory(cat);
         setSelectedSkills([]);
         setSkillsLoading(true);
+
         const data = await getSkills({ category: cat });
+
         setSkills(data);
         setSkillsLoading(false);
     }, [selectedCategory]);
@@ -96,18 +99,33 @@ export default function useStep1(): UseStep1Return {
         );
 
     return {
-        form: { name, city, selectedCategory, selectedSkills, selectedLanguages, experience, bio, photoUri },
+        form: {
+            name,
+            phone, // ✅ INCLUDED
+            city,
+            selectedCategory,
+            selectedSkills,
+            selectedLanguages,
+            experience,
+            bio,
+            photoUri,
+        },
+
         setName,
+        setPhone, // ✅ RETURNED
         setCity,
         setExperience,
         setBio,
         setPhotoUri,
+
         handleCategorySelect,
         toggleSkill,
         toggleLanguage,
+
         categories,
         skills,
         languages: LANGUAGES,
+
         categoriesLoading,
         skillsLoading,
         isSubmitting,

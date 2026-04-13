@@ -8,7 +8,7 @@ import { FONTS } from "@/src/theme/fonts";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function VerifyOTP() {
   const params = useLocalSearchParams();
@@ -24,32 +24,25 @@ export default function VerifyOTP() {
   const providerInputRaw = String(params?.providerInput || "");
 
   const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
 
   const handleVerifyOtp = async () => {
-    const ok = await verifyOtp({ phone, otp });
-
-    if (!ok) {
+    if (!otp.trim()) {
+      setError("OTP is required");
       return;
     }
 
-    if (mode === "provider-signup" && providerInputRaw) {
-      let providerInput: any = null;
-      try {
-        providerInput = JSON.parse(providerInputRaw);
-      } catch {
-        return;
-      }
+    setError("");
 
-      const saved = await updateProviderProfile({
-        phone,
-        input: providerInput,
-      });
-      if (!saved) {
-        return;
-      }
+    const ok = await verifyOtp({ phone, otp });
+
+    if (!ok) {
+      setError("Invalid OTP. Please try again.");
+      return;
     }
 
-    router.replace("/(tabs)");
+    // ✅ Just redirect
+    router.replace("/");
   };
 
   return (
@@ -60,12 +53,20 @@ export default function VerifyOTP() {
       </View>
 
       <View style={styles.otpSection}>
-        <View style={styles.debugContainer}>
-          <Text style={styles.debugLabel}>Test OTP</Text>
-          <Text style={styles.debugOtp}>{debugOtp}</Text>
-        </View>
+        {/* Debug OTP (optional) */}
+        {!!debugOtp && (
+          <View style={styles.debugContainer}>
+            <Text style={styles.debugLabel}>Test OTP</Text>
+            <Text style={styles.debugOtp}>{debugOtp}</Text>
+          </View>
+        )}
 
-        <OtpInput value={otp} onChange={setOtp} />
+        <OtpInput value={otp} onChange={(val) => {
+          setOtp(val);
+          if (error) setError("");
+        }} />
+
+        {!!error && <Text style={styles.errorText}>{error}</Text>}
       </View>
 
       {/* Footer */}
@@ -74,6 +75,7 @@ export default function VerifyOTP() {
           text="Verify OTP"
           onPress={handleVerifyOtp}
           isLoading={isLoading || isProfileLoading}
+          disabled={isLoading || isProfileLoading || otp.length < 4}
         />
 
         <TouchableOpacity>
@@ -112,6 +114,7 @@ const styles = StyleSheet.create({
   otpSection: {
     gap: 20,
     alignItems: "center",
+    marginTop: 40,
   },
 
   debugContainer: {
@@ -134,6 +137,12 @@ const styles = StyleSheet.create({
     letterSpacing: 6,
     marginTop: 4,
     color: COLORS.textPrimary,
+  },
+
+  errorText: {
+    color: "#DC2626",
+    fontSize: 13,
+    fontFamily: FONTS.REGULAR,
   },
 
   footer: {
