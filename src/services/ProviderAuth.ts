@@ -66,3 +66,18 @@ export const UPDATE_PROVIDER_PROFILE = gql`
     }
   }
 `;
+
+export const UPDATE_CUSTOMER_PROFILE = gql`
+  mutation UpdateCustomerProfile(
+    $phone: String!
+    $input: UpdateCustomerProfileInput!
+  ) {
+    updateCustomerProfile(phone: $phone, input: $input) {
+      _id
+      fullname
+      email
+      phone
+      role
+    }
+  }
+`;

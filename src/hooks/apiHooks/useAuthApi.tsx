@@ -13,7 +13,10 @@ import { useDispatch } from "react-redux";
 
 interface useAuthApiReturnType {
   isLoading: boolean;
-  requestOtp: (payload: { phone: string }) => any;
+  requestOtp: (payload: {
+    phone: string;
+    role?: "customer" | "provider";
+  }) => any;
   verifyOtp: (payload: { phone: string; otp: string }) => any;
   lastError: string | null;
   clearError: () => void;
@@ -51,10 +54,16 @@ export default function useAuthApi(): useAuthApiReturnType {
   const isLoading = signinLoading || verifyLoading;
 
   // ✅ Send OTP
-  const requestOtp = async ({ phone }: { phone: string }) => {
+  const requestOtp = async ({
+    phone,
+    role,
+  }: {
+    phone: string;
+    role?: "customer" | "provider";
+  }) => {
     try {
       const { data } = await signinMutation({
-        variables: { phone },
+        variables: { phone, role: role ?? null },
       });
 
       const { success, message, debugOtp } = data?.signin || {};
@@ -66,12 +75,13 @@ export default function useAuthApi(): useAuthApiReturnType {
         setLastError(null);
       }
 
-      return { success, debugOtp };
+      return { success, message, debugOtp };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(showSnackbarError({ message: errorMessage }));
+      setLastError(errorMessage);
 
-      return { success: false };
+      return { success: false, message: errorMessage };
     }
   };
 

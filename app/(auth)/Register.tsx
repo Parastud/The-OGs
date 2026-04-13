@@ -2,21 +2,20 @@ import PrimaryButton from "@/src/components/buttons/PrimaryButton";
 import LabelTextInput from "@/src/components/inputs/LabelTextInput";
 import { ScreenWrapper } from "@/src/components/wrapper";
 import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
-import { showSnackbarSuccess } from "@/src/redux/slices/snackbar.slice";
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-    Alert,
-    Animated,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useDispatch } from "react-redux";
 
 const BRAND = COLORS.primary ?? "#3B30C4";
 const BRAND_LIGHT = "#EEEDFB";
@@ -86,7 +85,7 @@ function DetailsStep({
       {/* Actions */}
       <View style={styles.actionsWrap}>
         <PrimaryButton
-          text="Send OTP  →"
+          text="Continue  →"
           onPress={onNext}
           isLoading={isLoading}
           disabled={isLoading}
@@ -138,7 +137,10 @@ function OtpStep({
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setResendTimer((t) => {
-        if (t <= 1) { clearInterval(timerRef.current!); return 0; }
+        if (t <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
         return t - 1;
       });
     }, 1000);
@@ -146,11 +148,31 @@ function OtpStep({
 
   const shake = () =>
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 8,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -8,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 60,
+        useNativeDriver: true,
+      }),
     ]).start();
 
   // Shake when error arrives
@@ -198,7 +220,11 @@ function OtpStep({
     <>
       {/* Header */}
       <View style={styles.heroWrap}>
-        <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={onBack}
+          activeOpacity={0.7}
+          style={styles.backBtn}
+        >
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.otpTitle}>Verify number</Text>
@@ -206,7 +232,9 @@ function OtpStep({
           We sent a 6-digit code to{"\n"}
           <Text style={styles.phoneHighlight}>+91 {phone}</Text>
           {"  "}
-          <Text style={styles.changeLink} onPress={onBack}>Change</Text>
+          <Text style={styles.changeLink} onPress={onBack}>
+            Change
+          </Text>
         </Text>
       </View>
 
@@ -215,36 +243,43 @@ function OtpStep({
         <Animated.View
           style={[styles.otpRow, { transform: [{ translateX: shakeAnim }] }]}
         >
-          {Array(OTP_LENGTH).fill(0).map((_, i) => (
-            <TextInput
-              key={i}
-              ref={(r) => refCallback(r, i)}
-              style={[
-                styles.otpBox,
-                otp[i] ? styles.otpBoxFilled : null,
-                activeIdx === i && !otp[i] ? styles.otpBoxActive : null,
-                !!error ? styles.otpBoxError : null,
-              ]}
-              value={otp[i]}
-              onChangeText={(t) => handleChange(t, i)}
-              onKeyPress={(e) => handleKeyPress(e, i)}
-              onFocus={() => setActiveIdx(i)}
-              keyboardType="numeric"
-              maxLength={1}
-              selectTextOnFocus
-            />
-          ))}
+          {Array(OTP_LENGTH)
+            .fill(0)
+            .map((_, i) => (
+              <TextInput
+                key={i}
+                ref={(r) => refCallback(r, i)}
+                style={[
+                  styles.otpBox,
+                  otp[i] ? styles.otpBoxFilled : null,
+                  activeIdx === i && !otp[i] ? styles.otpBoxActive : null,
+                  !!error ? styles.otpBoxError : null,
+                ]}
+                value={otp[i]}
+                onChangeText={(t) => handleChange(t, i)}
+                onKeyPress={(e) => handleKeyPress(e, i)}
+                onFocus={() => setActiveIdx(i)}
+                keyboardType="numeric"
+                maxLength={1}
+                selectTextOnFocus
+              />
+            ))}
         </Animated.View>
 
         {!!error && <Text style={styles.errorText}>{error}</Text>}
 
         <View style={styles.progressDots}>
-          {Array(OTP_LENGTH).fill(0).map((_, i) => (
-            <View
-              key={i}
-              style={[styles.progressDot, i < filled && styles.progressDotFilled]}
-            />
-          ))}
+          {Array(OTP_LENGTH)
+            .fill(0)
+            .map((_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.progressDot,
+                  i < filled && styles.progressDotFilled,
+                ]}
+              />
+            ))}
         </View>
       </View>
 
@@ -258,8 +293,17 @@ function OtpStep({
         />
         <View style={styles.resendRow}>
           <Text style={styles.resendLabel}>Didn&apos;t receive it? </Text>
-          <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0} activeOpacity={0.7}>
-            <Text style={[styles.resendLink, resendTimer > 0 && styles.resendDisabled]}>
+          <TouchableOpacity
+            onPress={handleResend}
+            disabled={resendTimer > 0}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.resendLink,
+                resendTimer > 0 && styles.resendDisabled,
+              ]}
+            >
               {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
             </Text>
           </TouchableOpacity>
@@ -269,134 +313,70 @@ function OtpStep({
   );
 }
 
-// ─── Step 3: Role Select ──────────────────────────────────────────────────────
-function RoleStep({
-  role,
-  setRole,
-  onFinish,
-  isLoading,
-}: {
-  role: "customer" | "provider" | null;
-  setRole: (r: "customer" | "provider") => void;
-  onFinish: () => void;
-  isLoading: boolean;
-}) {
-  const ROLES = [
-    {
-      key: "customer" as const,
-      emoji: "🔍",
-      title: "Customer",
-      description: "I'm looking to hire experts for a task",
-    },
-    {
-      key: "provider" as const,
-      emoji: "🛠️",
-      title: "Provider",
-      description: "I want to offer my professional skills",
-    },
-  ];
-
-  return (
-    <>
-      {/* Header */}
-      <View style={styles.heroWrap}>
-        <Text style={[styles.logoText, { textAlign: "center" }]}>Gigly ✦</Text>
-        <View style={{ height: 24 }} />
-        <Text style={styles.roleTitle}>How will you{"\n"}use Gigly?</Text>
-        <Text style={styles.roleSubtitle}>
-          You can always switch later from your profile settings.
-        </Text>
-      </View>
-
-      {/* Role cards */}
-      <View style={styles.formWrap}>
-        {ROLES.map((r) => {
-          const selected = role === r.key;
-          return (
-            <TouchableOpacity
-              key={r.key}
-              style={[styles.roleCard, selected && styles.roleCardSelected]}
-              onPress={() => setRole(r.key)}
-              activeOpacity={0.85}
-            >
-              {/* Illustration placeholder */}
-              <View style={[styles.roleIllustration, !selected && styles.roleIllustrationGray]}>
-                <Text style={styles.roleEmoji}>{r.emoji}</Text>
-              </View>
-
-              {/* Info row */}
-              <View style={styles.roleInfoRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.roleCardTitle, !selected && styles.roleCardTitleGray]}>
-                    {r.title}
-                  </Text>
-                  <Text style={styles.roleCardDesc}>{r.description}</Text>
-                </View>
-                {/* Radio */}
-                <View style={[styles.radio, selected && styles.radioSelected]}>
-                  {selected && <View style={styles.radioDot} />}
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {/* Actions */}
-      <View style={styles.actionsWrap}>
-        {/* Step indicator */}
-        <View style={styles.stepIndicator}>
-          <Text style={styles.stepText}>STEP 3 OF 3</Text>
-          <View style={styles.stepDots}>
-            {[0, 1, 2].map((i) => (
-              <View key={i} style={[styles.stepDot, i === 2 && styles.stepDotActive]} />
-            ))}
-          </View>
-        </View>
-        <PrimaryButton
-          text="Continue to next step  →"
-          onPress={onFinish}
-          isLoading={isLoading}
-          disabled={isLoading || !role}
-        />
-      </View>
-    </>
-  );
-}
-
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function Register() {
-  const [step, setStep] = useState<"details" | "otp" | "role">("details");
+  const params = useLocalSearchParams();
+  const roleParam = String(params?.role || "").toLowerCase();
+  const presetRole =
+    roleParam === "customer" || roleParam === "provider"
+      ? (roleParam as "customer" | "provider")
+      : null;
+
+  const [step, setStep] = useState<"details" | "otp">("details");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"customer" | "provider" | null>(null);
+  const [role] = useState<"customer" | "provider">(presetRole ?? "customer");
   const [errors, setErrors] = useState({ name: "", phone: "", otp: "" });
 
   const { requestOtp, verifyOtp, isLoading } = useAuthApi();
+  const { updateCustomerProfile, isLoading: isProfileLoading } =
+    useProviderApi();
   const router = useRouter();
-  const dispatch = useDispatch();
 
-  // Step 1 → 2: send OTP
-  const handleSendOtp = async () => {
+  const proceedWithRole = async (selectedRole: "customer" | "provider") => {
+    if (selectedRole === "provider") {
+      router.replace({
+        pathname: "/Provider/Step1",
+        params: {
+          fullname: name.trim(),
+          phone: phone.trim(),
+        },
+      });
+      return;
+    }
+
+    const { success, debugOtp } = await requestOtp({
+      phone: phone.trim(),
+      role: "customer",
+    });
+
+    if (!success) return;
+
+    if (debugOtp) {
+      Alert.alert("DEBUG OTP", debugOtp);
+    }
+
+    setErrors({ ...errors, otp: "" });
+    setStep("otp");
+  };
+
+  // Step 1 -> 2: collect basic details first, no OTP yet
+  const handleContinue = async () => {
     const newErrors = { name: "", phone: "", otp: "" };
     if (!name.trim()) newErrors.name = "Full name is required";
     if (!phone.trim()) newErrors.phone = "Phone number is required";
-    else if (phone.length < 10) newErrors.phone = "Enter a valid 10-digit number";
+    else if (phone.length < 10)
+      newErrors.phone = "Enter a valid 10-digit number";
     if (newErrors.name || newErrors.phone) {
       setErrors(newErrors);
       return;
     }
 
-    const { data } = await requestOtp({ phone: phone.trim() });
-    if (data?.success) {
-      dispatch(showSnackbarSuccess({ message: data.message }));
-      if (data.debugOtp) Alert.alert("DEBUG OTP", data.debugOtp);
-      setErrors({ name: "", phone: "", otp: "" });
-      setStep("otp");
-    }
+    setErrors({ name: "", phone: "", otp: "" });
+    await proceedWithRole(role);
   };
 
-  // Step 2 → 3: verify OTP
+  // Customer OTP verification (provider OTP happens after full onboarding)
   const handleVerifyOtp = async (otp: string) => {
     if (!otp.trim()) {
       setErrors({ ...errors, otp: "OTP is required" });
@@ -404,39 +384,36 @@ export default function Register() {
     }
     const isSuccess = await verifyOtp({ phone: phone.trim(), otp: otp.trim() });
     if (isSuccess) {
+      await updateCustomerProfile({
+        phone: phone.trim(),
+        input: { fullname: name.trim() },
+      });
       setErrors({ ...errors, otp: "" });
-      setStep("role");
+      router.replace("/(tabs)");
     } else {
       setErrors({ ...errors, otp: "Incorrect OTP. Please try again." });
     }
   };
 
-  // Step 3: role → finish
-  const handleFinish = () => {
-    if (!role) return;
-    if (role === "provider") {
-      router.replace("/Provider/Step1");
-    } else {
-      router.replace("/(tabs)");
-    }
-  };
-
   return (
-    <ScreenWrapper
-      contentContainerStyle={styles.scrollContent}
-      safeArea
-    >
+    <ScreenWrapper contentContainerStyle={styles.scrollContent} safeArea>
       <Text style={styles.watermark}>Gigly</Text>
 
       {step === "details" && (
         <DetailsStep
           name={name}
-          setName={(v) => { setName(v); if (errors.name) setErrors({ ...errors, name: "" }); }}
+          setName={(v) => {
+            setName(v);
+            if (errors.name) setErrors({ ...errors, name: "" });
+          }}
           phone={phone}
-          setPhone={(v) => { setPhone(v); if (errors.phone) setErrors({ ...errors, phone: "" }); }}
+          setPhone={(v) => {
+            setPhone(v);
+            if (errors.phone) setErrors({ ...errors, phone: "" });
+          }}
           errors={errors}
-          onNext={handleSendOtp}
-          isLoading={isLoading}
+          onNext={handleContinue}
+          isLoading={isLoading || isProfileLoading}
           onLogin={() => router.replace("/(auth)/Login")}
         />
       )}
@@ -445,18 +422,12 @@ export default function Register() {
         <OtpStep
           phone={phone}
           onVerify={handleVerifyOtp}
-          onBack={() => { setStep("details"); setErrors({ ...errors, otp: "" }); }}
-          isLoading={isLoading}
+          onBack={() => {
+            setStep("details");
+            setErrors({ ...errors, otp: "" });
+          }}
+          isLoading={isLoading || isProfileLoading}
           error={errors.otp}
-        />
-      )}
-
-      {step === "role" && (
-        <RoleStep
-          role={role}
-          setRole={setRole}
-          onFinish={handleFinish}
-          isLoading={isLoading}
         />
       )}
     </ScreenWrapper>
@@ -512,7 +483,11 @@ const styles = StyleSheet.create({
 
   // ── Back ──
   backBtn: { marginBottom: 20 },
-  backText: { fontFamily: FONTS.REGULAR, fontSize: 15, color: COLORS.textSecondary },
+  backText: {
+    fontFamily: FONTS.REGULAR,
+    fontSize: 15,
+    color: COLORS.textSecondary,
+  },
 
   // ── OTP header ──
   otpTitle: {
@@ -563,7 +538,12 @@ const styles = StyleSheet.create({
     gap: 6,
     marginTop: 16,
   },
-  progressDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: GRAY_BORDER },
+  progressDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: GRAY_BORDER,
+  },
   progressDotFilled: { backgroundColor: BRAND },
 
   // ── Actions ──
@@ -574,7 +554,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-  resendLabel: { fontFamily: FONTS.REGULAR, fontSize: 14, color: COLORS.textSecondary },
+  resendLabel: {
+    fontFamily: FONTS.REGULAR,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
   resendLink: { fontFamily: FONTS.BOLD, fontSize: 14, color: BRAND },
   resendDisabled: { color: COLORS.textSecondary },
 
@@ -596,90 +580,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  loginBtnText: { fontFamily: FONTS.BOLD, fontSize: 15, color: COLORS.textPrimary },
-
-  // ── Role Select ──
-  roleTitle: {
+  loginBtnText: {
     fontFamily: FONTS.BOLD,
-    fontSize: 36,
+    fontSize: 15,
     color: COLORS.textPrimary,
-    lineHeight: 44,
-    marginBottom: 10,
   },
-  roleSubtitle: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    lineHeight: 22,
-  },
-  roleCard: {
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: GRAY_BORDER,
-    backgroundColor: "#fff",
-    overflow: "hidden",
-  },
-  roleCardSelected: {
-    borderColor: BRAND,
-    borderWidth: 2,
-    backgroundColor: BRAND_LIGHT,
-  },
-  roleIllustration: {
-    height: 140,
-    backgroundColor: "#2D1F8A",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  roleIllustrationGray: {
-    backgroundColor: "#D1D1D8",
-  },
-  roleEmoji: { fontSize: 56 },
-  roleInfoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    gap: 12,
-  },
-  roleCardTitle: {
-    fontFamily: FONTS.BOLD,
-    fontSize: 17,
-    color: COLORS.textPrimary,
-    marginBottom: 4,
-  },
-  roleCardTitleGray: { color: COLORS.textSecondary },
-  roleCardDesc: {
-    fontFamily: FONTS.REGULAR,
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
-  },
-  radio: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: GRAY_BORDER,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  radioSelected: { borderColor: BRAND, backgroundColor: BRAND },
-  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#fff" },
-
-  // Step indicator
-  stepIndicator: {
-    alignItems: "center",
-    marginBottom: 16,
-    gap: 8,
-  },
-  stepText: {
-    fontFamily: FONTS.BOLD,
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    letterSpacing: 1.5,
-  },
-  stepDots: { flexDirection: "row", gap: 6 },
-  stepDot: { width: 24, height: 4, borderRadius: 2, backgroundColor: GRAY_BORDER },
-  stepDotActive: { backgroundColor: BRAND, width: 32 },
-
 });

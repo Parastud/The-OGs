@@ -1,30 +1,43 @@
-import { FONTS } from '@/src/theme/fonts';
-import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { FONTS } from "@/src/theme/fonts";
+import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRef, useState } from "react";
 import {
-    Animated,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+  Alert,
+  Animated,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const BRAND = '#3B30C4';
-const BRAND_LIGHT = '#EEEDFB';
-const GRAY_BG = '#F4F4F8';
-const GRAY_BORDER = '#E2E2EC';
-const GRAY_TEXT = '#9898AA';
-const DARK = '#111118';
-const SUCCESS = '#16A34A';
+const BRAND = "#3B30C4";
+const BRAND_LIGHT = "#EEEDFB";
+const GRAY_BG = "#F4F4F8";
+const GRAY_BORDER = "#E2E2EC";
+const GRAY_TEXT = "#9898AA";
+const DARK = "#111118";
+const SUCCESS = "#16A34A";
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const TIME_SLOTS = ['Morning (6–12)', 'Afternoon (12–17)', 'Evening (17–22)', 'Flexible'];
-const ID_TYPES = ['Aadhaar Card', 'PAN Card', 'Driving Licence', 'Passport', 'Voter ID'];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const TIME_SLOTS = [
+  "Morning (6–12)",
+  "Afternoon (12–17)",
+  "Evening (17–22)",
+  "Flexible",
+];
+const ID_TYPES = [
+  "Aadhaar Card",
+  "PAN Card",
+  "Driving Licence",
+  "Passport",
+  "Voter ID",
+];
 
 function SectionLabel({ text }: { text: string }) {
   return <Text style={sectionStyles.label}>{text}</Text>;
@@ -40,15 +53,16 @@ const sectionStyles = StyleSheet.create({
   },
 });
 
-function StyledInput({ placeholder, value, onChangeText, keyboardType, prefix }: any) {
+function StyledInput({
+  placeholder,
+  value,
+  onChangeText,
+  keyboardType,
+  prefix,
+}: any) {
   const [focused, setFocused] = useState(false);
   return (
-    <View
-      style={[
-        inputStyles.wrap,
-        focused && inputStyles.focused,
-      ]}
-    >
+    <View style={[inputStyles.wrap, focused && inputStyles.focused]}>
       {prefix && <Text style={inputStyles.prefix}>{prefix}</Text>}
       <TextInput
         placeholder={placeholder}
@@ -66,12 +80,12 @@ function StyledInput({ placeholder, value, onChangeText, keyboardType, prefix }:
 
 const inputStyles = StyleSheet.create({
   wrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: GRAY_BG,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: "transparent",
     paddingHorizontal: 16,
   },
   focused: {
@@ -93,7 +107,13 @@ const inputStyles = StyleSheet.create({
   },
 });
 
-function DayToggle({ selected, onToggle }: { selected: string[]; onToggle: (d: string) => void }) {
+function DayToggle({
+  selected,
+  onToggle,
+}: {
+  selected: string[];
+  onToggle: (d: string) => void;
+}) {
   return (
     <View style={dayStyles.row}>
       {DAYS.map((d) => {
@@ -105,7 +125,11 @@ function DayToggle({ selected, onToggle }: { selected: string[]; onToggle: (d: s
             style={[dayStyles.dayChip, active && dayStyles.dayActive]}
             activeOpacity={0.75}
           >
-            <Text style={[dayStyles.dayLabel, active && dayStyles.dayLabelActive]}>{d}</Text>
+            <Text
+              style={[dayStyles.dayLabel, active && dayStyles.dayLabelActive]}
+            >
+              {d}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -114,22 +138,28 @@ function DayToggle({ selected, onToggle }: { selected: string[]; onToggle: (d: s
 }
 
 const dayStyles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 8 },
+  row: { flexDirection: "row", gap: 8 },
   dayChip: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1.5,
     borderColor: GRAY_BORDER,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
   },
   dayActive: { backgroundColor: BRAND, borderColor: BRAND },
   dayLabel: { fontFamily: FONTS.REGULAR, fontSize: 12, color: DARK },
-  dayLabelActive: { color: '#fff', fontFamily: FONTS.BOLD },
+  dayLabelActive: { color: "#fff", fontFamily: FONTS.BOLD },
 });
 
-function TimeSlots({ selected, onToggle }: { selected: string[]; onToggle: (t: string) => void }) {
+function TimeSlots({
+  selected,
+  onToggle,
+}: {
+  selected: string[];
+  onToggle: (t: string) => void;
+}) {
   return (
     <View style={{ gap: 8 }}>
       {TIME_SLOTS.map((t) => {
@@ -144,7 +174,9 @@ function TimeSlots({ selected, onToggle }: { selected: string[]; onToggle: (t: s
             <View style={[timeStyles.radio, active && timeStyles.radioActive]}>
               {active && <View style={timeStyles.radioDot} />}
             </View>
-            <Text style={[timeStyles.label, active && timeStyles.labelActive]}>{t}</Text>
+            <Text style={[timeStyles.label, active && timeStyles.labelActive]}>
+              {t}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -154,15 +186,15 @@ function TimeSlots({ selected, onToggle }: { selected: string[]; onToggle: (t: s
 
 const timeStyles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     paddingVertical: 13,
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: GRAY_BORDER,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   rowActive: { borderColor: BRAND, backgroundColor: BRAND_LIGHT },
   radio: {
@@ -171,8 +203,8 @@ const timeStyles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: GRAY_BORDER,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   radioActive: { borderColor: BRAND },
   radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: BRAND },
@@ -180,8 +212,16 @@ const timeStyles = StyleSheet.create({
   labelActive: { fontFamily: FONTS.BOLD, color: BRAND },
 });
 
-function PortfolioGrid({ photos, onAdd }: { photos: string[]; onAdd: () => void }) {
-  const slots = Array(4).fill(null).map((_, i) => photos[i] ?? null);
+function PortfolioGrid({
+  photos,
+  onAdd,
+}: {
+  photos: string[];
+  onAdd: () => void;
+}) {
+  const slots = Array(4)
+    .fill(null)
+    .map((_, i) => photos[i] ?? null);
   return (
     <View style={portfolioStyles.grid}>
       {slots.map((uri, i) => (
@@ -207,26 +247,26 @@ function PortfolioGrid({ photos, onAdd }: { photos: string[]; onAdd: () => void 
 
 const portfolioStyles = StyleSheet.create({
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
   },
   cell: {
-    width: '47%',
+    width: "47%",
     aspectRatio: 1,
     borderRadius: 14,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
-  image: { width: '100%', height: '100%' },
+  image: { width: "100%", height: "100%" },
   placeholder: {
     flex: 1,
     backgroundColor: GRAY_BG,
     borderWidth: 1.5,
     borderColor: GRAY_BORDER,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 4,
   },
   plusIcon: { fontFamily: FONTS.BOLD, fontSize: 28, color: GRAY_TEXT },
@@ -234,7 +274,13 @@ const portfolioStyles = StyleSheet.create({
 });
 
 // ─── ID type dropdown (simple list toggle) ────────────────────────────────────
-function IdTypeSelector({ selected, onSelect }: { selected: string; onSelect: (v: string) => void }) {
+function IdTypeSelector({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (v: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <View>
@@ -244,9 +290,9 @@ function IdTypeSelector({ selected, onSelect }: { selected: string; onSelect: (v
         activeOpacity={0.8}
       >
         <Text style={[idStyles.triggerText, !selected && { color: GRAY_TEXT }]}>
-          {selected || 'Select ID type'}
+          {selected || "Select ID type"}
         </Text>
-        <Text style={{ color: GRAY_TEXT }}>{open ? '▲' : '▼'}</Text>
+        <Text style={{ color: GRAY_TEXT }}>{open ? "▲" : "▼"}</Text>
       </TouchableOpacity>
       {open && (
         <View style={idStyles.dropdown}>
@@ -254,10 +300,18 @@ function IdTypeSelector({ selected, onSelect }: { selected: string; onSelect: (v
             <TouchableOpacity
               key={t}
               style={idStyles.option}
-              onPress={() => { onSelect(t); setOpen(false); }}
+              onPress={() => {
+                onSelect(t);
+                setOpen(false);
+              }}
               activeOpacity={0.75}
             >
-              <Text style={[idStyles.optionText, t === selected && { color: BRAND, fontFamily: FONTS.BOLD }]}>
+              <Text
+                style={[
+                  idStyles.optionText,
+                  t === selected && { color: BRAND, fontFamily: FONTS.BOLD },
+                ]}
+              >
                 {t}
               </Text>
             </TouchableOpacity>
@@ -270,24 +324,24 @@ function IdTypeSelector({ selected, onSelect }: { selected: string; onSelect: (v
 
 const idStyles = StyleSheet.create({
   trigger: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: GRAY_BG,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   triggerText: { fontFamily: FONTS.REGULAR, fontSize: 15, color: DARK },
   dropdown: {
     marginTop: 4,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: GRAY_BORDER,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   option: {
     paddingHorizontal: 16,
@@ -304,7 +358,8 @@ function VerificationBadge() {
     <View style={badgeStyles.wrap}>
       <Text style={badgeStyles.icon}>🔒</Text>
       <Text style={badgeStyles.text}>
-        Your ID is encrypted and only used for verification. It is never shared with clients.
+        Your ID is encrypted and only used for verification. It is never shared
+        with clients.
       </Text>
     </View>
   );
@@ -312,22 +367,22 @@ function VerificationBadge() {
 
 const badgeStyles = StyleSheet.create({
   wrap: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: "#ECFDF5",
     borderRadius: 12,
     padding: 14,
     marginTop: 12,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
     borderWidth: 1,
-    borderColor: '#D1FAE5',
+    borderColor: "#D1FAE5",
   },
   icon: { fontSize: 16 },
   text: {
     flex: 1,
     fontFamily: FONTS.REGULAR,
     fontSize: 12,
-    color: '#065F46',
+    color: "#065F46",
     lineHeight: 18,
   },
 });
@@ -335,42 +390,107 @@ const badgeStyles = StyleSheet.create({
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ProviderOnboarding2() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const { requestOtp, isLoading } = useAuthApi();
 
   const [days, setDays] = useState<string[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
-  const [hourlyRate, setHourlyRate] = useState('');
-  const [minRate, setMinRate] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
-  const [idType, setIdType] = useState('');
-  const [idNumber, setIdNumber] = useState('');
-  const [certText, setCertText] = useState('');
+  const [hourlyRate, setHourlyRate] = useState("");
+  const [minRate, setMinRate] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [idType, setIdType] = useState("");
+  const [idNumber, setIdNumber] = useState("");
+  const [certText, setCertText] = useState("");
   const [portfolioPhotos] = useState<string[]>([]);
 
   const btnScale = useRef(new Animated.Value(1)).current;
 
   const toggleDay = (d: string) =>
-    setDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]);
+    setDays((prev) =>
+      prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d],
+    );
 
   const toggleTime = (t: string) =>
-    setTimeSlots((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
+    setTimeSlots((prev) =>
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
+    );
 
   const handleSubmit = () => {
     Animated.sequence([
-      Animated.timing(btnScale, { toValue: 0.95, duration: 80, useNativeDriver: true }),
-      Animated.timing(btnScale, { toValue: 1, duration: 120, useNativeDriver: true }),
-    ]).start(() => {
-      router.replace('/(tabs)');
+      Animated.timing(btnScale, {
+        toValue: 0.95,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(btnScale, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start(async () => {
+      const phone = String(params?.phone || "").trim();
+      const fullname = String(params?.name || "").trim();
+
+      const providerInput = {
+        fullname,
+        cityArea: String(params?.city || "").trim(),
+        category: String(params?.category || "").trim(),
+        yearsOfExperience:
+          Number.parseInt(
+            String(params?.experience || "").replace(/[^0-9]/g, ""),
+            10,
+          ) || undefined,
+        skills: JSON.parse(String(params?.skills || "[]")),
+        bio: String(params?.bio || "").trim(),
+        profilePhotoUrl: String(params?.photoUri || "").trim() || undefined,
+        availability: {
+          availableDays: days,
+          preferredWorkHours: timeSlots,
+        },
+        startingPrice: Number.parseFloat(minRate) || undefined,
+        portfolioPhotos,
+        certifications: certText.trim() ? [{ text: certText.trim() }] : [],
+        govtId:
+          idType || idNumber
+            ? {
+                idType: idType || undefined,
+                idNumber: idNumber || undefined,
+              }
+            : undefined,
+        whatsappNumber: whatsapp.trim() || undefined,
+        languagesSpoken: JSON.parse(String(params?.languages || "[]")),
+      };
+
+      const { success, debugOtp } = await requestOtp({
+        phone,
+        role: "provider",
+      });
+
+      if (!success) return;
+
+      if (debugOtp) {
+        Alert.alert("DEBUG OTP", debugOtp);
+      }
+
+      router.replace({
+        pathname: "/(auth)/VerifyOTP",
+        params: {
+          phone,
+          mode: "provider-signup",
+          providerInput: JSON.stringify(providerInput),
+        },
+      });
     });
   };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#fff' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {/* Progress bar */}
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: '100%' }]} />
+        <View style={[styles.progressFill, { width: "100%" }]} />
       </View>
 
       <ScrollView
@@ -432,7 +552,9 @@ export default function ProviderOnboarding2() {
 
         {/* Portfolio */}
         <SectionLabel text="PORTFOLIO PHOTOS (optional)" />
-        <Text style={styles.hint}>Show your best work — before/after shots work great.</Text>
+        <Text style={styles.hint}>
+          Show your best work — before/after shots work great.
+        </Text>
         <View style={{ marginTop: 12 }}>
           <PortfolioGrid photos={portfolioPhotos} onAdd={() => {}} />
         </View>
@@ -465,9 +587,21 @@ export default function ProviderOnboarding2() {
         </TouchableOpacity>
 
         {/* CTA */}
-        <Animated.View style={{ transform: [{ scale: btnScale }], marginTop: 36, marginBottom: 48 }}>
-          <TouchableOpacity style={styles.cta} onPress={handleSubmit} activeOpacity={0.85}>
-            <Text style={styles.ctaText}>Complete Profile  ✓</Text>
+        <Animated.View
+          style={{
+            transform: [{ scale: btnScale }],
+            marginTop: 36,
+            marginBottom: 48,
+          }}
+        >
+          <TouchableOpacity
+            style={styles.cta}
+            onPress={handleSubmit}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.ctaText}>
+              {isLoading ? "Sending OTP..." : "Complete Profile  ✓"}
+            </Text>
           </TouchableOpacity>
           <Text style={styles.ctaHint}>
             Your profile will be reviewed within 24 hours before going live.
@@ -479,7 +613,7 @@ export default function ProviderOnboarding2() {
 }
 
 const styles = StyleSheet.create({
-  progressTrack: { height: 4, backgroundColor: GRAY_BG, width: '100%' },
+  progressTrack: { height: 4, backgroundColor: GRAY_BG, width: "100%" },
   progressFill: { height: 4, backgroundColor: BRAND, borderRadius: 2 },
   scroll: { paddingHorizontal: 24, paddingTop: 20 },
   header: { marginBottom: 4 },
@@ -509,7 +643,7 @@ const styles = StyleSheet.create({
     color: GRAY_TEXT,
     lineHeight: 20,
   },
-  priceRow: { flexDirection: 'row', gap: 12 },
+  priceRow: { flexDirection: "row", gap: 12 },
   priceSubLabel: {
     fontFamily: FONTS.REGULAR,
     fontSize: 12,
@@ -518,37 +652,41 @@ const styles = StyleSheet.create({
   },
   uploadIdBtn: {
     marginTop: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     backgroundColor: GRAY_BG,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1.5,
     borderColor: GRAY_BORDER,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
   },
   uploadIdIcon: { fontSize: 20 },
   uploadIdText: { fontFamily: FONTS.BOLD, fontSize: 14, color: DARK, flex: 1 },
-  uploadIdSubtext: { fontFamily: FONTS.REGULAR, fontSize: 11, color: GRAY_TEXT },
+  uploadIdSubtext: {
+    fontFamily: FONTS.REGULAR,
+    fontSize: 11,
+    color: GRAY_TEXT,
+  },
   cta: {
     backgroundColor: BRAND,
     borderRadius: 16,
     height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   ctaText: {
     fontFamily: FONTS.BOLD,
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
     letterSpacing: 0.5,
   },
   ctaHint: {
     fontFamily: FONTS.REGULAR,
     fontSize: 12,
     color: GRAY_TEXT,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 12,
     lineHeight: 18,
   },

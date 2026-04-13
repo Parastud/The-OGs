@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const SIGNIN_MUTATION = gql`
-  mutation Signin($phone: String!) {
-    signin(phone: $phone) {
+  mutation Signin($phone: String!, $role: Role) {
+    signin(phone: $phone, role: $role) {
       success
       message
       debugOtp

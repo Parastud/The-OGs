@@ -2,6 +2,7 @@
 import PrimaryButton from "@/src/components/buttons/PrimaryButton";
 import { ScreenWrapper } from "@/src/components/wrapper";
 import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
+import { hideSnackbar } from "@/src/redux/slices/snackbar.slice";
 import { showSnackbarSuccess } from "@/src/redux/slices/snackbar.slice";
 import { UserState } from "@/src/redux/slices/user.slice";
 import { COLORS } from "@/src/theme/colors";
@@ -349,7 +350,9 @@ export default function Login() {
       return;
     }
     clearError();
-    const { success, debugOtp } = await requestOtp({ phone: phone.trim() });
+    const { success, debugOtp, message } = await requestOtp({
+      phone: phone.trim(),
+    });
     if (success) {
       if (debugOtp) Alert.alert("DEBUG OTP", debugOtp);
       setErrors({ phone: "", otp: "" });
@@ -358,7 +361,17 @@ export default function Login() {
         pathname: "/(auth)/VerifyOTP",
         params: { phone: phone.trim(), debugOtp },
       });
-    } else if (lastError?.includes("Account not found")) {
+      return;
+    }
+
+    const normalizedMessage = (message || lastError || "").toLowerCase();
+    const shouldShowCreateAccount =
+      normalizedMessage.includes("account not found") ||
+      normalizedMessage.includes("role is required") ||
+      normalizedMessage.includes("role must be customer or provider");
+
+    if (shouldShowCreateAccount) {
+      dispatch(hideSnackbar());
       setErrors({
         ...errors,
         phone: "Account not found. Create one to get started.",

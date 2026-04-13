@@ -23,21 +23,68 @@ function CustomerIllustration() {
         <Text style={illustStyles.emoji}>🔍</Text>
       </View>
       {/* decorative dots */}
-      <View style={[illustStyles.dot, { top: 16, left: 24, width: 6, height: 6, opacity: 0.5 }]} />
-      <View style={[illustStyles.dot, { top: 30, right: 32, width: 4, height: 4, opacity: 0.4 }]} />
-      <View style={[illustStyles.dot, { bottom: 18, right: 48, width: 5, height: 5, opacity: 0.35 }]} />
+      <View
+        style={[
+          illustStyles.dot,
+          { top: 16, left: 24, width: 6, height: 6, opacity: 0.5 },
+        ]}
+      />
+      <View
+        style={[
+          illustStyles.dot,
+          { top: 30, right: 32, width: 4, height: 4, opacity: 0.4 },
+        ]}
+      />
+      <View
+        style={[
+          illustStyles.dot,
+          { bottom: 18, right: 48, width: 5, height: 5, opacity: 0.35 },
+        ]}
+      />
     </View>
   );
 }
 
 function ProviderIllustration({ selected }: { selected: boolean }) {
   return (
-    <View style={[illustStyles.wrap, selected ? illustStyles.wrapActive : illustStyles.wrapGray]}>
-      <View style={[illustStyles.avatarCircle, !selected && illustStyles.avatarCircleGray]}>
+    <View
+      style={[
+        illustStyles.wrap,
+        selected ? illustStyles.wrapActive : illustStyles.wrapGray,
+      ]}
+    >
+      <View
+        style={[
+          illustStyles.avatarCircle,
+          !selected && illustStyles.avatarCircleGray,
+        ]}
+      >
         <Text style={illustStyles.emoji}>🛠️</Text>
       </View>
-      <View style={[illustStyles.dot, { top: 16, left: 24, width: 6, height: 6, opacity: selected ? 0.5 : 0.3 }]} />
-      <View style={[illustStyles.dot, { top: 30, right: 32, width: 4, height: 4, opacity: selected ? 0.4 : 0.2 }]} />
+      <View
+        style={[
+          illustStyles.dot,
+          {
+            top: 16,
+            left: 24,
+            width: 6,
+            height: 6,
+            opacity: selected ? 0.5 : 0.3,
+          },
+        ]}
+      />
+      <View
+        style={[
+          illustStyles.dot,
+          {
+            top: 30,
+            right: 32,
+            width: 4,
+            height: 4,
+            opacity: selected ? 0.4 : 0.2,
+          },
+        ]}
+      />
     </View>
   );
 }
@@ -137,13 +184,25 @@ export default function RoleSelect() {
   const handleContinue = () => {
     if (!role) return;
     Animated.sequence([
-      Animated.timing(btnScale, { toValue: 0.96, duration: 80, useNativeDriver: true }),
-      Animated.timing(btnScale, { toValue: 1, duration: 120, useNativeDriver: true }),
+      Animated.timing(btnScale, {
+        toValue: 0.96,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(btnScale, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+      }),
     ]).start(() => {
-      if (role === "provider") {
-        router.push("/Provider/Step1");
+      if (role === "customer") {
+        router.push({
+          pathname: "/(auth)/Register",
+        });
       } else {
-        router.push("/(auth)/Register");
+        router.push({
+          pathname: "/(auth)/Provider/Step1",
+        });
       }
     });
   };
@@ -205,7 +264,7 @@ export default function RoleSelect() {
             disabled={!role || isLoading}
             activeOpacity={0.85}
           >
-            <Text style={styles.ctaText}>Continue to next step  →</Text>
+            <Text style={styles.ctaText}>Continue to next step →</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
