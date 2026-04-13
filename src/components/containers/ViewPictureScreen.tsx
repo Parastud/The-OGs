@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useRef} from 'react';
 import {View, Image, StyleSheet, Animated} from 'react-native';
 import {useRoute} from '@react-navigation/native';

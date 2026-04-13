@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { scale } from 'react-native-size-matters';

@@ -1,11 +1,13 @@
 import EnvFlag from '@/src/components/flags/EnvFlag';
 import { hideSnackbar, SnackbarType } from '@/src/redux/slices/snackbar.slice';
-import store, { RootState } from '@/src/redux/store';
+import { store, RootState } from '@/src/redux/store';
 import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider, Snackbar } from 'react-native-paper';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider as ReduxProvider, useDispatch, useSelector } from 'react-redux';
+import { ApolloProvider } from '@apollo/client/react';
+import { apolloClient } from '@/src/lib/apolloClient';
 
 function RootLayoutNav() {
   return (
@@ -52,11 +54,13 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Provider store={store}>
-        <AppContent />
-      </Provider>
-    </GestureHandlerRootView>
+    <ApolloProvider client={apolloClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ReduxProvider store={store}>
+          <AppContent />
+        </ReduxProvider>
+      </GestureHandlerRootView>
+    </ApolloProvider>
   );
 }
 

@@ -157,7 +157,7 @@ export default function ForgotPassword() {
         {step === 2 && (
           <TouchableOpacity onPress={handleRequestOtp} disabled={isLoading}>
             <Text style={styles.resendText}>
-              Didn't receive it?{' '}
+              Didn&apos;t receive it?{' '}
               <Text style={styles.resendLink}>Resend OTP</Text>
             </Text>
           </TouchableOpacity>

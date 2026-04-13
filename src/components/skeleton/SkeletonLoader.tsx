@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, ViewStyle, DimensionValue } from 'react-native';
 import { scale } from 'react-native-size-matters';

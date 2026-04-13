@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { Zap, Droplets, Flame, Signal } from 'lucide-react-native';
-import { COLORS } from '../../../theme/colors';
-import {
-  REGULAR_TEXT,
-  BOLD_TEXT,
-} from '../../../theme/styles.global';
-import RechargeDeviceBottomSheet from '../../../screens/appScreens/rechargeScreens/RechargeDeviceBottomSheet';
+import React, { useState } from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Zap, Droplets, Flame, Signal } from "lucide-react-native";
+import { COLORS } from "../../../theme/colors";
+import { REGULAR_TEXT, BOLD_TEXT } from "../../../theme/styles.global";
+import RechargeDeviceBottomSheet from "../../../screens/appScreens/rechargeScreens/RechargeDeviceBottomSheet";
 
-export type MeterType = 'elm' | 'wtm' | 'gsm';
+export type MeterType = "elm" | "wtm" | "gsm";
 
 export interface MeterData {
   id: string;
   name: string;
   type: MeterType;
   lastPing: string;
-  network: 'online' | 'offline';
+  network: "online" | "offline";
   isOnline: boolean;
 }
 
@@ -28,11 +25,11 @@ interface RoomConnectedMetersContainerProps {
 
 const getMeterIcon = (type: MeterType, size: number = 16) => {
   switch (type) {
-    case 'elm':
+    case "elm":
       return <Zap size={size} color={COLORS.primary} />;
-    case 'wtm':
+    case "wtm":
       return <Droplets size={size} color="#06B6D4" />;
-    case 'gsm':
+    case "gsm":
       return <Flame size={size} color="#F97316" />;
     default:
       return <Zap size={size} color={COLORS.primary} />;
@@ -41,14 +38,14 @@ const getMeterIcon = (type: MeterType, size: number = 16) => {
 
 const getMeterLabel = (type: MeterType) => {
   switch (type) {
-    case 'elm':
-      return 'Electric';
-    case 'wtm':
-      return 'Water';
-    case 'gsm':
-      return 'Gas';
+    case "elm":
+      return "Electric";
+    case "wtm":
+      return "Water";
+    case "gsm":
+      return "Gas";
     default:
-      return 'Unknown';
+      return "Unknown";
   }
 };
 
@@ -64,10 +61,10 @@ export const RoomConnectedMetersContainer = (
 
   // Set initial active tab to first available type with meters
   const getInitialTab = (): MeterType => {
-    if (hasElmMeters) return 'elm';
-    if (hasWtmMeters) return 'wtm';
-    if (hasGsmMeters) return 'gsm';
-    return 'elm'; // Default fallback
+    if (hasElmMeters) return "elm";
+    if (hasWtmMeters) return "wtm";
+    if (hasGsmMeters) return "gsm";
+    return "elm"; // Default fallback
   };
 
   const [activeTab, setActiveTab] = useState<MeterType>(getInitialTab());
@@ -93,7 +90,7 @@ export const RoomConnectedMetersContainer = (
   };
 
   const handleProceedToPay = (amount: number) => {
-    console.log('Proceed to pay:', { amount, meterId: selectedMeter?.id });
+    console.log("Proceed to pay:", { amount, meterId: selectedMeter?.id });
     // Here you would integrate with payment gateway (e.g., Razorpay)
     handleRechargeClose();
   };
@@ -117,7 +114,7 @@ export const RoomConnectedMetersContainer = (
           style={
             isActive
               ? BOLD_TEXT(10, COLORS.primary)
-              : REGULAR_TEXT(10, hasMeters ? COLORS.textSecondary : '#9CA3AF')
+              : REGULAR_TEXT(10, hasMeters ? COLORS.textSecondary : "#9CA3AF")
           }
         >
           {getMeterLabel(type)}
@@ -126,7 +123,7 @@ export const RoomConnectedMetersContainer = (
           <View
             style={[
               styles.tabCount,
-              { backgroundColor: isActive ? COLORS.primary : '#E5E7EB' },
+              { backgroundColor: isActive ? COLORS.primary : "#E5E7EB" },
             ]}
           >
             <Text
@@ -154,19 +151,17 @@ export const RoomConnectedMetersContainer = (
         <View
           style={[
             styles.statusBadge,
-            { backgroundColor: meter.isOnline ? '#D1FAE5' : '#FEE2E2' },
+            { backgroundColor: meter.isOnline ? "#D1FAE5" : "#FEE2E2" },
           ]}
         >
           <View
             style={[
               styles.statusDot,
-              { backgroundColor: meter.isOnline ? '#10B981' : '#EF4444' },
+              { backgroundColor: meter.isOnline ? "#10B981" : "#EF4444" },
             ]}
           />
-          <Text
-            style={BOLD_TEXT(8, meter.isOnline ? '#10B981' : '#EF4444')}
-          >
-            {meter.isOnline ? 'ONLINE' : 'OFFLINE'}
+          <Text style={BOLD_TEXT(8, meter.isOnline ? "#10B981" : "#EF4444")}>
+            {meter.isOnline ? "ONLINE" : "OFFLINE"}
           </Text>
         </View>
       </View>
@@ -206,35 +201,35 @@ export const RoomConnectedMetersContainer = (
 
   const renderElmDevices = () => {
     if (elmMeters.length === 0) {
-      return renderEmptyState('elm');
+      return renderEmptyState("elm");
     }
-    return elmMeters.map(meter => renderMeterCard(meter, true));
+    return elmMeters.map((meter) => renderMeterCard(meter, true));
   };
 
   const renderWtmDevices = () => {
     if (wtmMeters.length === 0) {
-      return renderEmptyState('wtm');
+      return renderEmptyState("wtm");
     }
-    return wtmMeters.map(meter => renderMeterCard(meter, false));
+    return wtmMeters.map((meter) => renderMeterCard(meter, false));
   };
 
   const renderGsmDevices = () => {
     if (gsmMeters.length === 0) {
-      return renderEmptyState('gsm');
+      return renderEmptyState("gsm");
     }
-    return gsmMeters.map(meter => renderMeterCard(meter, false));
+    return gsmMeters.map((meter) => renderMeterCard(meter, false));
   };
 
   const renderActiveTabContent = () => {
     switch (activeTab) {
-      case 'elm':
+      case "elm":
         return renderElmDevices();
-      case 'wtm':
+      case "wtm":
         return renderWtmDevices();
-      case 'gsm':
+      case "gsm":
         return renderGsmDevices();
       default:
-        return renderEmptyState('elm');
+        return renderEmptyState("elm");
     }
   };
 
@@ -268,9 +263,9 @@ export const RoomConnectedMetersContainer = (
 
       {/* Tabs */}
       <View style={styles.tabsRow}>
-        {renderTab('elm', hasElmMeters, elmMeters.length)}
-        {renderTab('wtm', hasWtmMeters, wtmMeters.length)}
-        {renderTab('gsm', hasGsmMeters, gsmMeters.length)}
+        {renderTab("elm", hasElmMeters, elmMeters.length)}
+        {renderTab("wtm", hasWtmMeters, wtmMeters.length)}
+        {renderTab("gsm", hasGsmMeters, gsmMeters.length)}
       </View>
 
       {/* Meter Cards based on active tab */}
@@ -284,8 +279,8 @@ export const RoomConnectedMetersContainer = (
           meterInfo={{
             id: selectedMeter.id,
             name: selectedMeter.name,
-            consumerId: 'BB2100',
-            balance: '₹142.50',
+            consumerId: "BB2100",
+            balance: "₹142.50",
           }}
           onProceedToPay={handleProceedToPay}
         />
@@ -303,27 +298,27 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginBottom: 12,
   },
   tabsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
     marginBottom: 12,
   },
   tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: "#F3F4F6",
   },
   tabActive: {
-    backgroundColor: '#E8F4FD',
+    backgroundColor: "#E8F4FD",
   },
   tabDisabled: {
     opacity: 0.5,
@@ -332,21 +327,21 @@ const styles = StyleSheet.create({
     minWidth: 16,
     height: 16,
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 4,
   },
   meterCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: "#E5E7EB",
   },
   meterHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: 10,
   },
@@ -354,18 +349,18 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E8F4FD',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E8F4FD",
+    justifyContent: "center",
+    alignItems: "center",
   },
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 12,
-    marginLeft: 'auto',
+    marginLeft: "auto",
   },
   statusDot: {
     width: 6,
@@ -373,15 +368,15 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 16,
   },
   statItem: {
     gap: 2,
   },
   rechargeButton: {
-    marginLeft: 'auto',
+    marginLeft: "auto",
     backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -389,6 +384,6 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     paddingVertical: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
