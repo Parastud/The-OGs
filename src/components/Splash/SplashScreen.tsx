@@ -83,8 +83,8 @@ export default function SplashScreen() {
     return () => {
       dotAnimationRef.current?.stop();
     };
-  }, []);
 
+  }, [dot0, dot1, dot2, logoOpacity, logoScale, taglineOpacity, textOpacity]);
   return (
     <View style={styles.container}>
       {/* Background circles */}

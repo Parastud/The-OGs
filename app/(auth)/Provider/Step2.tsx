@@ -22,7 +22,6 @@ const GRAY_BG = "#F4F4F8";
 const GRAY_BORDER = "#E2E2EC";
 const GRAY_TEXT = "#9898AA";
 const DARK = "#111118";
-const SUCCESS = "#16A34A";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIME_SLOTS = [

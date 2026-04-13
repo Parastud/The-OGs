@@ -1,4 +1,3 @@
-import { apolloClient } from "@/src/lib/apolloClient";
 import { hideSnackbar, SnackbarType } from "@/src/redux/slices/snackbar.slice";
 import { RootState, store } from "@/src/redux/store";
 import { Stack } from "expo-router";

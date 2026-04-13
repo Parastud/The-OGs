@@ -1,397 +1,365 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
 } from "react-native";
 
-import {
-    Bell,
-    MapPin,
-    MessageSquare,
-    ShieldCheck
-} from "lucide-react-native";
+import { Bell, MessageSquare } from "lucide-react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { COLORS, Radius, Shadows, Spacing } from "@/src/theme/colors";
+import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
 export default function BidsScreen() {
-    const [activeTab, setActiveTab] = useState("accepted");
+  const { getProviderBids, isLoading } = useProviderApi();
+  const [activeTab, setActiveTab] = useState("accepted");
+  const [bidsData, setBidsData] = useState({
+    pending: [] as any[],
+    accepted: [] as any[],
+    rejected: [] as any[],
+  });
 
-    const pendingData = [
-        {
-            id: 1,
-            title: "Bathroom Pipe Repair",
-            bid: "₹500",
-            user: "Rahul Sharma"
-        }
-    ];
+  useEffect(() => {
+    const loadBids = async () => {
+      const pending = await getProviderBids("pending");
+      const accepted = await getProviderBids("accepted");
+      const rejected = await getProviderBids("rejected");
 
-    const acceptedData = [
-        {
-            id: 2,
-            title: "Kitchen Faucet Replacement",
-            bid: "₹650",
-            user: "Priya Sharma"
-        },
-        {
-            id: 3,
-            title: "Ceiling Fan Repair",
-            bid: "₹450",
-            user: "Arjun K."
-        }
-    ];
-
-    const rejectedData = [
-        {
-            id: 4,
-            title: "AC Installation",
-            bid: "₹900",
-            user: "Amit Verma"
-        }
-    ];
-
-    const data =
-        activeTab === "pending"
-            ? pendingData
-            : activeTab === "accepted"
-                ? acceptedData
-                : rejectedData;
-
-    const handleChat = (item: any) => {
-        console.log("Chat:", item.title);
+      setBidsData({
+        pending: pending || [],
+        accepted: accepted || [],
+        rejected: rejected || [],
+      });
     };
 
-    const handleViewJob = (item: any) => {
-        console.log("View Job:", item.title);
-    };
+    loadBids();
+  }, []);
 
-    const handleResumeChat = (item: any) => {
-        console.log("Resume Chat:", item.title);
-    };
+  const data =
+    activeTab === "pending"
+      ? bidsData.pending
+      : activeTab === "accepted"
+        ? bidsData.accepted
+        : bidsData.rejected;
 
-    return (
-        <ScreenWrapper
-            safeArea
-            style={styles.container}
-            contentContainerStyle={styles.scrollContent}
+  const handleChat = (item: any) => {
+    console.log("Chat:", item.title);
+  };
+
+  const handleViewJob = (item: any) => {
+    console.log("View Job:", item.title);
+  };
+
+  const handleResumeChat = (item: any) => {
+    console.log("Resume Chat:", item.title);
+  };
+
+  return (
+    <ScreenWrapper
+      safeArea
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <View style={styles.header}>
+        <Text style={styles.brand}>Gigly</Text>
+        <Text style={styles.title}>My Bids</Text>
+        <Bell size={22} color={COLORS.textPrimary} />
+      </View>
+
+      <View style={styles.tabs}>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === "pending" && styles.activeTab]}
+          onPress={() => setActiveTab("pending")}
         >
-            <View style={styles.header}>
-                <Text style={styles.brand}>Gigly</Text>
-                <Text style={styles.title}>My Bids</Text>
-                <Bell size={22} color={COLORS.textPrimary} />
-            </View>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "pending" && styles.activeText,
+            ]}
+          >
+            Pending ({bidsData.pending.length})
+          </Text>
+        </TouchableOpacity>
 
-            <View style={styles.tabs}>
-                <TouchableOpacity
-                    style={[styles.tabBtn, activeTab === "pending" && styles.activeTab]}
-                    onPress={() => setActiveTab("pending")}
-                >
-                    <Text style={[
-                        styles.tabText,
-                        activeTab === "pending" && styles.activeText
-                    ]}>
-                        Pending
-                    </Text>
-                </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === "accepted" && styles.activeTab]}
+          onPress={() => setActiveTab("accepted")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "accepted" && styles.activeText,
+            ]}
+          >
+            Accepted ({bidsData.accepted.length})
+          </Text>
+        </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.tabBtn, activeTab === "accepted" && styles.activeTab]}
-                    onPress={() => setActiveTab("accepted")}
-                >
-                    <Text style={[
-                        styles.tabText,
-                        activeTab === "accepted" && styles.activeText
-                    ]}>
-                        Accepted
-                    </Text>
-                </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === "rejected" && styles.activeTab]}
+          onPress={() => setActiveTab("rejected")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "rejected" && styles.activeText,
+            ]}
+          >
+            Rejected ({bidsData.rejected.length})
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-                <TouchableOpacity
-                    style={[styles.tabBtn, activeTab === "rejected" && styles.activeTab]}
-                    onPress={() => setActiveTab("rejected")}
-                >
-                    <Text style={[
-                        styles.tabText,
-                        activeTab === "rejected" && styles.activeText
-                    ]}>
-                        Rejected
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.section}>
-                <Text style={styles.heading}>Active Opportunities</Text>
-                <Text style={styles.subtitle}>
-                    Manage your accepted offers and start working.
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : data.length > 0 ? (
+        data.map((item, idx) => (
+          <View key={idx} style={styles.bidCard}>
+            <View style={styles.bidHeader}>
+              <View>
+                <Text style={styles.bidTitle}>{item.title}</Text>
+                <Text style={styles.bidUser}>From: {item.user}</Text>
+              </View>
+              <View style={[styles.statusBadge, getStatusColor(item.status)]}>
+                <Text style={styles.statusText}>
+                  {item.status.toUpperCase()}
                 </Text>
+              </View>
             </View>
 
-            {data.map((item: any) => (
-                <View key={item.id} style={styles.card}>
-                    <View style={styles.cardTop}>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>{activeTab.toUpperCase()}</Text>
-                        </View>
+            <View style={styles.bidAmount}>
+              <Text style={styles.amountLabel}>Your Bid:</Text>
+              <Text style={styles.amountValue}>{item.bidAmount}</Text>
+            </View>
 
-                        <Image
-                            source={{ uri: "https://picsum.photos/100" }}
-                            style={styles.jobImage}
-                        />
-                    </View>
-
-                    <Text style={styles.jobTitle}>{item.title}</Text>
-                    <Text style={styles.bid}>Your bid: {item.bid}</Text>
-
-                    <View style={styles.clientBox}>
-                        <Image
-                            source={{ uri: "https://i.pravatar.cc/100" }}
-                            style={styles.avatar}
-                        />
-
-                        <View style={styles.clientInfo}>
-                            <Text style={styles.clientName}>{item.user}</Text>
-
-                            <View style={styles.locationRow}>
-                                <MapPin size={14} color={COLORS.textSecondary} />
-                                <Text style={styles.location}>Mathura, UP</Text>
-                            </View>
-                        </View>
-
-                        {activeTab === "accepted" && (
-                            <View style={styles.escrow}>
-                                <ShieldCheck size={16} color={COLORS.success} />
-                                <Text style={styles.escrowText}>Payment held in escrow</Text>
-                            </View>
-                        )}
-                    </View>
-
-                    {activeTab === "accepted" ? (
-                        <View style={styles.buttons}>
-                            <TouchableOpacity
-                                style={styles.chatBtn}
-                                onPress={() => handleChat(item)}
-                            >
-                                <MessageSquare size={16} color={COLORS.primary} />
-                                <Text style={styles.chatText}>Chat</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={styles.viewBtn}
-                                onPress={() => handleViewJob(item)}
-                            >
-                                <Text style={styles.viewText}>View Job</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ) : activeTab === "pending" ? (
-                        <TouchableOpacity onPress={() => handleResumeChat(item)}>
-                            <Text style={styles.resume}>Resume Chat</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <Text style={styles.rejectedText}>Bid Rejected</Text>
-                    )}
-                </View>
-            ))}
-        </ScreenWrapper>
-    );
+            {activeTab === "accepted" ? (
+              <View style={styles.actionBtns}>
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.startBtn]}
+                  onPress={() => handleViewJob(item)}
+                >
+                  <Text style={styles.actionBtnText}>Start Work</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.chatBtn]}
+                  onPress={() => handleChat(item)}
+                >
+                  <MessageSquare size={16} color={COLORS.primary} />
+                  <Text
+                    style={[styles.actionBtnText, { color: COLORS.primary }]}
+                  >
+                    Message
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : activeTab === "pending" ? (
+              <View style={styles.actionBtns}>
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.viewBtn]}
+                  onPress={() => handleViewJob(item)}
+                >
+                  <Text style={styles.actionBtnText}>View Job</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.chatBtn]}
+                  onPress={() => handleResumeChat(item)}
+                >
+                  <MessageSquare size={16} color={COLORS.primary} />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.actionBtns}>
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.viewBtn]}
+                  onPress={() => handleViewJob(item)}
+                >
+                  <Text style={styles.actionBtnText}>View Job</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        ))
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No {activeTab} bids</Text>
+        </View>
+      )}
+    </ScreenWrapper>
+  );
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "pending":
+      return { backgroundColor: "#FFF3E0" };
+    case "accepted":
+      return { backgroundColor: "#E8F5E9" };
+    case "rejected":
+      return { backgroundColor: "#FFEBEE" };
+    default:
+      return { backgroundColor: "#F5F5F5" };
+  }
+};
+
+/* -------------------- Styles -------------------- */
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background
-    },
-    scrollContent: {
-        paddingHorizontal: 0,
-        paddingVertical: 0,
-        paddingBottom: Spacing.xl
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: Spacing.lg,
-        paddingTop: Spacing.md,
-        paddingBottom: Spacing.base
-    },
-    brand: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 18,
-        color: COLORS.primary
-    },
-    title: {
-        fontFamily: FONTS.SEMIBOLD,
-        fontSize: 18,
-        color: COLORS.textPrimary
-    },
-    tabs: {
-        flexDirection: "row",
-        backgroundColor: COLORS.surfaceSecondary,
-        marginHorizontal: Spacing.lg,
-        borderRadius: Radius.md,
-        padding: 6,
-        borderWidth: 1,
-        borderColor: COLORS.border
-    },
-    tabBtn: {
-        flex: 1,
-        padding: 10,
-        alignItems: "center",
-        borderRadius: Radius.sm
-    },
-    tabText: {
-        fontFamily: FONTS.MEDIUM,
-        fontSize: 13,
-        color: COLORS.textSecondary
-    },
-    activeTab: {
-        backgroundColor: COLORS.surface,
-        ...Shadows.sm
-    },
-    activeText: {
-        color: COLORS.primary,
-        fontFamily: FONTS.SEMIBOLD
-    },
-    section: {
-        padding: Spacing.lg
-    },
-    heading: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 24,
-        color: COLORS.textPrimary
-    },
-    subtitle: {
-        fontFamily: FONTS.REGULAR,
-        fontSize: 14,
-        color: COLORS.textSecondary,
-        marginTop: 4
-    },
-    card: {
-        backgroundColor: COLORS.surface,
-        marginHorizontal: Spacing.lg,
-        padding: 18,
-        borderRadius: Radius.xl,
-        marginBottom: Spacing.lg,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        ...Shadows.sm
-    },
-    cardTop: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center"
-    },
-    badge: {
-        backgroundColor: COLORS.successLight,
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: Radius.full
-    },
-    badgeText: {
-        color: COLORS.successDark,
-        fontFamily: FONTS.SEMIBOLD,
-        fontSize: 12
-    },
-    jobImage: {
-        width: 60,
-        height: 60,
-        borderRadius: Radius.md
-    },
-    jobTitle: {
-        fontFamily: FONTS.BOLD,
-        fontSize: 20,
-        color: COLORS.textPrimary,
-        marginTop: 10
-    },
-    bid: {
-        color: COLORS.textSecondary,
-        fontFamily: FONTS.REGULAR,
-        marginTop: 4
-    },
-    clientBox: {
-        backgroundColor: COLORS.surfaceSecondary,
-        padding: Spacing.md,
-        borderRadius: Radius.md,
-        marginTop: Spacing.md,
-        flexDirection: "row",
-        alignItems: "center",
-        gap: Spacing.sm
-    },
-    avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: Radius.full
-    },
-    clientInfo: {
-        flex: 1
-    },
-    clientName: {
-        fontFamily: FONTS.SEMIBOLD,
-        color: COLORS.textPrimary
-    },
-    locationRow: {
-        flexDirection: "row",
-        alignItems: "center"
-    },
-    location: {
-        marginLeft: 4,
-        color: COLORS.textSecondary,
-        fontFamily: FONTS.REGULAR,
-        fontSize: 12
-    },
-    escrow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 4
-    },
-    escrowText: {
-        color: COLORS.success,
-        fontSize: 12,
-        fontFamily: FONTS.MEDIUM
-    },
-    buttons: {
-        flexDirection: "row",
-        gap: Spacing.sm,
-        marginTop: 14
-    },
-    chatBtn: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: COLORS.primary,
-        padding: 12,
-        borderRadius: Radius.md,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 6
-    },
-    chatText: {
-        color: COLORS.primary,
-        fontFamily: FONTS.SEMIBOLD
-    },
-    viewBtn: {
-        flex: 1,
-        backgroundColor: COLORS.primary,
-        padding: 12,
-        borderRadius: Radius.md,
-        alignItems: "center"
-    },
-    viewText: {
-        color: COLORS.textInverse,
-        fontFamily: FONTS.SEMIBOLD
-    },
-    resume: {
-        marginTop: Spacing.md,
-        color: COLORS.primary,
-        fontFamily: FONTS.SEMIBOLD,
-        textAlign: "right"
-    },
-    rejectedText: {
-        marginTop: Spacing.md,
-        color: COLORS.danger,
-        fontFamily: FONTS.SEMIBOLD
-    }
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  brand: {
+    fontSize: 18,
+    fontFamily: FONTS.BOLD,
+    color: COLORS.textPrimary,
+  },
+  title: {
+    fontSize: 16,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.textPrimary,
+  },
+  tabs: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  tabText: {
+    fontSize: 12,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.textSecondary,
+  },
+  activeText: {
+    color: COLORS.white,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  bidCard: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  bidHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  bidTitle: {
+    fontSize: 14,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  bidUser: {
+    fontSize: 12,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  statusText: {
+    fontSize: 11,
+    fontFamily: FONTS.BOLD,
+    color: COLORS.primary,
+  },
+  bidAmount: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  amountLabel: {
+    fontSize: 12,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+  },
+  amountValue: {
+    fontSize: 16,
+    fontFamily: FONTS.BOLD,
+    color: COLORS.primary,
+  },
+  actionBtns: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  actionBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 6,
+  },
+  startBtn: {
+    backgroundColor: COLORS.primary,
+  },
+  viewBtn: {
+    backgroundColor: COLORS.primary,
+  },
+  chatBtn: {
+    backgroundColor: COLORS.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  actionBtnText: {
+    fontSize: 12,
+    fontFamily: FONTS.SEMIBOLD,
+    color: COLORS.white,
+  },
+  emptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontFamily: FONTS.REGULAR,
+    color: COLORS.textSecondary,
+  },
 });
