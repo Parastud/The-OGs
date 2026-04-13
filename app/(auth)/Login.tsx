@@ -80,7 +80,7 @@ function PhoneStep({
           ]}
         >
           <View style={styles.countryBadge}>
-            <Text style={styles.countryText}>🇮🇳  +91</Text>
+            <Text style={styles.countryText}>🇮🇳 +91</Text>
           </View>
           <View style={styles.phoneDivider} />
           <TextInput
@@ -88,7 +88,9 @@ function PhoneStep({
             placeholder="98765 43210"
             placeholderTextColor={COLORS.textSecondary}
             value={phone}
-            onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, "").slice(0, 10))}
+            onChangeText={(t) =>
+              setPhone(t.replace(/[^0-9]/g, "").slice(0, 10))
+            }
             keyboardType="phone-pad"
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -126,8 +128,7 @@ function PhoneStep({
 
         <Text style={styles.termsText}>
           By continuing, you agree to our{" "}
-          <Text style={styles.termsLink}>Terms of Service</Text>
-          {" "}and{" "}
+          <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
           <Text style={styles.termsLink}>Privacy Policy</Text>.
         </Text>
       </View>
@@ -171,11 +172,31 @@ function OtpStep({
 
   const shake = () => {
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 8,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -8,
+        duration: 60,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 60,
+        useNativeDriver: true,
+      }),
     ]).start();
   };
 
@@ -214,7 +235,11 @@ function OtpStep({
     <>
       {/* Header */}
       <View style={styles.heroWrap}>
-        <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={onBack}
+          activeOpacity={0.7}
+          style={styles.backBtn}
+        >
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.otpTitle}>Enter OTP</Text>
@@ -238,7 +263,9 @@ function OtpStep({
             .map((_, i) => (
               <TextInput
                 key={i}
-                ref={(r) => { inputRefs.current[i] = r; }}
+                ref={(r) => {
+                  inputRefs.current[i] = r;
+                }}
                 style={[
                   styles.otpBox,
                   otp[i] ? styles.otpBoxFilled : null,
@@ -265,7 +292,10 @@ function OtpStep({
             .map((_, i) => (
               <View
                 key={i}
-                style={[styles.progressDot, i < filled && styles.progressDotFilled]}
+                style={[
+                  styles.progressDot,
+                  i < filled && styles.progressDotFilled,
+                ]}
               />
             ))}
         </View>
@@ -282,7 +312,11 @@ function OtpStep({
 
         <View style={styles.resendRow}>
           <Text style={styles.resendLabel}>Didn't receive it? </Text>
-          <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={handleResend}
+            disabled={resendTimer > 0}
+            activeOpacity={0.7}
+          >
             <Text
               style={[
                 styles.resendLink,
@@ -304,7 +338,8 @@ export default function Login() {
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [errors, setErrors] = useState({ phone: "", otp: "" });
 
-  const { requestOtp, verifyOtp, isLoading } = useAuthApi();
+  const { requestOtp, verifyOtp, isLoading, lastError, clearError } =
+    useAuthApi();
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -313,12 +348,21 @@ export default function Login() {
       setErrors({ ...errors, phone: "Phone number is required" });
       return;
     }
-    const { data } = await requestOtp({ phone: phone.trim() });
-    if (data?.success) {
-      dispatch(showSnackbarSuccess({ message: data.message }));
-      if (data.debugOtp) Alert.alert("DEBUG OTP", data.debugOtp);
+    clearError();
+    const { success, debugOtp } = await requestOtp({ phone: phone.trim() });
+    if (success) {
+      if (debugOtp) Alert.alert("DEBUG OTP", debugOtp);
       setErrors({ phone: "", otp: "" });
       setStep("otp");
+      router.push({
+        pathname: "/(auth)/VerifyOTP",
+        params: { phone: phone.trim(), debugOtp },
+      });
+    } else if (lastError?.includes("Account not found")) {
+      setErrors({
+        ...errors,
+        phone: "Account not found. Create one to get started.",
+      });
     }
   };
 
@@ -336,10 +380,7 @@ export default function Login() {
   };
 
   return (
-    <ScreenWrapper
-      contentContainerStyle={styles.scrollContent}
-      safeArea
-    >
+    <ScreenWrapper contentContainerStyle={styles.scrollContent} safeArea>
       {/* Watermark */}
       <Text style={styles.watermark}>Gigly</Text>
 
@@ -349,6 +390,7 @@ export default function Login() {
           setPhone={(v) => {
             setPhone(v);
             if (errors.phone) setErrors({ ...errors, phone: "" });
+            clearError();
           }}
           error={errors.phone}
           onSend={handleSendOtp}
@@ -373,7 +415,6 @@ export default function Login() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-
 const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
@@ -396,9 +437,23 @@ const styles = StyleSheet.create({
 
   // Logo / hero
   heroWrap: { marginTop: 20 },
-  logoRow: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
-  logoText: { fontFamily: FONTS.BOLD, fontSize: 38, color: COLORS.primary, letterSpacing: -1 },
-  logoDiamond: { fontFamily: FONTS.BOLD, fontSize: 22, color: COLORS.primary, marginTop: 4 },
+  logoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoText: {
+    fontFamily: FONTS.BOLD,
+    fontSize: 38,
+    color: COLORS.primary,
+    letterSpacing: -1,
+  },
+  logoDiamond: {
+    fontFamily: FONTS.BOLD,
+    fontSize: 22,
+    color: COLORS.primary,
+    marginTop: 4,
+  },
   tagline: {
     fontFamily: FONTS.REGULAR,
     fontSize: 15,
@@ -409,10 +464,19 @@ const styles = StyleSheet.create({
 
   // Back
   backBtn: { marginBottom: 20 },
-  backText: { fontFamily: FONTS.REGULAR, fontSize: 15, color: COLORS.textSecondary },
+  backText: {
+    fontFamily: FONTS.REGULAR,
+    fontSize: 15,
+    color: COLORS.textSecondary,
+  },
 
   // OTP header
-  otpTitle: { fontFamily: FONTS.BOLD, fontSize: 30, color: COLORS.textPrimary, marginBottom: 10 },
+  otpTitle: {
+    fontFamily: FONTS.BOLD,
+    fontSize: 30,
+    color: COLORS.textPrimary,
+    marginBottom: 10,
+  },
   otpSubtitle: {
     fontFamily: FONTS.REGULAR,
     fontSize: 15,
@@ -442,11 +506,23 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     overflow: "hidden",
   },
-  phoneRowFocused: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
+  phoneRowFocused: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
+  },
   phoneRowError: { borderColor: "#DC2626", backgroundColor: "#FEF2F2" },
   countryBadge: { paddingHorizontal: 16, paddingVertical: 16 },
-  countryText: { fontFamily: FONTS.BOLD, fontSize: 15, color: COLORS.textPrimary },
-  phoneDivider: { width: 1, height: 28, backgroundColor: COLORS.border, marginRight: 12 },
+  countryText: {
+    fontFamily: FONTS.BOLD,
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+  phoneDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: COLORS.border,
+    marginRight: 12,
+  },
   phoneInput: {
     flex: 1,
     paddingHorizontal: 16,
@@ -485,7 +561,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.BOLD,
     color: COLORS.textPrimary,
   },
-  otpBoxActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
+  otpBoxActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
+  },
   otpBoxFilled: { borderColor: COLORS.primary },
   otpBoxError: { borderColor: "#DC2626", backgroundColor: "#FEF2F2" },
 
@@ -495,7 +574,12 @@ const styles = StyleSheet.create({
     gap: 6,
     marginTop: 16,
   },
-  progressDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.border },
+  progressDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.border,
+  },
   progressDotFilled: { backgroundColor: COLORS.primary },
 
   // Actions area
@@ -543,7 +627,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-  resendLabel: { fontFamily: FONTS.REGULAR, fontSize: 14, color: COLORS.textSecondary },
+  resendLabel: {
+    fontFamily: FONTS.REGULAR,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
   resendLink: { fontFamily: FONTS.BOLD, fontSize: 14, color: COLORS.primary },
   resendDisabled: { color: COLORS.textSecondary },
 });

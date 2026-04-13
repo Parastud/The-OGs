@@ -144,9 +144,6 @@ function OtpStep({
     }, 1000);
   };
 
-  // Start on mount
-  useRef((() => { startTimer(); })()).current;
-
   const shake = () =>
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
@@ -260,7 +257,7 @@ function OtpStep({
           disabled={isLoading || !isReady}
         />
         <View style={styles.resendRow}>
-          <Text style={styles.resendLabel}>Didn't receive it? </Text>
+          <Text style={styles.resendLabel}>Didn&apos;t receive it? </Text>
           <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0} activeOpacity={0.7}>
             <Text style={[styles.resendLink, resendTimer > 0 && styles.resendDisabled]}>
               {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}

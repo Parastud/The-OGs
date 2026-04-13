@@ -1,18 +1,24 @@
-import EnvFlag from '@/src/components/flags/EnvFlag';
-import { hideSnackbar, SnackbarType } from '@/src/redux/slices/snackbar.slice';
-import { store, RootState } from '@/src/redux/store';
-import { Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PaperProvider, Snackbar } from 'react-native-paper';
-import { Provider as ReduxProvider, useDispatch, useSelector } from 'react-redux';
-import { ApolloProvider } from '@apollo/client/react';
-import { apolloClient } from '@/src/lib/apolloClient';
+import EnvFlag from "@/src/components/flags/EnvFlag";
+import { hideSnackbar, SnackbarType } from "@/src/redux/slices/snackbar.slice";
+import { store, RootState } from "@/src/redux/store";
+import { Stack } from "expo-router";
+import { StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PaperProvider, Snackbar } from "react-native-paper";
+import {
+  Provider as ReduxProvider,
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import { ApolloProvider } from "@apollo/client/react";
+import { apolloClient } from "@/src/lib/apolloClient";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="Onboarding/index" />
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
     </Stack>
@@ -38,7 +44,7 @@ function AppContent() {
         onDismiss={() => dispatch(hideSnackbar())}
         duration={duration}
         action={{
-          label: 'X',
+          label: "X",
           onPress: () => {
             dispatch(hideSnackbar());
           },
@@ -54,26 +60,28 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <ApolloProvider client={apolloClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <ReduxProvider store={store}>
-          <AppContent />
-        </ReduxProvider>
-      </GestureHandlerRootView>
-    </ApolloProvider>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ApolloProvider client={apolloClient}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ReduxProvider store={store}>
+            <AppContent />
+          </ReduxProvider>
+        </GestureHandlerRootView>
+      </ApolloProvider>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   snackbarError: {
-    backgroundColor: '#ee5d4a',
-    color: 'white',
-    fontWeight: 'bold',
-    flexDirection: 'row',
+    backgroundColor: "#ee5d4a",
+    color: "white",
+    fontWeight: "bold",
+    flexDirection: "row",
   },
   snackbarSuccess: {
-    backgroundColor: '#52bb76',
-    color: 'white',
-    flexDirection: 'row',
+    backgroundColor: "#52bb76",
+    color: "white",
+    flexDirection: "row",
   },
 });

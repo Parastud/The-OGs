@@ -3,9 +3,12 @@ import {
   setAuthorizationStatus,
   setInitialized,
 } from "@/src/redux/slices/auth.slice";
-import { getAccessTokenFromSecureStore, getOnboardingStatus } from "@/src/utils/localStorageKey";
+import {
+  getAccessTokenFromSecureStore,
+  getOnboardingStatus,
+} from "@/src/utils/localStorageKey";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
@@ -16,6 +19,7 @@ export default function Index() {
   const [isSplashVisible, setSplashVisible] = useState(true);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(false);
+  const hasRedirected = useRef(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -46,10 +50,18 @@ export default function Index() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!initialized || isSplashVisible || !onboardingChecked) return;
+    if (
+      !initialized ||
+      isSplashVisible ||
+      !onboardingChecked ||
+      hasRedirected.current
+    )
+      return;
+
+    hasRedirected.current = true;
 
     if (!onboardingDone) {
-      router.replace("/Onboarding/index");
+      router.replace("/Onboarding");
       return;
     }
 
@@ -58,7 +70,14 @@ export default function Index() {
     } else {
       router.replace("/(auth)/Login");
     }
-  }, [initialized, isAuthenticated, isSplashVisible, onboardingChecked, onboardingDone, router]);
+  }, [
+    initialized,
+    isAuthenticated,
+    isSplashVisible,
+    onboardingChecked,
+    onboardingDone,
+    router,
+  ]);
 
   return <SplashScreen />;
 }
