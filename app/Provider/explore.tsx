@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -6,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
@@ -53,13 +53,11 @@ export default function ExploreScreen() {
       style={styles.container}
       contentContainerStyle={styles.scrollContent}
     >
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Explore Jobs</Text>
         <Text style={styles.subtitle}>Find work near you</Text>
       </View>
 
-      {/* Search */}
       <View style={styles.searchRow}>
         <View
           style={[styles.searchBox, searchFocused && styles.searchBoxFocused]}
@@ -80,7 +78,6 @@ export default function ExploreScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Categories */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -108,37 +105,39 @@ export default function ExploreScreen() {
         })}
       </ScrollView>
 
-      {/* Jobs List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : jobs.length > 0 ? (
-        jobs.map((job) => (
-          <View key={job.id} style={styles.jobCard}>
-            <View style={styles.jobTop}>
-              <Image source={{ uri: job.imageUrl }} style={styles.jobImage} />
-              <View style={styles.jobInfo}>
-                <Text style={styles.jobTitle}>{job.title}</Text>
-                <View style={styles.jobDistance}>
-                  <MapPin size={12} color={COLORS.textSecondary} />
-                  <Text style={styles.distanceText}>{job.distance}</Text>
+        <>
+          {jobs.map((job) => (
+            <View key={job.id} style={styles.jobCard}>
+              <View style={styles.jobTop}>
+                <Image source={{ uri: job.imageUrl }} style={styles.jobImage} />
+                <View style={styles.jobInfo}>
+                  <Text style={styles.jobTitle}>{job.title}</Text>
+                  <View style={styles.jobDistance}>
+                    <MapPin size={12} color={COLORS.textSecondary} />
+                    <Text style={styles.distanceText}>{job.distance}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
 
-            <View style={styles.jobFooter}>
-              <Text style={styles.jobPrice}>{job.price}</Text>
-              <View style={styles.matchBadge}>
-                <Text style={styles.matchText}>{job.match}</Text>
+              <View style={styles.jobFooter}>
+                <Text style={styles.jobPrice}>{job.price}</Text>
+                <View style={styles.matchBadge}>
+                  <Text style={styles.matchText}>{job.match}</Text>
+                </View>
               </View>
-            </View>
 
-            <TouchableOpacity style={styles.bidBtn} activeOpacity={0.7}>
-              <Text style={styles.bidBtnText}>View & Bid</Text>
-            </TouchableOpacity>
-          </View>
-        ))
+              <TouchableOpacity style={styles.bidBtn} activeOpacity={0.7}>
+                <Text style={styles.bidBtnText}>View & Bid</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+          <View style={styles.listEndSpacer} />
+        </>
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No jobs available</Text>
@@ -151,7 +150,6 @@ export default function ExploreScreen() {
   );
 }
 
-/* -------------------- Styles -------------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -159,7 +157,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 0,
-    paddingBottom: 100,
+    paddingBottom: 180,
   },
   header: {
     paddingHorizontal: 16,
@@ -321,6 +319,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: FONTS.SEMIBOLD,
     color: COLORS.white,
+  },
+  listEndSpacer: {
+    height: 96,
   },
   emptyContainer: {
     justifyContent: "center",
