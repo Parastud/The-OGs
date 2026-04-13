@@ -137,13 +137,13 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginBottom: 30
+    marginBottom: 30,
   },
 
   title: {
     fontSize: 28,
     fontFamily: FONTS.BOLD,
-    color: COLORS.textPrimary
+    color: COLORS.textPrimary,
   },
 
   subtitle: {

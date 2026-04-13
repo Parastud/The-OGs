@@ -1,89 +1,52 @@
+export const Colors = {
+  primary: "#4F46E5", // indigo — buttons, active tabs, CTAs
+  primaryLight: "#EEF2FF", // indigo tint — badge backgrounds, AI chip bg
+  primaryDark: "#3730A3", // indigo dark — pressed states
+
+  secondary: "#F59E0B", // amber — trust score, urgency, highlights
+  secondaryLight: "#FFFBEB", // amber tint
+  secondaryDark: "#B45309", // amber dark
+
+  success: "#10B981", // emerald — verified, completed, online dot
+  successLight: "#ECFDF5", // emerald tint
+  successDark: "#065F46", // emerald dark
+
+  danger: "#EF4444", // red — errors, withdraw, delete, dispute reject
+  dangerLight: "#FEF2F2", // red tint
+  dangerDark: "#B91C1C", // red dark
+
+  background: "#FAFAFA", // app background
+  surface: "#FFFFFF", // card surfaces
+  surfaceSecondary: "#F3F4F6", // input backgrounds, message bubbles
+
+  border: "#E5E7EB", // all card/input borders
+  borderFocus: "#4F46E5", // focused input border
+
+  textPrimary: "#111827", // headings, body
+  textSecondary: "#6B7280", // subtitles, muted labels
+  textTertiary: "#9CA3AF", // timestamps, placeholders, version text
+  textInverse: "#FFFFFF", // text on dark/indigo backgrounds
+
+  amber: "#F59E0B", // alias for secondary (trust score bars)
+  indigo: "#4F46E5", // alias for primary
+  emerald: "#10B981", // alias for success
+
+  tabBarActive: "#4F46E5",
+  tabBarInactive: "#9CA3AF",
+  tabBarBackground: "#FFFFFF",
+
+  statusBarStyle: "dark-content" as const,
+};
+
+export const Shadows = {
+  cardShadow: {}, // empty — Gigly uses borders not shadows
+};
+
 export const COLORS = {
-  /* ---------------------------------
-   * Brand / Primary
-   * --------------------------------- */
-  primary: '#3B82F6', // Main buttons, CTAs
-  primaryLight: '#FFD08A',
-  primaryDark: '#C77A00',
-
-  /* ---------------------------------
-   * Backgrounds & Surfaces
-   * --------------------------------- */
-  appBackground: '#eceff6', // Main app background
-  // appBackground: '#eceff6', // Main app background
-  surface: '#FFFFFF', // Cards, sheets, modals
-  splashBackground: '#4A7BF7',
-
-  /* ---------------------------------
-   * Text Colors
-   * --------------------------------- */
-  textPrimary: '#1F1300', // Headings
-  textSecondary: '#675231', // Body text
-  textDisabled: '#9C9C9C',
-
-  /* ---------------------------------
-   * Neutral / Border / Divider
-   * --------------------------------- */
-  border: '#E6E0D8',
-  divider: '#EFE9E2',
-  grayLight: '#F4F4F4',
-  gray: '#BFBFBF',
-  grayDark: '#6B6B6B',
-
-  /* ---------------------------------
-   * Semantic Colors
-   * --------------------------------- */
-  success: '#39D121',
-  error: '#EF2B2B',
-  info: '#3D5AFE',
-  warning: '#FFB020',
-
-  /* ---------------------------------
-   * Basic
-   * --------------------------------- */
-  white: '#FFFFFF',
-  black: '#000000',
-
-  /* ---------------------------------
-   * Gradient Colors (for buttons)
-   * --------------------------------- */
-  gradientStart: '#FFCC00',
-  gradientMiddle: '#FF8000',
-  gradientEnd: '#FF4A03',
-
-  // Primary gradient button colors array
-  primaryGradientButton: ['#3B82F6', '#3B82F6', '#3B82F6'] as const,
-
-  /* ---------------------------------
-   * Additional UI Colors
-   * --------------------------------- */
-  logoBackground: '#2D2416',
-  radioSelected: '#F99A00',
-  radioUnselected: '#E6E0D8',
-  linkColor: '#F99A00',
-
-  /* ---------------------------------
-   * Dashboard Colors
-   * --------------------------------- */
-  blueAccent: '#4A7BF7', // Tab bar blue / Primary blue accent
-  blueDark: '#1a237e', // Dark blue for room statistics
-  blueLight: '#E8F0FF', // Light blue background
-  greenAccent: '#4CAF50', // Green for meters
-  greenLight: '#E8F5E9', // Light green background
-  purpleAccent: '#9C27B0', // Purple for expenses
-  purpleLight: '#F3E5F5', // Light purple background
-  orangeLight: '#FFF3E0', // Light orange background
-  redLight: '#FBEEF2', // Light orange background
-
-  /* ---------------------------------
-   * Legacy / Backwards Compatibility
-   * --------------------------------- */
-  brandColor: '#F99A00',
-  darkGray: '#6B6B6B',
-  offGray: '#E6E0D8',
-  inputBorder: '#E6E0D8',
-  inputBackground: '#FFFFFF',
-  textGray: '#675231',
-  textLightGray: '#9C9C9C',
-  red: '#EF2B2B',
+  ...Colors,
+  appBackground: Colors.background,
+  splashBackground: Colors.primary,
+  inputBackground: Colors.surfaceSecondary,
+  error: Colors.danger,
+  // ensure others match naturally
 };

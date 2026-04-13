@@ -1,108 +1,314 @@
-import { StyleSheet } from 'react-native';
-import { scale } from 'react-native-size-matters';
-import { FONTS } from './fonts';
+import { StyleSheet } from "react-native";
+import { Colors } from "./colors";
+import { Fonts } from "./fonts";
 
-const COLORS = {
-  white: '#ffffff',
-  offWhite: '#f7f7f7',
-  primary: '#0f4f8c',
-  sd1: '#E1EBFF',
-  darkGray: '#333333',
-  lightGray: '#9B9B9B',
-  offGray: '#CFCFCF',
-  bg1: '#0f4f8c',
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  "2xl": 24,
+  "3xl": 32,
 };
+export const radius = { sm: 4, md: 8, lg: 12, xl: 16, full: 999 };
 
+export const GlobalStyles = StyleSheet.create({
+  // Layout
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingHorizontal: spacing.lg,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  rowBetween: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  center: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  screenPadding: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+  },
 
-export const STYLES = StyleSheet.create({
-  inputContainer: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.sd1,
+  // Cards
+  card: {
+    backgroundColor: Colors.surface,
+    borderRadius: radius.lg,
     borderWidth: 1,
+    borderColor: Colors.border,
+    padding: spacing.lg,
+  },
+  cardSm: {
+    backgroundColor: Colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: spacing.md,
+  },
+  cardRow: {
+    backgroundColor: Colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: spacing.lg,
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+
+  // Typography
+  h1: {
+    fontSize: Fonts.fontSize["4xl"],
+    fontFamily: Fonts.fontFamily.bold,
+    color: Colors.textPrimary,
+  },
+  h2: {
+    fontSize: 22,
+    fontFamily: Fonts.fontFamily.bold,
+    color: Colors.textPrimary,
+  },
+  h3: {
+    fontSize: Fonts.fontSize.xl,
+    fontFamily: Fonts.fontFamily.semiBold,
+    color: Colors.textPrimary,
+  },
+  h4: {
+    fontSize: Fonts.fontSize.lg,
+    fontFamily: Fonts.fontFamily.semiBold,
+    color: Colors.textPrimary,
+  },
+  bodyLg: {
+    fontSize: Fonts.fontSize.lg,
+    fontFamily: Fonts.fontFamily.regular,
+    color: Colors.textPrimary,
+    lineHeight: Fonts.fontSize.lg * Fonts.lineHeight.normal,
+  },
+  body: {
+    fontSize: Fonts.fontSize.md,
+    fontFamily: Fonts.fontFamily.regular,
+    color: Colors.textPrimary,
+    lineHeight: Fonts.fontSize.md * Fonts.lineHeight.normal,
+  },
+  bodySm: {
+    fontSize: Fonts.fontSize.base,
+    fontFamily: Fonts.fontFamily.regular,
+    color: Colors.textSecondary,
+  },
+  caption: {
+    fontSize: Fonts.fontSize.sm,
+    fontFamily: Fonts.fontFamily.regular,
+    color: Colors.textTertiary,
+  },
+  label: {
+    fontSize: Fonts.fontSize.sm,
+    fontFamily: Fonts.fontFamily.medium,
+    color: Colors.textSecondary,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+
+  // Buttons
+  btnPrimary: {
+    backgroundColor: Colors.primary,
+    borderRadius: radius.md,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnPrimaryText: {
+    color: Colors.textInverse,
+    fontSize: 15,
+    fontFamily: Fonts.fontFamily.semiBold,
+  },
+  btnOutline: {
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: radius.md,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnOutlineText: {
+    color: Colors.primary,
+    fontSize: 15,
+    fontFamily: Fonts.fontFamily.semiBold,
+  },
+  btnDanger: {
+    backgroundColor: Colors.danger,
+    borderRadius: radius.md,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnDangerText: {
+    color: Colors.textInverse,
+    fontSize: 15,
+    fontFamily: Fonts.fontFamily.semiBold,
+  },
+  btnDisabled: {
+    opacity: 0.5,
+  },
+
+  // Inputs
+  input: {
+    height: 44,
+    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 14,
+    fontSize: Fonts.fontSize.md,
+    fontFamily: Fonts.fontFamily.regular,
+    color: Colors.textPrimary,
+  },
+  inputFocused: {
+    borderColor: Colors.borderFocus,
+  },
+  inputLabel: {
+    fontSize: Fonts.fontSize.base,
+    fontFamily: Fonts.fontFamily.medium,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+  },
+  inputError: {
+    borderColor: Colors.danger,
+  },
+  inputErrorText: {
+    fontSize: Fonts.fontSize.sm,
+    color: Colors.danger,
+    marginTop: 4,
+  },
+
+  // Badges / pills
+  pill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  pillPrimary: {
+    backgroundColor: Colors.primaryLight,
+    borderWidth: 0,
+  },
+  pillSuccess: {
+    backgroundColor: Colors.successLight,
+    borderWidth: 0,
+  },
+  pillWarning: {
+    backgroundColor: Colors.secondaryLight,
+    borderWidth: 0,
+  },
+  pillDanger: {
+    backgroundColor: Colors.dangerLight,
+    borderWidth: 0,
+  },
+  pillText: {
+    fontSize: Fonts.fontSize.sm,
+    fontFamily: Fonts.fontFamily.medium,
+  },
+  pillTextPrimary: {
+    color: Colors.primary,
+  },
+  pillTextSuccess: {
+    color: Colors.successDark,
+  },
+  pillTextWarning: {
+    color: Colors.secondaryDark,
+  },
+  pillTextDanger: {
+    color: Colors.dangerDark,
+  },
+
+  // Dividers
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: spacing.md,
+  },
+  dividerSm: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: spacing.sm,
+  },
+
+  // Avatars
+  avatarSm: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  avatarMd: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  avatarLg: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+  },
+  avatarXl: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+
+  // Tab bar
+  tabBar: {
+    backgroundColor: Colors.tabBarBackground,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    height: 60,
+    paddingBottom: 8,
+  },
+
+  // Trust score bar
+  trustBar: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.border,
+  },
+  trustBarFill: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.amber,
   },
 });
 
-// for react native paper component ( Text Input )
-export const BASE_CONTAINER_HEIGHT = 50;
+// Backward-compatibility text helpers
+export const BOLD_TEXT = (size: number, color?: string) => ({
+  fontFamily: Fonts.fontFamily.bold,
+  fontSize: size,
+  color: color || Colors.textPrimary,
+});
 
-export const DROPDOWN_CONTAINER_STYLE = {
-  backgroundColor: COLORS.white,
-  height: BASE_CONTAINER_HEIGHT,
-  borderColor: COLORS.primary,
-  borderWidth: 1,
-  borderRadius: 25,
-  paddingHorizontal: 20,
-  fontSize: scale(13),
-  color: COLORS.darkGray,
-  marginVertical: scale(5),
-};
+export const REGULAR_TEXT = (size: number, color?: string) => ({
+  fontFamily: Fonts.fontFamily.regular,
+  fontSize: size,
+  color: color || Colors.textPrimary,
+});
 
-export const INPUT_CONTAINER_STYLES = {
-  placeholderTextColor: COLORS.darkGray,
-  activeOutlineColor: COLORS.primary,
-  outlineColor: COLORS.darkGray,
-  outlineStyle: {
-    borderRadius: 15,
-  },
-  contentStyle: {
-    paddingHorizontal: 20,
-    fontSize: scale(13),
-    color: COLORS.darkGray,
-    height: BASE_CONTAINER_HEIGHT,
-  },
-  style: {
-    backgroundColor: COLORS.white,
-    height: BASE_CONTAINER_HEIGHT,
-  },
-};
+export const MEDIUM_TEXT = (size: number, color?: string) => ({
+  fontFamily: Fonts.fontFamily.medium,
+  fontSize: size,
+  color: color || Colors.textPrimary,
+});
 
-export const BUTTON_CONTAINER_STYLES = {
-  labelStyle: {
-    color: COLORS.white,
-    fontFamily: FONTS.BOLD,
-  },
-  contentStyle: {
-    backgroundColor: COLORS.bg1,
-    height: BASE_CONTAINER_HEIGHT,
-    borderRadius: 15,
-  },
-  style: {
-    borderRadius: 15,
-  },
-};
+export const SEMIBOLD_TEXT = (size: number, color?: string) => ({
+  fontFamily: Fonts.fontFamily.semiBold,
+  fontSize: size,
+  color: color || Colors.textPrimary,
+});
 
-export const BORDER_CONTAINER_STYLES = {
-  backgroundColor: COLORS.white,
-  borderColor: '#E1EBFF',
-  borderWidth: 1,
-  borderRadius: 20,
-};
-
-export const BOLD_TEXT = (size?: number, color?: string) => {
-  return {
-    fontFamily: FONTS.BOLD,
-    fontSize: scale(size ?? 12),
-    color: color ?? 'rgba(22, 24, 67, 1)',
-  };
-};
-
-export const MEDIUM_TEXT = (size?: number, color?: string) => {
-  return {
-    fontFamily: FONTS.REGULAR,
-    fontSize: scale(size ?? 12),
-    color: color ?? 'rgba(22, 24, 67, 1)',
-  };
-};
-
-export const REGULAR_TEXT = (size?: number, color?: string) => {
-  return {
-    fontFamily: FONTS.REGULAR,
-    fontSize: scale(size ?? 12),
-    color: color ?? 'rgba(22, 24, 67, 1)',
-  };
-};
-
-export const CENTER_CONTAINER = {
-  justifyContent: 'center',
-  alignItems: 'center',
-};
