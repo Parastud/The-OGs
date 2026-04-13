@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { Bell, PlusCircle, Search, ShieldCheck } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -53,200 +53,6 @@ type ConsumerDashboard = {
   }>;
 };
 
-// ─── MOCK FALLBACK DATA ───────────────────────────────────────────────
-
-const MOCK_DASHBOARD: ConsumerDashboard = {
-  greeting: "Good morning, Arjun 👋",
-  stats: {
-    totalSpent: 4250,
-    jobsDone: 12,
-    completion: 92,
-    activeJobs: 2,
-  },
-  trustScore: {
-    score: 78,
-    badges: ["Verified", "Trusted Buyer", "5+ Jobs"],
-  },
-  topCategories: [
-    {
-      category: "Plumber",
-      providers: [
-        {
-          id: "p1",
-          name: "Ramesh K.",
-          category: "Plumber",
-          skills: ["Pipe Repair"],
-          startingPrice: 350,
-          location: "Mathura",
-          yearsOfExperience: 6,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/men/10.jpg",
-        },
-        {
-          id: "p2",
-          name: "Sunil T.",
-          category: "Plumber",
-          skills: ["Drainage"],
-          startingPrice: 400,
-          location: "Mathura",
-          yearsOfExperience: 4,
-          verified: false,
-          imageUrl: "https://randomuser.me/api/portraits/men/11.jpg",
-        },
-        {
-          id: "p3",
-          name: "Vivek D.",
-          category: "Plumber",
-          skills: ["Installation"],
-          startingPrice: 300,
-          location: "Mathura",
-          yearsOfExperience: 8,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/men/12.jpg",
-        },
-      ],
-    },
-    {
-      category: "Electrician",
-      providers: [
-        {
-          id: "e1",
-          name: "Manoj P.",
-          category: "Electrician",
-          skills: ["Wiring"],
-          startingPrice: 500,
-          location: "Mathura",
-          yearsOfExperience: 10,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/men/20.jpg",
-        },
-        {
-          id: "e2",
-          name: "Deepak S.",
-          category: "Electrician",
-          skills: ["Panels"],
-          startingPrice: 450,
-          location: "Mathura",
-          yearsOfExperience: 5,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/men/21.jpg",
-        },
-        {
-          id: "e3",
-          name: "Harish V.",
-          category: "Electrician",
-          skills: ["Repairs"],
-          startingPrice: 380,
-          location: "Mathura",
-          yearsOfExperience: 3,
-          verified: false,
-          imageUrl: "https://randomuser.me/api/portraits/men/22.jpg",
-        },
-      ],
-    },
-    {
-      category: "AC Technician",
-      providers: [
-        {
-          id: "a1",
-          name: "Vikram T.",
-          category: "AC Technician",
-          skills: ["Servicing"],
-          startingPrice: 600,
-          location: "Mathura",
-          yearsOfExperience: 7,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/men/30.jpg",
-        },
-        {
-          id: "a2",
-          name: "Santosh M.",
-          category: "AC Technician",
-          skills: ["Repair"],
-          startingPrice: 550,
-          location: "Mathura",
-          yearsOfExperience: 5,
-          verified: false,
-          imageUrl: "https://randomuser.me/api/portraits/men/31.jpg",
-        },
-      ],
-    },
-    {
-      category: "Home Cleaner",
-      providers: [
-        {
-          id: "c1",
-          name: "Priya R.",
-          category: "Home Cleaner",
-          skills: ["Deep Clean"],
-          startingPrice: 650,
-          location: "Mathura",
-          yearsOfExperience: 3,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/women/10.jpg",
-        },
-        {
-          id: "c2",
-          name: "Neha S.",
-          category: "Home Cleaner",
-          skills: ["Regular"],
-          startingPrice: 400,
-          location: "Mathura",
-          yearsOfExperience: 2,
-          verified: false,
-          imageUrl: "https://randomuser.me/api/portraits/women/11.jpg",
-        },
-        {
-          id: "c3",
-          name: "Anita V.",
-          category: "Home Cleaner",
-          skills: ["Post-Reno"],
-          startingPrice: 750,
-          location: "Mathura",
-          yearsOfExperience: 5,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/women/12.jpg",
-        },
-      ],
-    },
-    {
-      category: "Tutor",
-      providers: [
-        {
-          id: "t1",
-          name: "Rohit A.",
-          category: "Tutor",
-          skills: ["Math", "Science"],
-          startingPrice: 800,
-          location: "Mathura",
-          yearsOfExperience: 4,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/men/40.jpg",
-        },
-        {
-          id: "t2",
-          name: "Kavya M.",
-          category: "Tutor",
-          skills: ["English"],
-          startingPrice: 700,
-          location: "Mathura",
-          yearsOfExperience: 6,
-          verified: true,
-          imageUrl: "https://randomuser.me/api/portraits/women/40.jpg",
-        },
-      ],
-    },
-  ],
-};
-
-const fallbackSections: ProviderSection[] = [
-  { title: "Plumber", category: "Plumber", providers: [] },
-  { title: "Electrician", category: "Electrician", providers: [] },
-  { title: "AC Technician", category: "AC Technician", providers: [] },
-  { title: "Home Cleaner", category: "Home Cleaner", providers: [] },
-  { title: "Tutor", category: "Tutor", providers: [] },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<ConsumerDashboard | null>(
@@ -262,11 +68,10 @@ export default function HomeScreen() {
       const response = await getConsumerDashboardService();
       if (response?.success && response?.data) {
         setDashboardData(response.data);
-      } else {
-        setDashboardData(MOCK_DASHBOARD);
       }
-    } catch {
-      setDashboardData(MOCK_DASHBOARD);
+    } catch (error) {
+      console.error("Failed to load dashboard:", error);
+      Alert.alert("Failed to load dashboard", "Please try again later.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -278,7 +83,7 @@ export default function HomeScreen() {
   }, []);
 
   const providerSections = useMemo(() => {
-    if (!dashboardData?.topCategories?.length) return fallbackSections;
+    if (!dashboardData?.topCategories?.length) return [];
     const sections = dashboardData.topCategories.map((s) => ({
       title: s.category,
       category: s.category,
@@ -286,7 +91,7 @@ export default function HomeScreen() {
     }));
     return sections.length >= 5
       ? sections.slice(0, 5)
-      : [...sections, ...fallbackSections.slice(sections.length)].slice(0, 5);
+      : [...sections].slice(0, 5);
   }, [dashboardData]);
 
   function handleBell() {

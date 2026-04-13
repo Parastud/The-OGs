@@ -29,7 +29,7 @@ export default function SettingsScreen() {
     updates: true,
     messages: true,
   });
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,16 +48,33 @@ export default function SettingsScreen() {
 
         {/* TITLE */}
         <Text style={styles.title}>Settings</Text>
-        <Text style={styles.subtitle}>
-          Manage your account and preferences
-        </Text>
+        <Text style={styles.subtitle}>Manage your account and preferences</Text>
 
         {/* ACCOUNT */}
         <Section title="Account">
-          <SettingItem icon={<User size={18} />} label="Logout" onPress={async() => { await removeTokenFromSecureStore(); router.replace('/(auth)/Login')}} />
-          <SettingItem icon={<User size={18} />} label="Edit Profile" onPress={() => {}} />
-          <SettingItem icon={<Lock size={18} />} label="Change Password" onPress={() => {}} />
-          <SettingItem icon={<Link size={18} />} label="Linked Accounts" onPress={() => {}} />
+          <SettingItem
+            icon={<User size={18} />}
+            label="Logout"
+            onPress={async () => {
+              await removeTokenFromSecureStore();
+              router.replace("/(auth)/Login");
+            }}
+          />
+          <SettingItem
+            icon={<User size={18} />}
+            label="Edit Profile"
+            onPress={() => {}}
+          />
+          <SettingItem
+            icon={<Lock size={18} />}
+            label="Change Password"
+            onPress={() => {}}
+          />
+          <SettingItem
+            icon={<Link size={18} />}
+            label="Linked Accounts"
+            onPress={() => {}}
+          />
           <SettingItem
             icon={<ShieldCheck size={18} />}
             label="Verify Identity"
@@ -70,16 +87,12 @@ export default function SettingsScreen() {
           <ToggleItem
             label="New bids"
             value={notifications.bids}
-            onChange={(v) =>
-              setNotifications({ ...notifications, bids: v })
-            }
+            onChange={(v) => setNotifications({ ...notifications, bids: v })}
           />
           <ToggleItem
             label="Job updates"
             value={notifications.updates}
-            onChange={(v) =>
-              setNotifications({ ...notifications, updates: v })
-            }
+            onChange={(v) => setNotifications({ ...notifications, updates: v })}
           />
           <ToggleItem
             label="Messages"
@@ -96,10 +109,7 @@ export default function SettingsScreen() {
             icon={<CreditCard size={18} />}
             label="Payment methods"
           />
-          <SettingItem
-            icon={<Landmark size={18} />}
-            label="Bank account"
-          />
+          <SettingItem icon={<Landmark size={18} />} label="Bank account" />
           <SettingItem
             icon={<FileText size={18} />}
             label="Transaction history"
@@ -119,26 +129,14 @@ export default function SettingsScreen() {
 //
 // 🔷 COMPONENTS
 //
-const Section = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: any;
-}) => (
+const Section = ({ title, children }: { title: string; children: any }) => (
   <View style={{ marginTop: 20 }}>
     <Text style={styles.sectionTitle}>{title}</Text>
     <View style={styles.card}>{children}</View>
   </View>
 );
 
-const SettingItem = ({
-  icon,
-  label,
-  value,
-  badge,
-  onPress,
-}: any) => (
+const SettingItem = ({ icon, label, value, badge, onPress }: any) => (
   <TouchableOpacity style={styles.item} onPress={onPress}>
     <View style={styles.row}>
       {icon}

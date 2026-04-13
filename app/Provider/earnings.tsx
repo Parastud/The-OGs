@@ -1,139 +1,225 @@
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView } from "react-native";
-import { useEffect, useState } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Bell, Building, Wrench, TrendingUp, BarChart3 } from "lucide-react-native";
+import {
+  Bell,
+  Building,
+  Wrench,
+  TrendingUp,
+  BarChart3,
+} from "lucide-react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
+type WeeklyPoint = {
+  label: string;
+  amount: number;
+};
+
+type EarningsData = {
+  thisMonth: number;
+  growth: number;
+  weeklyActivity?: WeeklyPoint[];
+  maxWeeklyAmount?: number;
+  transactions?: Array<{
+    title: string;
+    date: string;
+    amount: string;
+    status: string;
+  }>;
+  stats?: {
+    totalJobs: number;
+    averageEarning: number;
+  };
+};
+
 export default function EarningsScreen() {
-  const { getEarnings, isLoading } = useProviderApi();
-  const [earningsData, setEarningsData] = useState<any>(null);
+  const { getEarnings } = useProviderApi();
+  const [earningsData, setEarningsData] = useState<EarningsData | null>(null);
+  const [isFetching, setIsFetching] = useState(true);
+
+  const loadEarnings = useCallback(async () => {
+    setIsFetching(true);
+    const data = await getEarnings();
+    if (data) {
+      setEarningsData(data);
+    }
+    setIsFetching(false);
+  }, [getEarnings]);
 
   useEffect(() => {
-    const loadEarnings = async () => {
-      const data = await getEarnings();
-      if (data) {
-        setEarningsData(data);
-      }
-    };
-
     loadEarnings();
-  }, []);
+  }, [loadEarnings]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadEarnings();
+    }, [loadEarnings]),
+  );
+
+  const chartPoints = useMemo(() => {
+    const points = earningsData?.weeklyActivity;
+    if (!points || points.length !== 7) {
+      return [
+        { label: "M", amount: 0 },
+        { label: "T", amount: 0 },
+        { label: "W", amount: 0 },
+        { label: "T", amount: 0 },
+        { label: "F", amount: 0 },
+        { label: "S", amount: 0 },
+        { label: "S", amount: 0 },
+      ];
+    }
+
+    return points;
+  }, [earningsData?.weeklyActivity]);
+
+  const maxAmount = useMemo(() => {
+    const serverMax = Number(earningsData?.maxWeeklyAmount || 0);
+    if (serverMax > 0) return serverMax;
+    return Math.max(...chartPoints.map((item) => item.amount), 0);
+  }, [chartPoints, earningsData?.maxWeeklyAmount]);
+
+  const getBarHeight = (amount: number) => {
+    if (maxAmount <= 0) return 20;
+    const scaled = Math.round((amount / maxAmount) * 80);
+    return Math.max(20, scaled);
+  };
 
   return (
     <View style={styles.container}>
-    <ScreenWrapper
-      contentContainerStyle={styles.scrollContent}
-    >
-      <LinearGradient
-        colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
+      <ScreenWrapper
+        contentContainerStyle={styles.scrollContent}
+        onRefresh={loadEarnings}
       >
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.brand}>Gigly</Text>
-            <Text style={styles.headerSubtitle}>Earnings Overview</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <View style={styles.bellWrap}>
-              <Bell size={20} color="#000" />
+        <LinearGradient
+          colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.brand}>Gigly</Text>
+              <Text style={styles.headerSubtitle}>Earnings Overview</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <View style={styles.bellWrap}>
+                <Bell size={20} color="#000" />
+              </View>
             </View>
           </View>
-        </View>
-      </LinearGradient>
+        </LinearGradient>
 
-      <View style={styles.greetingWrapper}>
-        <Text style={styles.greeting}>Your Earnings 💰</Text>
-      </View>
+        {isFetching ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#6D5DF6" />
+          </View>
+        ) : (
+          <>
+            <View style={styles.greetingWrapper}>
+              <Text style={styles.greeting}>Your Earnings 💰</Text>
+            </View>
 
-      <View style={styles.card}>
-        <Text style={styles.small}>This month</Text>
-        <Text style={styles.amount}>
-          ₹{earningsData?.thisMonth?.toLocaleString() || "0"}
-        </Text>
-        <View style={styles.badge}>
-          <TrendingUp size={14} color="#6D5DF6" />
-          <Text style={styles.badgeText}>
-            +{earningsData?.growth || 0}% vs last month
-          </Text>
-        </View>
-      </View>
+            <View style={styles.card}>
+              <Text style={styles.small}>This month</Text>
+              <Text style={styles.amount}>
+                ₹{earningsData?.thisMonth?.toLocaleString() || "0"}
+              </Text>
+              <View style={styles.badge}>
+                <TrendingUp size={14} color="#6D5DF6" />
+                <Text style={styles.badgeText}>
+                  +{earningsData?.growth || 0}% vs last month
+                </Text>
+              </View>
+            </View>
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>Total Jobs</Text>
-          <Text style={styles.statValue}>{earningsData?.stats?.totalJobs || 0}</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>Avg Earning</Text>
-          <Text style={styles.statValue}>
-            ₹{earningsData?.stats?.averageEarning || 0}
-          </Text>
-        </View>
-      </View>
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statLabel}>Total Jobs</Text>
+                <Text style={styles.statValue}>
+                  {earningsData?.stats?.totalJobs || 0}
+                </Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statLabel}>Avg Earning</Text>
+                <Text style={styles.statValue}>
+                  ₹{earningsData?.stats?.averageEarning || 0}
+                </Text>
+              </View>
+            </View>
 
-      <View style={styles.card}>
-        <View style={styles.sectionHeader}>
-          <BarChart3 size={18} color="#6D5DF6" />
-          <Text style={styles.sectionTitle}>Weekly Activity</Text>
-        </View>
-        <View style={styles.chart}>
-          <View style={[styles.bar, { height: 30 }]} />
-          <View style={[styles.bar, { height: 45 }]} />
-          <View style={[styles.barActive, { height: 70 }]} />
-          <View style={[styles.bar, { height: 40 }]} />
-          <View style={[styles.barActive, { height: 80 }]} />
-          <View style={[styles.bar, { height: 30 }]} />
-          <View style={[styles.bar, { height: 45 }]} />
-        </View>
-        <View style={styles.days}>
-          <Text style={styles.dayLabel}>M</Text>
-          <Text style={styles.dayLabel}>T</Text>
-          <Text style={styles.dayLabel}>W</Text>
-          <Text style={styles.dayLabel}>T</Text>
-          <Text style={styles.dayLabel}>F</Text>
-          <Text style={styles.dayLabel}>S</Text>
-          <Text style={styles.dayLabel}>S</Text>
-        </View>
-      </View>
+            <View style={styles.card}>
+              <View style={styles.sectionHeader}>
+                <BarChart3 size={18} color="#6D5DF6" />
+                <Text style={styles.sectionTitle}>Weekly Activity</Text>
+              </View>
+              <View style={styles.chart}>
+                {chartPoints.map((point, index) => (
+                  <View
+                    key={`bar-${index}`}
+                    style={[
+                      point.amount > 0 ? styles.barActive : styles.bar,
+                      { height: getBarHeight(point.amount) },
+                    ]}
+                  />
+                ))}
+              </View>
+              <View style={styles.days}>
+                {chartPoints.map((point, index) => (
+                  <Text key={`label-${index}`} style={styles.dayLabel}>
+                    {point.label}
+                  </Text>
+                ))}
+              </View>
+            </View>
 
-      <View style={styles.transactionSection}>
-        <Text style={styles.sectionTitleLabel}>Recent Transactions</Text>
-        {earningsData?.transactions?.map((item: any, idx: number) => (
-          <View key={idx} style={styles.transaction}>
-            <View style={styles.transactionIcon}>
-              {item.status === "CREDITED" ? (
-                <Wrench size={20} color="#6D5DF6" />
+            <View style={styles.transactionSection}>
+              <Text style={styles.sectionTitleLabel}>Recent Transactions</Text>
+              {earningsData?.transactions &&
+              earningsData.transactions.length > 0 ? (
+                earningsData.transactions.map((item, idx) => (
+                  <View key={idx} style={styles.transaction}>
+                    <View style={styles.transactionIcon}>
+                      {item.status === "CREDITED" ? (
+                        <Wrench size={20} color="#6D5DF6" />
+                      ) : (
+                        <Building size={20} color="#F59E0B" />
+                      )}
+                    </View>
+
+                    <View style={styles.transactionInfo}>
+                      <Text style={styles.transactionTitle}>{item.title}</Text>
+                      <Text style={styles.transactionDate}>{item.date}</Text>
+                    </View>
+
+                    <View style={styles.transactionAmount}>
+                      <Text
+                        style={[
+                          styles.transactionAmountText,
+                          item.status === "CREDITED" && { color: "#10B981" },
+                        ]}
+                      >
+                        {item.amount}
+                      </Text>
+                      <Text style={styles.transactionStatus}>
+                        {item.status}
+                      </Text>
+                    </View>
+                  </View>
+                ))
               ) : (
-                <Building size={20} color="#F59E0B" />
+                <Text style={styles.emptyTransactions}>
+                  No transactions yet.
+                </Text>
               )}
             </View>
-
-            <View style={styles.transactionInfo}>
-              <Text style={styles.transactionTitle}>{item.title}</Text>
-              <Text style={styles.transactionDate}>{item.date}</Text>
-            </View>
-
-            <View style={styles.transactionAmount}>
-              <Text
-                style={[
-                  styles.transactionAmountText,
-                  item.status === "CREDITED" && { color: "#10B981" },
-                ]}
-              >
-                {item.amount}
-              </Text>
-              <Text style={styles.transactionStatus}>{item.status}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-    </ScreenWrapper>
+          </>
+        )}
+      </ScreenWrapper>
     </View>
   );
 }
@@ -358,5 +444,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 60,
+  },
+  emptyTransactions: {
+    fontSize: 14,
+    fontFamily: FONTS.REGULAR,
+    color: "#9CA3AF",
   },
 });

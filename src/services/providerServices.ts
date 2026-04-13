@@ -66,6 +66,14 @@ export const getAvailableJobsService = async (filters?: {
   return response.data;
 };
 
+export const getProviderJobDetailsService = async (jobId: string) => {
+  const headers = await getAuthHeaders();
+  const response = await api.get(`/api/providers/jobs/${jobId}`, {
+    headers,
+  });
+  return response.data;
+};
+
 // Place a bid on a job
 export const placeBidService = async (payload: {
   jobId: string;

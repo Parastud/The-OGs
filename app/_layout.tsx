@@ -56,11 +56,13 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
+    <SafeAreaView style={{ flex: 1 }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ReduxProvider store={store}>
           <AppContent />
         </ReduxProvider>
       </GestureHandlerRootView>
+    </SafeAreaView>
   );
 }
 
