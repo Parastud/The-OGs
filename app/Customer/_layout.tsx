@@ -139,7 +139,9 @@ export default function CustomerTabLayout() {
       <Tabs.Screen name="LoadingSkeletonScreen" options={hiddenScreenOptions} />
       <Tabs.Screen name="PaymentScreen" options={hiddenScreenOptions} />
       <Tabs.Screen name="PlaceBidScreen" options={hiddenScreenOptions} />
+      <Tabs.Screen name="ProviderDetailScreen" options={hiddenScreenOptions} />
       <Tabs.Screen name="ReviewScreen" options={hiddenScreenOptions} />
+      <Tabs.Screen name="SearchScreen" options={hiddenScreenOptions} />
       <Tabs.Screen name="SkillsExperience" options={hiddenScreenOptions} />
     </Tabs>
   );

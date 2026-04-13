@@ -1,7 +1,5 @@
 import {
-  ActivityIndicator,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -9,334 +7,280 @@ import {
   View,
 } from "react-native";
 
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+
+import { Search, SlidersHorizontal, MapPin } from "lucide-react-native";
+
 import { ScreenWrapper } from "@/src/components/wrapper";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
-import { MapPin, Search, SlidersHorizontal } from "lucide-react-native";
-import { useDeferredValue, useEffect, useState } from "react";
-import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
-const CATEGORIES = [
-  "Plumbing",
-  "Electrical",
-  "Cleaning",
-  "AC Repair",
-  "Carpentry",
+
+const jobs = [
+  {
+    id: "1",
+    title: "Same-day Tutor work needed",
+    distance: "4.8 km",
+    price: "₹1200 - ₹4850",
+    match: "91",
+    image: "https://picsum.photos/200"
+  },
+  {
+    id: "2",
+    title: "AC Repair urgently",
+    distance: "1.6 km",
+    price: "₹650 - ₹4650",
+    match: "77",
+    image: "https://picsum.photos/201"
+  }
 ];
 
-export default function ExploreScreen() {
-  const { getAvailableJobs, isLoading } = useProviderApi();
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const deferredSearchQuery = useDeferredValue(searchQuery);
 
-  useEffect(() => {
-    const loadJobs = async () => {
-      const filters: any = {};
-      if (activeCategory) filters.category = activeCategory;
-      if (deferredSearchQuery) filters.search = deferredSearchQuery;
-
-      const jobsData = await getAvailableJobs(filters);
-      if (jobsData) {
-        setJobs(jobsData);
-      }
-    };
-
-    loadJobs();
-  }, [activeCategory, deferredSearchQuery]);
+export default function Explore() {
 
   return (
-    <ScreenWrapper
-      safeArea
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>Explore Jobs</Text>
-        <Text style={styles.subtitle}>Find work near you</Text>
-      </View>
+    <ScreenWrapper>
 
-      <View style={styles.searchRow}>
-        <View
-          style={[styles.searchBox, searchFocused && styles.searchBoxFocused]}
-        >
-          <Search size={17} color={COLORS.textTertiary} />
+      {/* Header */}
+      <LinearGradient
+        colors={["#6D5DF6", "#8B7BFF"]}
+        style={styles.header}
+      >
+
+        <Text style={styles.headerTitle}>
+          Explore Jobs
+        </Text>
+
+        <Text style={styles.headerSubtitle}>
+          Find work near you
+        </Text>
+
+      </LinearGradient>
+
+
+      {/* Search */}
+      <View style={styles.searchWrapper}>
+
+        <View style={styles.searchBox}>
+          <Search size={18} color="#888" />
+
           <TextInput
             placeholder="Search jobs..."
-            placeholderTextColor={COLORS.textTertiary}
+            placeholderTextColor="#999"
             style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
           />
+
         </View>
-        <TouchableOpacity style={styles.filterBtn} activeOpacity={0.8}>
-          <SlidersHorizontal size={18} color={COLORS.primary} />
+
+        <TouchableOpacity style={styles.filterBtn}>
+          <SlidersHorizontal size={20} color={COLORS.primary} />
         </TouchableOpacity>
+
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoriesList}
-      >
-        {CATEGORIES.map((item) => {
-          const active = activeCategory === item;
-          return (
-            <TouchableOpacity
-              key={item}
-              style={[styles.category, active && styles.categoryActive]}
-              onPress={() => setActiveCategory(active ? null : item)}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  active && styles.categoryTextActive,
-                ]}
-              >
-                {item}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
 
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : jobs.length > 0 ? (
-        <>
-          {jobs.map((job) => (
-            <View key={job.id} style={styles.jobCard}>
-              <View style={styles.jobTop}>
-                <Image source={{ uri: job.imageUrl }} style={styles.jobImage} />
-                <View style={styles.jobInfo}>
-                  <Text style={styles.jobTitle}>{job.title}</Text>
-                  <View style={styles.jobDistance}>
-                    <MapPin size={12} color={COLORS.textSecondary} />
-                    <Text style={styles.distanceText}>{job.distance}</Text>
-                  </View>
+      {/* Categories */}
+      <View style={styles.categoryRow}>
+        {["Plumbing","Electrical","Cleaning","AC Repair"].map(item=>(
+          <TouchableOpacity key={item} style={styles.categoryChip}>
+            <Text style={styles.categoryText}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+
+      {/* Jobs */}
+      <View style={{ paddingBottom: 120 }}>
+        {jobs.map((item) => (
+          <View key={item.id} style={styles.jobCard}>
+            <View style={styles.jobTop}>
+              <Image source={{ uri: item.image }} style={styles.jobImage} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.jobTitle}>{item.title}</Text>
+                <View style={styles.jobMeta}>
+                  <MapPin size={14} color="#888" />
+                  <Text style={styles.distance}>{item.distance}</Text>
                 </View>
               </View>
-
-              <View style={styles.jobFooter}>
-                <Text style={styles.jobPrice}>{job.price}</Text>
-                <View style={styles.matchBadge}>
-                  <Text style={styles.matchText}>{job.match}</Text>
-                </View>
-              </View>
-
-              <TouchableOpacity style={styles.bidBtn} activeOpacity={0.7}>
-                <Text style={styles.bidBtnText}>View & Bid</Text>
-              </TouchableOpacity>
             </View>
-          ))}
-          <View style={styles.listEndSpacer} />
-        </>
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No jobs available</Text>
-          <Text style={styles.emptySubText}>
-            Try a different category or search
-          </Text>
-        </View>
-      )}
+
+            <View style={styles.jobFooter}>
+              <Text style={styles.price}>{item.price}</Text>
+              <View style={styles.matchBadge}>
+                <Text style={styles.matchText}>{item.match}%</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.bidBtn}
+              onPress={() => router.push({ pathname: "/job/[id]", params: { id: item.id } })}
+            >
+              <Text style={styles.bidText}>View & Bid</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+
     </ScreenWrapper>
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  scrollContent: {
-    flexGrow: 0,
-    paddingBottom: 180,
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  title: {
-    fontSize: 24,
-    fontFamily: FONTS.BOLD,
-    color: COLORS.textPrimary,
-  },
-  subtitle: {
-    fontSize: 14,
-    fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
-    marginTop: 4,
-  },
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    gap: 12,
-    marginVertical: 12,
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.surface,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  searchBoxFocused: {
-    borderColor: COLORS.primary,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontFamily: FONTS.REGULAR,
-    fontSize: 14,
-    color: COLORS.textPrimary,
-  },
-  filterBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
-    backgroundColor: COLORS.surface,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  categoriesList: {
-    paddingHorizontal: 16,
-    gap: 8,
-    paddingBottom: 4,
-  },
-  category: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  categoryActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  categoryText: {
-    fontSize: 12,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textSecondary,
-  },
-  categoryTextActive: {
-    color: COLORS.white,
-  },
-  loadingContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  jobCard: {
-    marginHorizontal: 16,
-    marginBottom: 12,
-    marginTop: 0,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  jobTop: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 12,
-  },
-  jobImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: COLORS.surfaceSecondary,
-  },
-  jobInfo: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  jobTitle: {
-    fontSize: 14,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textPrimary,
-    marginBottom: 6,
-  },
-  jobDistance: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  distanceText: {
-    fontSize: 12,
-    fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
-  },
-  jobFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  jobPrice: {
-    fontSize: 13,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.primary,
-  },
-  matchBadge: {
-    backgroundColor: "#E8F5E9",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  matchText: {
-    fontSize: 11,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.success,
-  },
-  bidBtn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  bidBtnText: {
-    fontSize: 13,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.white,
-  },
-  listEndSpacer: {
-    height: 96,
-  },
-  emptyContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 16,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textPrimary,
-    marginBottom: 8,
-  },
-  emptySubText: {
-    fontSize: 13,
-    fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
-  },
+
+header:{
+padding:20,
+borderBottomLeftRadius:30,
+borderBottomRightRadius:30,
+marginBottom:20
+},
+
+headerTitle:{
+fontSize:24,
+fontFamily:FONTS.BOLD,
+color:"#fff"
+},
+
+headerSubtitle:{
+color:"#fff",
+marginTop:4
+},
+
+searchWrapper:{
+flexDirection:"row",
+gap:10,
+paddingHorizontal:16,
+marginTop:-30
+},
+
+searchBox:{
+flex:1,
+flexDirection:"row",
+alignItems:"center",
+backgroundColor:"#fff",
+padding:12,
+borderRadius:14,
+shadowColor:"#000",
+shadowOpacity:0.05,
+shadowRadius:8,
+elevation:4
+},
+
+searchInput:{
+flex:1,
+marginLeft:8,
+color:"#000"
+},
+
+filterBtn:{
+backgroundColor:"#fff",
+padding:14,
+borderRadius:14,
+shadowColor:"#000",
+shadowOpacity:0.05,
+shadowRadius:8,
+elevation:4
+},
+
+categoryRow:{
+flexDirection:"row",
+paddingHorizontal:16,
+marginVertical:16,
+gap:10
+},
+
+categoryChip:{
+paddingHorizontal:14,
+paddingVertical:8,
+backgroundColor:"#fff",
+borderRadius:20,
+shadowColor:"#000",
+shadowOpacity:0.03,
+shadowRadius:6,
+elevation:2
+},
+
+categoryText:{
+fontFamily:FONTS.SEMIBOLD
+},
+
+jobCard:{
+backgroundColor:"#fff",
+marginHorizontal:16,
+marginBottom:16,
+padding:16,
+borderRadius:16,
+shadowColor:"#000",
+shadowOpacity:0.05,
+shadowRadius:8,
+elevation:4
+},
+
+jobTop:{
+flexDirection:"row",
+gap:12
+},
+
+jobImage:{
+width:60,
+height:60,
+borderRadius:12
+},
+
+jobTitle:{
+fontFamily:FONTS.SEMIBOLD,
+fontSize:15
+},
+
+jobMeta:{
+flexDirection:"row",
+alignItems:"center",
+gap:4,
+marginTop:4
+},
+
+distance:{
+color:"#888"
+},
+
+jobFooter:{
+flexDirection:"row",
+justifyContent:"space-between",
+alignItems:"center",
+marginTop:12
+},
+
+price:{
+fontFamily:FONTS.BOLD,
+color:COLORS.primary
+},
+
+matchBadge:{
+backgroundColor:"#E8F5E9",
+paddingHorizontal:10,
+paddingVertical:4,
+borderRadius:10
+},
+
+matchText:{
+color:"#16A34A",
+fontFamily:FONTS.SEMIBOLD
+},
+
+bidBtn:{
+backgroundColor:COLORS.primary,
+marginTop:12,
+padding:14,
+borderRadius:12,
+alignItems:"center"
+},
+
+bidText:{
+color:"#fff",
+fontFamily:FONTS.SEMIBOLD
+}
+
 });

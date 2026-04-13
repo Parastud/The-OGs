@@ -6,11 +6,10 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
-
+import { LinearGradient } from "expo-linear-gradient";
 import { Bell, MessageSquare } from "lucide-react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
@@ -59,18 +58,30 @@ export default function BidsScreen() {
   };
 
   return (
+    <View style={styles.container}>
     <ScreenWrapper
-      safeArea
-      style={styles.container}
       contentContainerStyle={styles.scrollContent}
     >
-      <View style={styles.header}>
-        <Text style={styles.brand}>Gigly</Text>
-        <Text style={styles.title}>My Bids</Text>
-        <Bell size={22} color={COLORS.textPrimary} />
-      </View>
+      <LinearGradient
+        colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.brand}>Gigly</Text>
+            <Text style={styles.headerSubtitle}>My Bids</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <View style={styles.bellWrap}>
+              <Bell size={20} color="#000" />
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
 
-      <View style={styles.tabs}>
+      <View style={styles.tabsContainer}>
         <TouchableOpacity
           style={[styles.tabBtn, activeTab === "pending" && styles.activeTab]}
           onPress={() => setActiveTab("pending")}
@@ -114,96 +125,95 @@ export default function BidsScreen() {
         </TouchableOpacity>
       </View>
 
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : data.length > 0 ? (
-        data.map((item, idx) => (
-          <View key={idx} style={styles.bidCard}>
-            <View style={styles.bidHeader}>
-              <View>
-                <Text style={styles.bidTitle}>{item.title}</Text>
-                <Text style={styles.bidUser}>From: {item.user}</Text>
-              </View>
-              <View style={[styles.statusBadge, getStatusColor(item.status)]}>
-                <Text style={styles.statusText}>
-                  {item.status.toUpperCase()}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.bidAmount}>
-              <Text style={styles.amountLabel}>Your Bid:</Text>
-              <Text style={styles.amountValue}>{item.bidAmount}</Text>
-            </View>
-
-            {activeTab === "accepted" ? (
-              <View style={styles.actionBtns}>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.startBtn]}
-                  onPress={() => handleViewJob(item)}
-                >
-                  <Text style={styles.actionBtnText}>Start Work</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.chatBtn]}
-                  onPress={() => handleChat(item)}
-                >
-                  <MessageSquare size={16} color={COLORS.primary} />
-                  <Text
-                    style={[styles.actionBtnText, { color: COLORS.primary }]}
-                  >
-                    Message
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : activeTab === "pending" ? (
-              <View style={styles.actionBtns}>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.viewBtn]}
-                  onPress={() => handleViewJob(item)}
-                >
-                  <Text style={styles.actionBtnText}>View Job</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.chatBtn]}
-                  onPress={() => handleResumeChat(item)}
-                >
-                  <MessageSquare size={16} color={COLORS.primary} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.actionBtns}>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.viewBtn]}
-                  onPress={() => handleViewJob(item)}
-                >
-                  <Text style={styles.actionBtnText}>View Job</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+      <View style={{ paddingTop: 16 }}>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#6D5DF6" />
           </View>
-        ))
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No {activeTab} bids</Text>
-        </View>
-      )}
+        ) : data.length > 0 ? (
+          data.map((item, idx) => (
+            <View key={idx} style={styles.bidCard}>
+              <View style={styles.bidHeader}>
+                <View style={{ flex: 1, paddingRight: 12 }}>
+                  <Text style={styles.bidTitle}>{item.title}</Text>
+                  <Text style={styles.bidUser}>From: {item.user}</Text>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status).bg }]}>
+                  <Text style={[styles.statusText, { color: getStatusColor(item.status).text }]}>
+                    {item.status.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.bidAmount}>
+                <Text style={styles.amountLabel}>Your Bid:</Text>
+                <Text style={styles.amountValue}>{item.bidAmount}</Text>
+              </View>
+
+              {activeTab === "accepted" ? (
+                <View style={styles.actionBtns}>
+                  <TouchableOpacity
+                    style={[styles.actionBtn, styles.startBtn]}
+                    onPress={() => handleViewJob(item)}
+                  >
+                    <Text style={styles.actionBtnText}>Start Work</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.actionBtn, styles.chatBtn]}
+                    onPress={() => handleChat(item)}
+                  >
+                    <MessageSquare size={18} color="#4B5563" />
+                    <Text style={styles.chatBtnText}>Message</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : activeTab === "pending" ? (
+                <View style={styles.actionBtns}>
+                  <TouchableOpacity
+                    style={[styles.actionBtn, styles.viewBtn]}
+                    onPress={() => handleViewJob(item)}
+                  >
+                    <Text style={styles.actionBtnText}>View Job</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.actionBtn, styles.chatBtn, { flex: 0, paddingHorizontal: 20 }]}
+                    onPress={() => handleResumeChat(item)}
+                  >
+                    <MessageSquare size={18} color="#4B5563" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.actionBtns}>
+                  <TouchableOpacity
+                    style={[styles.actionBtn, styles.viewBtn]}
+                    onPress={() => handleViewJob(item)}
+                  >
+                    <Text style={styles.actionBtnText}>View Job</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No {activeTab} bids found.</Text>
+          </View>
+        )}
+      </View>
     </ScreenWrapper>
+    </View>
   );
 }
 
 const getStatusColor = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "pending":
-      return { backgroundColor: "#FFF3E0" };
+      return { bg: "#FEF3C7", text: "#D97706" };
     case "accepted":
-      return { backgroundColor: "#E8F5E9" };
+      return { bg: "#D1FAE5", text: "#059669" };
     case "rejected":
-      return { backgroundColor: "#FFEBEE" };
+      return { bg: "#FEE2E2", text: "#DC2626" };
     default:
-      return { backgroundColor: "#F5F5F5" };
+      return { bg: "#F3F4F6", text: "#4B5563" };
   }
 };
 
@@ -211,57 +221,75 @@ const getStatusColor = (status: string) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#F9FAFB",
   },
   scrollContent: {
     paddingBottom: 100,
   },
   header: {
+    height: 170,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    paddingTop: 65,
+    paddingHorizontal: 20,
+    shadowColor: "#6D5DF6",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   brand: {
-    fontSize: 18,
+    fontSize: 28,
     fontFamily: FONTS.BOLD,
-    color: COLORS.textPrimary,
+    color: "#fff",
   },
-  title: {
-    fontSize: 16,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textPrimary,
+  headerSubtitle: {
+    fontSize: 15,
+    fontFamily: FONTS.REGULAR,
+    color: "#E2E8F0",
+    marginTop: 4,
   },
-  tabs: {
+  headerRight: {
     flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
+    gap: 10,
+  },
+  bellWrap: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 14,
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginHorizontal: 20,
+    marginTop: -25, // Overlapping the header seamlessly
+    borderRadius: 16,
+    padding: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    zIndex: 10,
   },
   tabBtn: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
   },
   activeTab: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: "#ECEBFF",
   },
   tabText: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textSecondary,
+    color: "#6B7280",
   },
   activeText: {
-    color: COLORS.white,
+    color: "#6D5DF6",
   },
   loadingContainer: {
     justifyContent: "center",
@@ -269,13 +297,15 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   bidCard: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
   bidHeader: {
     flexDirection: "row",
@@ -284,73 +314,77 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   bidTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textPrimary,
+    color: "#1F2937",
     marginBottom: 4,
   },
   bidUser: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
+    color: "#6B7280",
   },
   statusBadge: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   statusText: {
     fontSize: 11,
     fontFamily: FONTS.BOLD,
-    color: COLORS.primary,
   },
   bidAmount: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
-    paddingBottom: 12,
+    marginBottom: 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: "#F3F4F6",
   },
   amountLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
+    color: "#6B7280",
   },
   amountValue: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: FONTS.BOLD,
-    color: COLORS.primary,
+    color: "#6D5DF6",
   },
   actionBtns: {
     flexDirection: "row",
-    gap: 8,
+    gap: 12,
   },
   actionBtn: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    gap: 6,
+    gap: 8,
   },
   startBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#6D5DF6",
   },
   viewBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#6D5DF6",
   },
   chatBtn: {
-    backgroundColor: COLORS.surfaceSecondary,
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: "#E5E7EB",
   },
   actionBtnText: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.white,
+    color: "#fff",
+  },
+  chatBtnText: {
+    fontSize: 14,
+    fontFamily: FONTS.SEMIBOLD,
+    color: "#4B5563",
   },
   emptyContainer: {
     justifyContent: "center",
@@ -360,6 +394,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
+    color: "#9CA3AF",
   },
 });
