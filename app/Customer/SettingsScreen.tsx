@@ -1,25 +1,27 @@
-import React, { useState } from "react";
+import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
+import { useRouter } from "expo-router";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Switch,
-  ScrollView,
+  ChevronRight,
+  CreditCard,
+  FileText,
+  Landmark,
+  Link,
+  Lock,
+  Menu,
+  ShieldCheck,
+  User,
+} from "lucide-react-native";
+import { useState } from "react";
+import {
   Image,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Menu,
-  User,
-  Lock,
-  Link,
-  ShieldCheck,
-  CreditCard,
-  Landmark,
-  FileText,
-  ChevronRight,
-} from "lucide-react-native";
 
 export default function SettingsScreen() {
   const [notifications, setNotifications] = useState({
@@ -27,6 +29,7 @@ export default function SettingsScreen() {
     updates: true,
     messages: true,
   });
+  const router = useRouter()
 
   return (
     <SafeAreaView style={styles.container}>
@@ -51,9 +54,10 @@ export default function SettingsScreen() {
 
         {/* ACCOUNT */}
         <Section title="Account">
-          <SettingItem icon={<User size={18} />} label="Edit Profile" />
-          <SettingItem icon={<Lock size={18} />} label="Change Password" />
-          <SettingItem icon={<Link size={18} />} label="Linked Accounts" />
+          <SettingItem icon={<User size={18} />} label="Logout" onPress={async() => { await removeTokenFromSecureStore(); router.replace('/(auth)/Login')}} />
+          <SettingItem icon={<User size={18} />} label="Edit Profile" onPress={() => {}} />
+          <SettingItem icon={<Lock size={18} />} label="Change Password" onPress={() => {}} />
+          <SettingItem icon={<Link size={18} />} label="Linked Accounts" onPress={() => {}} />
           <SettingItem
             icon={<ShieldCheck size={18} />}
             label="Verify Identity"
@@ -133,8 +137,9 @@ const SettingItem = ({
   label,
   value,
   badge,
+  onPress,
 }: any) => (
-  <TouchableOpacity style={styles.item}>
+  <TouchableOpacity style={styles.item} onPress={onPress}>
     <View style={styles.row}>
       {icon}
       <Text style={styles.label}>{label}</Text>
