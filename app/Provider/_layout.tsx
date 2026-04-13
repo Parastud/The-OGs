@@ -2,17 +2,17 @@ import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import { Tabs } from "expo-router";
 import {
-    Briefcase,
-    LayoutDashboard,
-    Search,
-    User,
-    Wallet,
+  Briefcase,
+  LayoutDashboard,
+  Search,
+  User,
+  Wallet,
 } from "lucide-react-native";
 import { Platform, StyleSheet, View } from "react-native";
 
 import Animated, {
-    useAnimatedStyle,
-    withSpring,
+  useAnimatedStyle,
+  withSpring,
 } from "react-native-reanimated";
 
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,7 +23,11 @@ function TabIcon({
   label,
   focused,
 }: {
-  Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+  Icon: React.ComponentType<{
+    size?: number;
+    color?: string;
+    strokeWidth?: number;
+  }>;
   label: string;
   focused: boolean;
 }) {
@@ -65,7 +69,13 @@ function TabIcon({
           )}
         </Animated.View>
 
-        <Animated.Text style={[styles.label, focused && styles.labelActive, labelAnimatedStyle]}>
+        <Animated.Text
+          style={[
+            styles.label,
+            focused && styles.labelActive,
+            labelAnimatedStyle,
+          ]}
+        >
           {label}
         </Animated.Text>
       </View>
@@ -88,11 +98,7 @@ export default function TabLayout() {
         name="dashboard"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              Icon={LayoutDashboard}
-              label="Home"
-              focused={focused}
-            />
+            <TabIcon Icon={LayoutDashboard} label="Home" focused={focused} />
           ),
         }}
       />
@@ -101,11 +107,7 @@ export default function TabLayout() {
         name="explore"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              Icon={Search}
-              label="Explore"
-              focused={focused}
-            />
+            <TabIcon Icon={Search} label="Explore" focused={focused} />
           ),
         }}
       />
@@ -114,11 +116,7 @@ export default function TabLayout() {
         name="bids"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              Icon={Briefcase}
-              label="Jobs"
-              focused={focused}
-            />
+            <TabIcon Icon={Briefcase} label="Jobs" focused={focused} />
           ),
         }}
       />
@@ -127,11 +125,7 @@ export default function TabLayout() {
         name="earnings"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              Icon={Wallet}
-              label="Earnings"
-              focused={focused}
-            />
+            <TabIcon Icon={Wallet} label="Earnings" focused={focused} />
           ),
         }}
       />
@@ -140,11 +134,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              Icon={User}
-              label="Profile"
-              focused={focused}
-            />
+            <TabIcon Icon={User} label="Profile" focused={focused} />
           ),
         }}
       />
@@ -156,11 +146,11 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    left: 12,
-    right: 12,
-    bottom: Platform.OS === "ios" ? 18 : 12,
+    left: 0,
+    right: 0,
+    bottom: 0,
     height: Platform.OS === "ios" ? 78 : 72,
-    borderRadius: 24,
+    borderRadius: Platform.OS === "ios" ? 24 : 0,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -170,7 +160,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 14,
     paddingHorizontal: 8,
-    paddingTop: 8,
+    paddingTop: Platform.OS === "ios" ? 8 : 12,
+    paddingBottom: Platform.OS === "ios" ? 18 : 12,
   },
 
   tabItem: {

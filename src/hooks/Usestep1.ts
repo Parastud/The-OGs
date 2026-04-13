@@ -67,8 +67,8 @@ export default function useStep1(): UseStep1Return {
             setCategories(data);
             setCategoriesLoading(false);
         })();
-    }, []);
 
+    }, [getCategories]);
     // ── Fetch skills ─────────────────────────────────────────────────────────
     const handleCategorySelect = useCallback(async (cat: string) => {
         if (selectedCategory === cat) {
@@ -86,8 +86,8 @@ export default function useStep1(): UseStep1Return {
 
         setSkills(data);
         setSkillsLoading(false);
-    }, [selectedCategory]);
 
+    }, [selectedCategory, getSkills]);
     const toggleSkill = (val: string) =>
         setSelectedSkills((prev) =>
             prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]

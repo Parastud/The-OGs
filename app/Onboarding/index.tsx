@@ -64,8 +64,8 @@ function SlideIllustration({ slide }: { slide: typeof slides[0] }) {
         Animated.timing(pulse, { toValue: 1, duration: 900, useNativeDriver: true }),
       ])
     ).start();
-  }, []);
 
+  }, [pulse]);
   return (
     <View style={styles.illustrationContainer}>
       {/* Glow ring */}
