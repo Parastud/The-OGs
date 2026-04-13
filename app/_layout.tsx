@@ -1,7 +1,6 @@
 import { apolloClient } from "@/src/lib/apolloClient";
 import { hideSnackbar, SnackbarType } from "@/src/redux/slices/snackbar.slice";
 import { RootState, store } from "@/src/redux/store";
-import { ApolloProvider } from "@apollo/client/react";
 import { Stack } from "expo-router";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -58,13 +57,11 @@ function AppContent() {
 export default function RootLayout() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ApolloProvider client={apolloClient}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <ReduxProvider store={store}>
-            <AppContent />
-          </ReduxProvider>
-        </GestureHandlerRootView>
-      </ApolloProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ReduxProvider store={store}>
+          <AppContent />
+        </ReduxProvider>
+      </GestureHandlerRootView>
     </SafeAreaView>
   );
 }
