@@ -1,5 +1,6 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
 
 import {
   ArrowLeft,
@@ -7,12 +8,15 @@ import {
   CalendarCheck,
   MessageSquare,
   Star,
+  CheckCircle2,
+  Clock,
+  Settings
 } from "lucide-react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const { getProviderProfile, isLoading } = useProviderApi();
@@ -29,56 +33,42 @@ export default function ProfileScreen() {
     loadProfile();
   }, []);
 
-  if (!profileData && !isLoading) {
-    return (
-      <View style={styles.container}>
-        <ScreenWrapper
-          safeArea
-          style={styles.wrapper}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <View style={styles.header}>
-            <ArrowLeft size={22} color={COLORS.textPrimary} />
-            <Text style={styles.brand}>Gigly</Text>
-            <Bell size={20} color={COLORS.textPrimary} />
-          </View>
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading profile...</Text>
-          </View>
-        </ScreenWrapper>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <ScreenWrapper
-        safeArea
-        style={styles.wrapper}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.header}>
-          <ArrowLeft size={22} color={COLORS.textPrimary} />
-          <Text style={styles.brand}>Gigly</Text>
-
-          <View style={styles.headerRight}>
-            <Text style={styles.location}>{profileData?.location}</Text>
-            <Bell size={20} color={COLORS.textPrimary} />
+      <ScreenWrapper contentContainerStyle={styles.scrollContent}>
+        <LinearGradient
+            colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.header}
+          >
+          <View style={styles.headerTop}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.iconWrap}>
+              <ArrowLeft size={22} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.brand}>Profile</Text>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.bellWrap}>
+                <Bell size={20} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bellWrap} onPress={() => router.push("/settings")}>
+                <Settings size={20} color="#000" />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </LinearGradient>
 
-        <View style={styles.profileCard}>
+        <View style={styles.profileOverlap}>
           <Image
             source={{
               uri: profileData?.profilePhotoUrl || "https://i.pravatar.cc/150",
             }}
             style={styles.avatar}
           />
-
           <Text style={styles.name}>
             {profileData?.fullname || "Provider Name"}
           </Text>
-          <Text style={styles.role}>{profileData?.role}</Text>
+          <Text style={styles.locationText}>{profileData?.location || "Mathura, UP"}</Text>
 
           <View style={styles.skills}>
             {profileData?.skills?.map((skill: string, idx: number) => (
@@ -87,39 +77,48 @@ export default function ProfileScreen() {
               </Text>
             ))}
           </View>
+        </View>
 
-          <View style={styles.trustCard}>
-            <View style={styles.circle}>
-              <Text style={styles.trustNumber}>{profileData?.trustScore}</Text>
-              <Text style={styles.trustLabel}>TRUST SCORE</Text>
+        <View style={styles.sectionCard}>
+          <View style={styles.trustHeader}>
+            <Star size={20} color="#F59E0B" fill="#F59E0B" />
+            <Text style={styles.trustTitle}>Trust Score</Text>
+            <Text style={styles.trustScore}>{profileData?.trustScore || "92"}/100</Text>
+          </View>
+
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${profileData?.trustScore || 92}%` }]} />
+          </View>
+
+          <View style={styles.badgesRow}>
+            <View style={styles.badge}>
+                <Clock size={16} color="#4B5563" />
+                <Text style={styles.badgeText}>On Time</Text>
             </View>
-
-            <Text style={styles.verified}>
-              {profileData?.verified ? "✓ AI Verified Expert" : "Not Verified"}
-            </Text>
+            <View style={styles.badge}>
+                <CheckCircle2 size={16} color="#4B5563" />
+                <Text style={styles.badgeText}>{profileData?.verified || true ? "Verified" : "Unverified"}</Text>
+            </View>
           </View>
         </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{profileData?.rating}</Text>
-            <Star size={16} color={COLORS.starFilled} />
+            <Text style={styles.statNumber}>{profileData?.rating || "4.8"}</Text>
             <Text style={styles.statLabel}>RATING</Text>
           </View>
-
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{profileData?.reviews}</Text>
+            <Text style={styles.statNumber}>{profileData?.reviews || "120"}</Text>
             <Text style={styles.statLabel}>REVIEWS</Text>
           </View>
-
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{profileData?.jobsDone}</Text>
+            <Text style={styles.statNumber}>{profileData?.jobsDone || "34"}</Text>
             <Text style={styles.statLabel}>JOBS</Text>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>ABOUT ME</Text>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>About Me</Text>
           <Text style={styles.aboutText}>
             {profileData?.bio ||
               "Certified technician with professional experience in the field."}
@@ -127,35 +126,23 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.availableCard}>
-          <CalendarCheck size={18} color={COLORS.success} />
-
+          <CalendarCheck size={20} color="#6D5DF6" />
           <View>
-            <Text style={styles.availableTitle}>AVAILABLE</Text>
+            <Text style={styles.availableTitle}>Availability</Text>
             <Text style={styles.availableTime}>
               {profileData?.availability?.availableDays?.join(", ") ||
-                "Mon-Sat"}
+                "Mon - Sat"}
               {" • "}
               {profileData?.availability?.preferredWorkHours?.join(", ") ||
-                "9AM-7PM"}
+                "9 AM - 7 PM"}
             </Text>
           </View>
         </View>
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>EXPERIENCE</Text>
-        </View>
-
-        <View style={styles.experienceCard}>
-          <Text style={styles.experienceYears}>
-            {profileData?.yearsOfExperience}+ Years
-          </Text>
-          <Text style={styles.experienceText}>Professional Experience</Text>
-        </View>
-
         {profileData?.portfolioPhotos &&
           profileData.portfolioPhotos.length > 0 && (
-            <View style={styles.portfolioSection}>
-              <Text style={styles.sectionTitle}>PORTFOLIO</Text>
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Portfolio</Text>
               <View style={styles.portfolioGrid}>
                 {profileData.portfolioPhotos.map(
                   (photo: string, idx: number) => (
@@ -170,75 +157,91 @@ export default function ProfileScreen() {
             </View>
           )}
 
-        <TouchableOpacity style={styles.editBtn}>
-          <Text style={styles.editBtnText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.contactBtn}>
-          <MessageSquare size={18} color={COLORS.primary} />
-          <Text style={styles.contactBtnText}>Contact Support</Text>
-        </TouchableOpacity>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.editBtn}>
+            <Text style={styles.editBtnText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.contactBtn}>
+            <MessageSquare size={18} color="#6D5DF6" />
+            <Text style={styles.contactBtnText}>Contact Support</Text>
+          </TouchableOpacity>
+        </View>
       </ScreenWrapper>
     </View>
   );
 }
 
-/* -------------------- Styles -------------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  wrapper: {
-    flex: 1,
+    backgroundColor: "#F9FAFB",
   },
   scrollContent: {
     paddingBottom: 100,
   },
   header: {
+    height: 180,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    paddingTop: 65,
+    paddingHorizontal: 20,
+    shadowColor: "#6D5DF6",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  brand: {
-    fontSize: 18,
-    fontFamily: FONTS.BOLD,
-    color: COLORS.textPrimary,
   },
   headerRight: {
-    alignItems: "flex-end",
-    gap: 4,
+    flexDirection: "row",
+    gap: 10,
   },
-  location: {
-    fontSize: 11,
-    fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
+  iconWrap: {
+    padding: 8,
   },
-  profileCard: {
+  brand: {
+    fontSize: 22,
+    fontFamily: FONTS.BOLD,
+    color: "#fff",
+  },
+  bellWrap: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 14,
+  },
+  profileOverlap: {
     alignItems: "center",
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    marginTop: -60,
+    marginBottom: 20,
+    paddingHorizontal: 20,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 4,
+    borderColor: "#fff",
     marginBottom: 12,
   },
   name: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: FONTS.BOLD,
-    color: COLORS.textPrimary,
+    color: "#1F2937",
     marginBottom: 4,
+  },
+  locationText: {
+    fontSize: 14,
+    fontFamily: FONTS.REGULAR,
+    color: "#6B7280",
+    marginBottom: 10,
   },
   role: {
     fontSize: 14,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
+    color: "#6D5DF6",
     marginBottom: 12,
   },
   skills: {
@@ -246,189 +249,219 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     gap: 8,
-    marginBottom: 16,
+    marginTop: 6,
   },
   skill: {
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.primary,
-    backgroundColor: "#F0F0F0",
+    color: "#6D5DF6",
+    backgroundColor: "#ECEBFF",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 16,
   },
-  trustCard: {
-    alignItems: "center",
+  sectionCard: {
+    marginHorizontal: 20,
+    marginVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  circle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.surfaceSecondary,
-    justifyContent: "center",
-    alignItems: "center",
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: FONTS.SEMIBOLD,
+    color: "#1F2937",
     marginBottom: 12,
   },
-  trustNumber: {
-    fontSize: 24,
-    fontFamily: FONTS.BOLD,
-    color: COLORS.primary,
+  trustHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  trustLabel: {
-    fontSize: 10,
+  trustTitle: {
+    flex: 1,
+    fontSize: 18,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textSecondary,
+    color: "#1F2937",
   },
-  verified: {
+  trustScore: {
+    fontSize: 18,
+    fontFamily: FONTS.BOLD,
+    color: "#6D5DF6",
+  },
+  progressTrack: {
+    height: 8,
+    backgroundColor: "#F3F4F6",
+    marginVertical: 16,
+    borderRadius: 6,
+  },
+  progressFill: {
+    height: 8,
+    backgroundColor: "#6D5DF6",
+    borderRadius: 6,
+  },
+  badgesRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  badgeText: {
     fontSize: 13,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.success,
+    color: "#4B5563",
   },
   statsRow: {
     flexDirection: "row",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     gap: 12,
-    marginVertical: 20,
+    marginVertical: 10,
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    paddingVertical: 16,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    paddingVertical: 18,
     paddingHorizontal: 12,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
   statNumber: {
-    fontSize: 18,
+    fontSize: 22,
     fontFamily: FONTS.BOLD,
-    color: COLORS.primary,
+    color: "#1F2937",
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textSecondary,
+    color: "#6B7280",
     marginTop: 4,
   },
-  section: {
-    paddingHorizontal: 16,
-    marginVertical: 16,
-  },
-  sectionHeader: {
-    paddingHorizontal: 16,
-    marginTop: 16,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontFamily: FONTS.BOLD,
-    color: COLORS.textSecondary,
-    marginBottom: 12,
-  },
   aboutText: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textPrimary,
-    lineHeight: 20,
+    color: "#4B5563",
+    lineHeight: 22,
   },
   availableCard: {
     flexDirection: "row",
-    paddingHorizontal: 16,
-    marginVertical: 16,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    gap: 12,
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    gap: 16,
   },
   availableTitle: {
-    fontSize: 12,
+    fontSize: 16,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.textPrimary,
+    color: "#1F2937",
   },
   availableTime: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
-    marginTop: 2,
+    color: "#6B7280",
+    marginTop: 4,
   },
   experienceCard: {
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginBottom: 16,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
     alignItems: "center",
   },
   experienceYears: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: FONTS.BOLD,
-    color: COLORS.primary,
+    color: "#6D5DF6",
     marginBottom: 4,
   },
   experienceText: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
-  },
-  portfolioSection: {
-    paddingHorizontal: 16,
-    marginVertical: 16,
+    color: "#6B7280",
   },
   portfolioGrid: {
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
     flexWrap: "wrap",
   },
   portfolioImage: {
-    width: "30%",
+    width: "31%",
     aspectRatio: 1,
-    borderRadius: 8,
-    backgroundColor: COLORS.surfaceSecondary,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+  },
+  actionButtons: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
   editBtn: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    paddingVertical: 12,
+    backgroundColor: "#6D5DF6",
+    borderRadius: 14,
+    paddingVertical: 16,
     alignItems: "center",
+    marginBottom: 12,
+    shadowColor: "#6D5DF6",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   editBtnText: {
-    fontSize: 14,
-    fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.white,
+    fontSize: 16,
+    fontFamily: FONTS.BOLD,
+    color: "#fff",
   },
   contactBtn: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    backgroundColor: COLORS.surface,
-    borderRadius: 8,
-    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 10,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: "#E5E7EB",
   },
   contactBtnText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: FONTS.SEMIBOLD,
-    color: COLORS.primary,
+    color: "#1F2937",
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 100,
   },
   loadingText: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: FONTS.REGULAR,
-    color: COLORS.textSecondary,
+    color: "#6B7280",
   },
 });

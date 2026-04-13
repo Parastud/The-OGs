@@ -61,7 +61,7 @@ export default function Index() {
     hasRedirected.current = true;
 
     if (!onboardingDone) {
-      router.replace("/screen/dashboard");
+      router.replace("/Onboarding");
       return;
     }
 
