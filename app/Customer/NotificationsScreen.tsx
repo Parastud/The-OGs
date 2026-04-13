@@ -1,11 +1,14 @@
 import {
+  Bell,
   CheckCircle,
   Menu,
   MessageCircle,
-  Star
+  Star,
+  Trash2,
 } from "lucide-react-native";
 import { useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -15,23 +18,21 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-//
-// 🔷 TYPES
-//
+type NotifType = "bid" | "payment" | "review";
+
 type Notification = {
   id: string;
   title: string;
   subtitle?: string;
   time: string;
-  type: "bid" | "payment" | "review";
+  type: NotifType;
   color: string;
   action?: string;
+  read: boolean;
+  group: "TODAY" | "YESTERDAY" | "EARLIER";
 };
 
-//
-// 🔷 DATA
-//
-const notifications: Notification[] = [
+const INITIAL: Notification[] = [
   {
     id: "1",
     title: "Suresh accepted your bid",
@@ -40,6 +41,8 @@ const notifications: Notification[] = [
     type: "bid",
     color: "#16A34A",
     action: "Chat now →",
+    read: false,
+    group: "TODAY",
   },
   {
     id: "2",
@@ -49,6 +52,8 @@ const notifications: Notification[] = [
     type: "bid",
     color: "#6C63FF",
     action: "View Bid →",
+    read: false,
+    group: "TODAY",
   },
   {
     id: "3",
@@ -57,6 +62,8 @@ const notifications: Notification[] = [
     time: "2 hr ago",
     type: "payment",
     color: "#999",
+    read: true,
+    group: "TODAY",
   },
   {
     id: "4",
@@ -65,11 +72,104 @@ const notifications: Notification[] = [
     time: "1 day ago",
     type: "review",
     color: "#F59E0B",
+    read: true,
+    group: "YESTERDAY",
+  },
+  {
+    id: "5",
+    title: "Amit accepted your bid on 'Fix tap'",
+    subtitle: "₹400 held in escrow",
+    time: "Yesterday, 3 pm",
+    type: "bid",
+    color: "#16A34A",
+    action: "Chat now →",
+    read: true,
+    group: "YESTERDAY",
+  },
+  {
+    id: "6",
+    title: "Payment of ₹850 released for 'AC Repair'",
+    subtitle: "Credited to your wallet",
+    time: "3 days ago",
+    type: "payment",
+    color: "#999",
+    read: true,
+    group: "EARLIER",
+  },
+  {
+    id: "7",
+    title: "Neha left you a 4-star review",
+    subtitle: "Great work, will hire again!",
+    time: "4 days ago",
+    type: "review",
+    color: "#F59E0B",
+    read: true,
+    group: "EARLIER",
   },
 ];
 
+const TAB_TYPES: Record<string, NotifType[] | null> = {
+  All: null,
+  Bids: ["bid"],
+  Payments: ["payment"],
+  Reviews: ["review"],
+};
+
+const TYPE_CONFIG: Record<NotifType, { icon: any; label: string }> = {
+  bid: { icon: MessageCircle, label: "Bid" },
+  payment: { icon: CheckCircle, label: "Payment" },
+  review: { icon: Star, label: "Review" },
+};
+
+const GROUPS: Array<"TODAY" | "YESTERDAY" | "EARLIER"> = ["TODAY", "YESTERDAY", "EARLIER"];
+
 export default function NotificationsScreen() {
   const [activeTab, setActiveTab] = useState("All");
+  const [notifs, setNotifs] = useState<Notification[]>(INITIAL);
+
+  const unreadCount = notifs.filter((n) => !n.read).length;
+
+  const filtered = (() => {
+    const types = TAB_TYPES[activeTab];
+    return types ? notifs.filter((n) => types.includes(n.type)) : notifs;
+  })();
+
+  function markRead(id: string) {
+    setNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  }
+
+  function markAllRead() {
+    setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
+  }
+
+  function dismiss(id: string) {
+    setNotifs((prev) => prev.filter((n) => n.id !== id));
+  }
+
+  function clearAll() {
+    Alert.alert("Clear All", "Remove all notifications?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Clear",
+        style: "destructive",
+        onPress: () => setNotifs([]),
+      },
+    ]);
+  }
+
+  function handleAction(n: Notification) {
+    markRead(n.id);
+    if (n.type === "bid") Alert.alert(n.action ?? "Action", `Opening for: ${n.title}`);
+  }
+
+  const tabCounts = Object.fromEntries(
+    Object.entries(TAB_TYPES).map(([tab, types]) => [
+      tab,
+      types
+        ? notifs.filter((n) => types.includes(n.type) && !n.read).length
+        : unreadCount,
+    ])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -79,199 +179,220 @@ export default function NotificationsScreen() {
       >
         {/* HEADER */}
         <View style={styles.header}>
-          <Menu size={22} />
+          <TouchableOpacity onPress={() => Alert.alert("Menu")}>
+            <Menu size={22} color="#333" />
+          </TouchableOpacity>
           <Text style={styles.logo}>Gigly</Text>
           <Image
-            source={{
-              uri: "https://randomuser.me/api/portraits/men/1.jpg",
-            }}
+            source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
             style={styles.avatar}
           />
         </View>
 
-        {/* TITLE */}
-        <Text style={styles.title}>Notifications</Text>
-        <Text style={styles.subtitle}>
-          Stay updated with your latest activity
-        </Text>
-
-        <TouchableOpacity>
-          <Text style={styles.markAll}>Mark all read</Text>
-        </TouchableOpacity>
-
-        {/* FILTER TABS */}
-        <View style={styles.tabs}>
-          {["All", "Bids", "Jobs", "Payments"].map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              style={[
-                styles.tab,
-                activeTab === tab && styles.activeTab,
-              ]}
-              onPress={() => setActiveTab(tab)}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === tab && styles.activeTabText,
-                ]}
-              >
-                {tab}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* TITLE ROW */}
+        <View style={styles.titleRow}>
+          <View>
+            <Text style={styles.title}>Notifications</Text>
+            <Text style={styles.subtitle}>Stay updated with your latest activity</Text>
+          </View>
+          {unreadCount > 0 && (
+            <View style={styles.unreadBubble}>
+              <Bell size={12} color="#6C63FF" />
+              <Text style={styles.unreadText}>{unreadCount}</Text>
+            </View>
+          )}
         </View>
 
-        {/* TODAY */}
-        <Text style={styles.section}>TODAY</Text>
+        {/* ACTIONS ROW */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity onPress={markAllRead} disabled={unreadCount === 0}>
+            <Text style={[styles.actionLink, unreadCount === 0 && { color: "#ccc" }]}>
+              Mark all read
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={clearAll} disabled={notifs.length === 0}>
+            <Text style={[styles.actionLink, { color: "#EF4444" }, notifs.length === 0 && { color: "#ccc" }]}>
+              Clear all
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        {notifications.slice(0, 3).map((n) => (
-          <NotificationCard key={n.id} data={n} />
-        ))}
+        {/* FILTER TABS */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
+          <View style={styles.tabs}>
+            {["All", "Bids", "Payments", "Reviews"].map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                style={[styles.tab, activeTab === tab && styles.activeTab]}
+                onPress={() => setActiveTab(tab)}
+              >
+                <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                  {tab}
+                </Text>
+                {tabCounts[tab] > 0 && (
+                  <View style={[styles.tabBadge, activeTab === tab && styles.tabBadgeActive]}>
+                    <Text style={[styles.tabBadgeText, activeTab === tab && { color: "#6C63FF" }]}>
+                      {tabCounts[tab]}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
 
-        {/* YESTERDAY */}
-        <Text style={styles.section}>YESTERDAY</Text>
+        {/* EMPTY STATE */}
+        {filtered.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>🔔</Text>
+            <Text style={styles.emptyText}>No notifications</Text>
+            <Text style={styles.emptySubtext}>You're all caught up!</Text>
+          </View>
+        )}
 
-        <NotificationCard data={notifications[3]} />
+        {/* GROUPED NOTIFICATIONS */}
+        {GROUPS.map((group) => {
+          const items = filtered.filter((n) => n.group === group);
+          if (!items.length) return null;
+          return (
+            <View key={group}>
+              <Text style={styles.section}>{group}</Text>
+              {items.map((n) => {
+                const cfg = TYPE_CONFIG[n.type];
+                const Icon = cfg.icon;
+                return (
+                  <TouchableOpacity
+                    key={n.id}
+                    onPress={() => markRead(n.id)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={[styles.card, { borderLeftColor: n.color }, !n.read && styles.cardUnread]}>
+                      <View style={styles.cardInner}>
+                        {/* ICON */}
+                        <View style={[styles.iconWrap, { backgroundColor: n.color + "20" }]}>
+                          <Icon size={15} color={n.color} />
+                        </View>
+
+                        {/* CONTENT */}
+                        <View style={{ flex: 1 }}>
+                          <View style={styles.cardTopRow}>
+                            <Text style={[styles.cardTitle, !n.read && styles.cardTitleUnread]} numberOfLines={2}>
+                              {n.title}
+                            </Text>
+                            {!n.read && <View style={styles.unreadDot} />}
+                          </View>
+
+                          {n.subtitle && (
+                            <Text style={styles.cardSub}>{n.subtitle}</Text>
+                          )}
+
+                          <View style={styles.cardFooter}>
+                            <Text style={styles.time}>{n.time}</Text>
+                            {n.action && (
+                              <TouchableOpacity onPress={() => handleAction(n)}>
+                                <Text style={[styles.action, { color: n.color }]}>{n.action}</Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                        </View>
+
+                        {/* DISMISS */}
+                        <TouchableOpacity
+                          onPress={() => dismiss(n.id)}
+                          style={styles.dismissBtn}
+                          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                        >
+                          <Trash2 size={13} color="#ccc" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          );
+        })}
       </ScrollView>
-
     </SafeAreaView>
   );
 }
 
-//
-// 🔷 COMPONENTS
-//
-const NotificationCard = ({ data }: { data: Notification }) => (
-  <View style={[styles.card, { borderLeftColor: data.color }]}>
-    <View style={styles.row}>
-      <View style={styles.icon}>
-        {data.type === "bid" && <MessageCircle size={16} />}
-        {data.type === "payment" && <CheckCircle size={16} />}
-        {data.type === "review" && <Star size={16} />}
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <Text style={styles.cardTitle}>{data.title}</Text>
-        {data.subtitle && (
-          <Text style={styles.cardSub}>{data.subtitle}</Text>
-        )}
-
-        {data.action && (
-          <TouchableOpacity>
-            <Text style={styles.action}>{data.action}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <Text style={styles.time}>{data.time}</Text>
-    </View>
-  </View>
-);
-
-//
-// 🎨 STYLES
-//
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F4F6FA",
-    paddingHorizontal: 16,
-  },
-  contentContainer: {
-    paddingBottom: 112,
-  },
+  container: { flex: 1, backgroundColor: "#F4F6FA", paddingHorizontal: 16 },
+  contentContainer: { paddingBottom: 112 },
 
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: "row", justifyContent: "space-between",
+    alignItems: "center", marginTop: 4,
   },
-  logo: {
-    fontWeight: "bold",
-    color: "#6C63FF",
-  },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 20,
-  },
+  logo: { fontWeight: "bold", fontSize: 18, color: "#6C63FF" },
+  avatar: { width: 34, height: 34, borderRadius: 17 },
 
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
+  titleRow: {
+    flexDirection: "row", justifyContent: "space-between",
+    alignItems: "flex-start", marginTop: 12,
+  },
+  title: { fontSize: 22, fontWeight: "800", color: "#111" },
+  subtitle: { color: "#666", fontSize: 13, marginTop: 2 },
+  unreadBubble: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: "#EDEBFF", paddingHorizontal: 10, paddingVertical: 5,
+    borderRadius: 20, marginTop: 4,
+  },
+  unreadText: { fontSize: 12, color: "#6C63FF", fontWeight: "700" },
+
+  actionsRow: {
+    flexDirection: "row", justifyContent: "space-between",
     marginTop: 10,
   },
-  subtitle: {
-    color: "#666",
-    marginBottom: 6,
-  },
-  markAll: {
-    color: "#6C63FF",
-    alignSelf: "flex-end",
-  },
+  actionLink: { fontSize: 13, color: "#6C63FF", fontWeight: "500" },
 
-  tabs: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 10,
-  },
+  tabs: { flexDirection: "row", gap: 8 },
   tab: {
-    backgroundColor: "#eee",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: "#eee", paddingHorizontal: 12,
+    paddingVertical: 7, borderRadius: 20,
   },
-  activeTab: {
-    backgroundColor: "#6C63FF",
+  activeTab: { backgroundColor: "#6C63FF" },
+  tabText: { color: "#666", fontSize: 12 },
+  activeTabText: { color: "#fff", fontWeight: "600" },
+  tabBadge: {
+    backgroundColor: "#fff", borderRadius: 8,
+    paddingHorizontal: 5, minWidth: 18, alignItems: "center",
   },
-  tabText: {
-    color: "#666",
-  },
-  activeTabText: {
-    color: "#fff",
-  },
+  tabBadgeActive: { backgroundColor: "#EDEBFF" },
+  tabBadgeText: { fontSize: 10, color: "#999", fontWeight: "600" },
 
-  section: {
-    marginTop: 20,
-    fontSize: 12,
-    color: "#999",
-  },
+  section: { marginTop: 22, fontSize: 11, color: "#999", fontWeight: "600", letterSpacing: 0.8 },
 
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
-    marginTop: 10,
-    borderLeftWidth: 4,
+    backgroundColor: "#fff", borderRadius: 14,
+    padding: 14, marginTop: 10, borderLeftWidth: 4,
+  },
+  cardUnread: { backgroundColor: "#FAFAFE" },
+  cardInner: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
+
+  iconWrap: {
+    width: 34, height: 34, borderRadius: 10,
+    alignItems: "center", justifyContent: "center", marginTop: 1,
   },
 
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
+  cardTopRow: { flexDirection: "row", alignItems: "flex-start", gap: 6, flex: 1 },
+  cardTitle: { fontSize: 13, fontWeight: "500", color: "#444", flex: 1, lineHeight: 18 },
+  cardTitleUnread: { fontWeight: "700", color: "#111" },
+  unreadDot: {
+    width: 7, height: 7, borderRadius: 4,
+    backgroundColor: "#6C63FF", marginTop: 5,
   },
+  cardSub: { fontSize: 12, color: "#888", marginTop: 3 },
+  cardFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 6 },
+  time: { fontSize: 10, color: "#bbb" },
+  action: { fontSize: 12, fontWeight: "600" },
 
-  icon: {
-    marginRight: 10,
-  },
+  dismissBtn: { padding: 2, marginTop: 2 },
 
-  cardTitle: {
-    fontWeight: "600",
-  },
-  cardSub: {
-    fontSize: 12,
-    color: "#666",
-  },
-
-  action: {
-    color: "#6C63FF",
-    marginTop: 4,
-    fontSize: 12,
-  },
-
-  time: {
-    fontSize: 10,
-    color: "#999",
-  },
-
+  emptyState: { alignItems: "center", marginTop: 60, gap: 8 },
+  emptyIcon: { fontSize: 40 },
+  emptyText: { fontSize: 16, fontWeight: "700", color: "#333" },
+  emptySubtext: { fontSize: 13, color: "#999" },
 });
