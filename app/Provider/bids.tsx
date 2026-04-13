@@ -37,7 +37,7 @@ export default function BidsScreen() {
     };
 
     loadBids();
-  }, [getProviderBids]);
+  }, []);
 
   const data =
     activeTab === "pending"

@@ -27,7 +27,7 @@ export default function ProfileScreen() {
     };
 
     loadProfile();
-  }, [getProviderProfile]);
+  }, []);
 
   if (!profileData && !isLoading) {
     return (

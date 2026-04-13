@@ -21,7 +21,7 @@ export default function EarningsScreen() {
     };
 
     loadEarnings();
-  }, [getEarnings]);
+  }, []);
 
   if (!earningsData) {
     return (

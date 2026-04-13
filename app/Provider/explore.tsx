@@ -45,7 +45,7 @@ export default function ExploreScreen() {
     };
 
     loadJobs();
-  }, [activeCategory, deferredSearchQuery, getAvailableJobs]);
+  }, [activeCategory, deferredSearchQuery]);
 
   return (
     <ScreenWrapper
