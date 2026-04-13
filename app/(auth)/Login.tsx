@@ -2,7 +2,7 @@ import PrimaryButton from "@/src/components/buttons/PrimaryButton";
 import LabelTextInput from "@/src/components/inputs/LabelTextInput";
 import { ScreenWrapper } from "@/src/components/wrapper";
 import { setAuthorizationStatus } from "@/src/redux/slices/auth.slice";
-import { setUser } from "@/src/redux/slices/user.slice";
+import { setUser, UserState } from "@/src/redux/slices/user.slice";
 import {
   showSnackbarSuccess,
   showSnackbarError,
@@ -30,7 +30,7 @@ interface VerifyOtpResponse {
     success: boolean;
     message: string;
     token: string;
-    user: Record<string, unknown>;
+    user: UserState;
   };
 }
 
