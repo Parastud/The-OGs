@@ -1,5 +1,5 @@
-import api from "./api";
 import { getAccessTokenFromSecureStore } from "../utils/localStorageKey";
+import api from "./api";
 
 const getAuthHeaders = async () => {
   const token = await getAccessTokenFromSecureStore();
@@ -14,19 +14,3 @@ export const getConsumerDashboardService = async () => {
 
   return response.data;
 };
-
-export const searchConsumerProvidersService = async (params: {
-  q?: string;
-  category?: string;
-  limit?: number;
-}) => {
-  const response = await api.get("/api/consumers/search/providers", {
-    headers: await getAuthHeaders(),
-    params,
-  });
-
-  return response.data;
-};
-
-export * from "./authServices";
-export * from "./providerServices";
