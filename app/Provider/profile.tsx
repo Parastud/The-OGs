@@ -1,6 +1,11 @@
+<<<<<<< Dhvani
 import { Image, StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
+=======
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+>>>>>>> main
 
 import {
   ArrowLeft,
@@ -14,13 +19,23 @@ import {
 } from "lucide-react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
+<<<<<<< Dhvani
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 import { router } from "expo-router";
+=======
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { COLORS } from "@/src/theme/colors";
+import { FONTS } from "@/src/theme/fonts";
+import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
+import { useRouter } from "expo-router";
+>>>>>>> main
 
 export default function ProfileScreen() {
   const { getProviderProfile, isLoading } = useProviderApi();
   const [profileData, setProfileData] = useState<any>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -157,6 +172,7 @@ export default function ProfileScreen() {
             </View>
           )}
 
+<<<<<<< Dhvani
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.editBtn}>
             <Text style={styles.editBtnText}>Edit Profile</Text>
@@ -166,6 +182,24 @@ export default function ProfileScreen() {
             <Text style={styles.contactBtnText}>Contact Support</Text>
           </TouchableOpacity>
         </View>
+=======
+        <TouchableOpacity style={styles.editBtn}>
+          <Text style={styles.editBtnText}>Edit Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={async () => {
+            await removeTokenFromSecureStore();
+            router.replace("/(auth)/Login");
+          }}
+        >
+          <Text style={styles.editBtnText}>Logout</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.contactBtn}>
+          <MessageSquare size={18} color={COLORS.primary} />
+          <Text style={styles.contactBtnText}>Contact Support</Text>
+        </TouchableOpacity>
+>>>>>>> main
       </ScreenWrapper>
     </View>
   );

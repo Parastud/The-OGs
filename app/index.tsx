@@ -1,4 +1,5 @@
 import SplashScreen from "@/src/components/Splash/SplashScreen";
+import useProfileApi from "@/src/hooks/apiHooks/useProfileApi";
 import {
   setAuthorizationStatus,
   setInitialized,
@@ -22,12 +23,15 @@ export default function Index() {
   const hasRedirected = useRef(false);
   const dispatch = useDispatch();
 
+  const { profile, getProfile } = useProfileApi();
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const [token, onboardingFlag] = await Promise.all([
+        const [token, onboardingFlag, profile] = await Promise.all([
           getAccessTokenFromSecureStore(),
           getOnboardingStatus(),
+          getProfile(),
         ]);
         dispatch(setAuthorizationStatus(!!token));
         setOnboardingDone(onboardingFlag === "true");
@@ -66,7 +70,11 @@ export default function Index() {
     }
 
     if (isAuthenticated) {
-      router.replace("/Provider/dashboard");
+      if (profile?.data?.role === "provider") {
+        router.replace("/Provider/dashboard");
+      } else {
+        router.replace("/Customer/Home");
+      }
     } else {
       router.replace("/(auth)/Login");
     }

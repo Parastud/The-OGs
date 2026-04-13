@@ -1,20 +1,19 @@
-import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
+  CheckCircle,
+  Menu,
+  MessageCircle,
+  Star
+} from "lucide-react-native";
+import { useState } from "react";
+import {
   Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Menu,
-  Bell,
-  MessageCircle,
-  CheckCircle,
-  Star,
-} from "lucide-react-native";
 
 //
 // 🔷 TYPES
@@ -74,7 +73,10 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
         {/* HEADER */}
         <View style={styles.header}>
           <Menu size={22} />
@@ -133,14 +135,6 @@ export default function NotificationsScreen() {
         <NotificationCard data={notifications[3]} />
       </ScrollView>
 
-      {/* BOTTOM NAV */}
-      <View style={styles.nav}>
-        <NavItem label="Explore" />
-        <NavItem label="My Jobs" />
-        <NavItem label="Bids" />
-        <NavItem label="Inbox" active />
-        <NavItem label="Profile" />
-      </View>
     </SafeAreaView>
   );
 }
@@ -175,18 +169,6 @@ const NotificationCard = ({ data }: { data: Notification }) => (
   </View>
 );
 
-const NavItem = ({
-  label,
-  active = false,
-}: {
-  label: string;
-  active?: boolean;
-}) => (
-  <Text style={{ color: active ? "#6C63FF" : "#999" }}>
-    {label}
-  </Text>
-);
-
 //
 // 🎨 STYLES
 //
@@ -195,6 +177,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F4F6FA",
     paddingHorizontal: 16,
+  },
+  contentContainer: {
+    paddingBottom: 112,
   },
 
   header: {
@@ -289,12 +274,4 @@ const styles = StyleSheet.create({
     color: "#999",
   },
 
-  nav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 12,
-    borderTopWidth: 0.5,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
-  },
 });

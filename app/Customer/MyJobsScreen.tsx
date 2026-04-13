@@ -1,20 +1,20 @@
-import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Menu,
-  Filter,
-  MessageCircle,
   CheckCircle,
   Clock,
+  Filter,
+  Menu,
+  MessageCircle,
 } from "lucide-react-native";
+import { useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Job = {
   id: string;
@@ -52,7 +52,10 @@ export default function MyJobsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
         {/* HEADER */}
         <View style={styles.header}>
           <Menu size={22} />
@@ -72,10 +75,7 @@ export default function MyJobsScreen() {
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
-              style={[
-                styles.tab,
-                activeTab === tab && styles.activeTab,
-              ]}
+              style={[styles.tab, activeTab === tab && styles.activeTab]}
             >
               <Text
                 style={[
@@ -112,12 +112,8 @@ export default function MyJobsScreen() {
                 style={styles.providerImg}
               />
               <View>
-                <Text style={styles.providerText}>
-                  {job.provider}
-                </Text>
-                <Text style={styles.rating}>
-                  ⭐ {job.rating}
-                </Text>
+                <Text style={styles.providerText}>{job.provider}</Text>
+                <Text style={styles.rating}>⭐ {job.rating}</Text>
               </View>
             </View>
 
@@ -144,24 +140,9 @@ export default function MyJobsScreen() {
           </View>
         ))}
       </ScrollView>
-
-      {/* NAV */}
-      <View style={styles.nav}>
-        <NavItem label="Explore" />
-        <NavItem label="My Jobs" active />
-        <NavItem label="Post" />
-        <NavItem label="Inbox" />
-        <NavItem label="Profile" />
-      </View>
     </SafeAreaView>
   );
 }
-
-const NavItem = ({ label, active = false }: any) => (
-  <Text style={{ color: active ? "#6C63FF" : "#999" }}>
-    {label}
-  </Text>
-);
 
 //
 // 🎨 STYLES (EXPRESSIVE)
@@ -171,6 +152,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F4F6FA",
     paddingHorizontal: 16,
+  },
+  contentContainer: {
+    paddingBottom: 112,
   },
 
   header: {
@@ -310,14 +294,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#6C63FF",
     padding: 10,
     borderRadius: 10,
-  },
-
-  nav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 12,
-    borderTopWidth: 0.5,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
   },
 });
