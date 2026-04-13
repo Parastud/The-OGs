@@ -1,7 +1,6 @@
-
 export const truncateSentence = (sentence: string, maxLength: number) => {
   if (sentence.length > maxLength) {
-    return sentence.substring(0, maxLength) + '...';
+    return sentence.substring(0, maxLength) + "...";
   }
   return sentence;
 };
@@ -10,7 +9,8 @@ export const getErrorMessage = (error: any) => {
   const message =
     error?.response?.data?.message ||
     error?.response?.data?.msg ||
-    'Internal Server Error: Server Error Not found';
+    error?.message ||
+    "Internal Server Error: Server Error Not found";
   return message;
 };
 

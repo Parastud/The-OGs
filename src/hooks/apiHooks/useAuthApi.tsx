@@ -1,24 +1,52 @@
-import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
-import { showSnackbarError, showSnackbarSuccess } from '@/src/redux/slices/snackbar.slice';
-import { setUser } from '@/src/redux/slices/user.slice';
-import { SIGNIN_MUTATION, VERIFY_OTP_MUTATION } from '@/src/services/auth';
-import { saveTokenToSecureStore } from '@/src/utils/localStorageKey';
-import { getErrorMessage } from '@/src/utils/utils';
+import { setAuthorizationStatus } from "@/src/redux/slices/auth.slice";
+import {
+  showSnackbarError,
+  showSnackbarSuccess,
+} from "@/src/redux/slices/snackbar.slice";
+import { setUser } from "@/src/redux/slices/user.slice";
+import { SIGNIN_MUTATION, VERIFY_OTP_MUTATION } from "@/src/services/auth";
+import { saveTokenToSecureStore } from "@/src/utils/localStorageKey";
+import { getErrorMessage } from "@/src/utils/utils";
 import { useMutation } from "@apollo/client/react";
-import { useDispatch } from 'react-redux';
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 interface useAuthApiReturnType {
   isLoading: boolean;
   requestOtp: (payload: { phone: string }) => any;
   verifyOtp: (payload: { phone: string; otp: string }) => any;
+  lastError: string | null;
+  clearError: () => void;
+}
+
+interface SigninResponse {
+  signin: {
+    success: boolean;
+    message: string;
+    debugOtp?: string;
+  };
+}
+
+interface VerifyOtpResponse {
+  verifyOtp: {
+    success: boolean;
+    message: string;
+    token?: string;
+    user?: {
+      fullname: string;
+      phone: string;
+    };
+  };
 }
 
 export default function useAuthApi(): useAuthApiReturnType {
-
   const dispatch = useDispatch();
+  const [lastError, setLastError] = useState<string | null>(null);
 
-  const [signinMutation, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION);
-  const [verifyOtpMutation, { loading: verifyLoading }] = useMutation(VERIFY_OTP_MUTATION);
+  const [signinMutation, { loading: signinLoading }] =
+    useMutation<SigninResponse>(SIGNIN_MUTATION);
+  const [verifyOtpMutation, { loading: verifyLoading }] =
+    useMutation<VerifyOtpResponse>(VERIFY_OTP_MUTATION);
 
   const isLoading = signinLoading || verifyLoading;
 
@@ -29,14 +57,16 @@ export default function useAuthApi(): useAuthApiReturnType {
         variables: { phone },
       });
 
-      const { success, message, debugOtp } = data.signin;
+      const { success, message, debugOtp } = data?.signin || {};
 
       if (success) {
-        dispatch(showSnackbarSuccess({ message }));
+        dispatch(
+          showSnackbarSuccess({ message: message || "OTP sent successfully" }),
+        );
+        setLastError(null);
       }
 
       return { success, debugOtp };
-
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(showSnackbarError({ message: errorMessage }));
@@ -52,27 +82,29 @@ export default function useAuthApi(): useAuthApiReturnType {
         variables: { phone, otp },
       });
 
-      const { success, message, token, user } = data.verifyOtp;
+      const { success, message, token, user } = data?.verifyOtp || {};
 
       if (success) {
-
-        await saveTokenToSecureStore(token);
+        if (token) {
+          await saveTokenToSecureStore(token);
+        }
         dispatch(setAuthorizationStatus(true));
 
         dispatch(
           setUser({
-            fullname: user.fullname,
-            phone: user.phone,
-          })
+            fullname: user?.fullname || "",
+            phone: user?.phone || "",
+          }),
         );
 
-        dispatch(showSnackbarSuccess({ message }));
+        if (message) {
+          dispatch(showSnackbarSuccess({ message }));
+        }
 
         return true;
       }
 
       return false;
-
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(showSnackbarError({ message: errorMessage }));
@@ -85,5 +117,7 @@ export default function useAuthApi(): useAuthApiReturnType {
     isLoading,
     requestOtp,
     verifyOtp,
+    lastError,
+    clearError: () => setLastError(null),
   };
 }

@@ -3,9 +3,12 @@ import {
   setAuthorizationStatus,
   setInitialized,
 } from "@/src/redux/slices/auth.slice";
-import { getAccessTokenFromSecureStore } from "@/src/utils/localStorageKey";
+import {
+  getAccessTokenFromSecureStore,
+  getOnboardingStatus,
+} from "@/src/utils/localStorageKey";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
@@ -14,17 +17,26 @@ export default function Index() {
   );
   const router = useRouter();
   const [isSplashVisible, setSplashVisible] = useState(true);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(false);
+  const hasRedirected = useRef(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const token = await getAccessTokenFromSecureStore();
+        const [token, onboardingFlag] = await Promise.all([
+          getAccessTokenFromSecureStore(),
+          getOnboardingStatus(),
+        ]);
         dispatch(setAuthorizationStatus(!!token));
+        setOnboardingDone(onboardingFlag === "true");
       } catch {
         dispatch(setAuthorizationStatus(false));
+        setOnboardingDone(false);
       } finally {
         dispatch(setInitialized(true));
+        setOnboardingChecked(true);
       }
     };
 
@@ -38,14 +50,34 @@ export default function Index() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!initialized || isSplashVisible) return;
+    if (
+      !initialized ||
+      isSplashVisible ||
+      !onboardingChecked ||
+      hasRedirected.current
+    )
+      return;
+
+    hasRedirected.current = true;
+
+    if (!onboardingDone) {
+      router.replace("/Onboarding");
+      return;
+    }
 
     if (isAuthenticated) {
       router.replace("/(tabs)");
     } else {
       router.replace("/(auth)/Login");
     }
-  }, [initialized, isAuthenticated, isSplashVisible, router]);
+  }, [
+    initialized,
+    isAuthenticated,
+    isSplashVisible,
+    onboardingChecked,
+    onboardingDone,
+    router,
+  ]);
 
   return <SplashScreen />;
 }
