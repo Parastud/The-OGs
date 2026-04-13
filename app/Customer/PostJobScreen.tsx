@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { ArrowLeft, ChevronDown, MapPin, Sparkles } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   ScrollView,

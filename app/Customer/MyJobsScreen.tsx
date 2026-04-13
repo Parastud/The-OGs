@@ -5,11 +5,13 @@ import {
   Menu,
   MessageCircle,
 } from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   ActivityIndicator,
   Alert,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,6 +43,7 @@ export default function MyJobsScreen() {
   const [activeTab, setActiveTab] = useState<TabKey>("Active");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [completingJobId, setCompletingJobId] = useState<string | null>(null);
 
   const statusParam = useMemo(() => {
@@ -66,6 +69,30 @@ export default function MyJobsScreen() {
     }
   };
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const response = await getConsumerJobsService(statusParam);
+      if (response?.success && Array.isArray(response?.data)) {
+        setJobs(response.data);
+      } else {
+        setJobs([]);
+      }
+    } catch {
+      setJobs([]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [statusParam]);
+
+  // Refetch jobs whenever screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadJobs();
+    }, [statusParam]),
+  );
+
+  // Also refetch when tab changes
   useEffect(() => {
     loadJobs();
   }, [statusParam]);
@@ -118,6 +145,14 @@ export default function MyJobsScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#6C63FF"
+            colors={["#6C63FF"]}
+          />
+        }
       >
         <View style={styles.header}>
           <Menu size={22} />
