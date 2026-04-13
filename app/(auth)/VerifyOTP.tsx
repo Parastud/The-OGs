@@ -7,7 +7,7 @@ import { FONTS } from '@/src/theme/fonts';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function VerifyOTP() {
 
@@ -25,7 +25,7 @@ export default function VerifyOTP() {
     const ok = await verifyOtp({ phone, otp });
 
     if (ok) {
-      router.replace('/(tabs)');
+      router.replace('/Provider');
     }
   };
 
