@@ -1,17 +1,15 @@
 import {
+  Quantico_400Regular,
+  Quantico_700Bold,
   useFonts,
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-} from "@expo-google-fonts/inter";
+} from "@expo-google-fonts/quantico";
 
 export const Fonts = {
   fontFamily: {
-    regular: "Inter_400Regular",
-    medium: "Inter_500Medium",
-    semiBold: "Inter_600SemiBold",
-    bold: "Inter_700Bold",
+    regular: "Quantico_400Regular",
+    medium: "Quantico_400Regular", // Quantico doesn't have 500
+    semiBold: "Quantico_700Bold",  // closest match
+    bold: "Quantico_700Bold",
   },
 
   fontSize: {
@@ -35,18 +33,16 @@ export const Fonts = {
 
   fontWeight: {
     regular: "400" as const,
-    medium: "500" as const,
-    semiBold: "600" as const,
+    medium: "400" as const,
+    semiBold: "700" as const,
     bold: "700" as const,
   },
 };
 
 export const useAppFonts = () => {
   return useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    Quantico_400Regular,
+    Quantico_700Bold,
   });
 };
 
