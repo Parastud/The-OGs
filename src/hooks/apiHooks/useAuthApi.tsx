@@ -1,9 +1,10 @@
+import { setAuthorizationStatus } from '@/src/redux/slices/auth.slice';
 import { showSnackbarError, showSnackbarSuccess } from '@/src/redux/slices/snackbar.slice';
 import { setUser } from '@/src/redux/slices/user.slice';
-import { requestOtpService, verifyOtpService } from '@/src/services';
+import { SIGNIN_MUTATION, VERIFY_OTP_MUTATION } from '@/src/services/auth';
 import { saveTokenToSecureStore } from '@/src/utils/localStorageKey';
 import { getErrorMessage } from '@/src/utils/utils';
-import { useState } from 'react';
+import { useMutation } from "@apollo/client/react";
 import { useDispatch } from 'react-redux';
 
 interface useAuthApiReturnType {
@@ -15,15 +16,20 @@ interface useAuthApiReturnType {
 export default function useAuthApi(): useAuthApiReturnType {
 
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Send OTP
-  const requestOtp = async (payload: { phone: string }) => {
-    setIsLoading(true);
+  const [signinMutation, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION);
+  const [verifyOtpMutation, { loading: verifyLoading }] = useMutation(VERIFY_OTP_MUTATION);
 
+  const isLoading = signinLoading || verifyLoading;
+
+  // ✅ Send OTP
+  const requestOtp = async ({ phone }: { phone: string }) => {
     try {
+      const { data } = await signinMutation({
+        variables: { phone },
+      });
 
-      const { success, message, debugOtp } = await requestOtpService(payload);
+      const { success, message, debugOtp } = data.signin;
 
       if (success) {
         dispatch(showSnackbarSuccess({ message }));
@@ -32,29 +38,26 @@ export default function useAuthApi(): useAuthApiReturnType {
       return { success, debugOtp };
 
     } catch (error) {
-
       const errorMessage = getErrorMessage(error);
       dispatch(showSnackbarError({ message: errorMessage }));
 
       return { success: false };
-
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Verify OTP
-  const verifyOtp = async (payload: { phone: string; otp: string }) => {
-
-    setIsLoading(true);
-
+  // ✅ Verify OTP
+  const verifyOtp = async ({ phone, otp }: { phone: string; otp: string }) => {
     try {
+      const { data } = await verifyOtpMutation({
+        variables: { phone, otp },
+      });
 
-      const { success, message, token, user } = await verifyOtpService(payload);
+      const { success, message, token, user } = data.verifyOtp;
 
       if (success) {
 
         await saveTokenToSecureStore(token);
+        dispatch(setAuthorizationStatus(true));
 
         dispatch(
           setUser({
@@ -71,14 +74,10 @@ export default function useAuthApi(): useAuthApiReturnType {
       return false;
 
     } catch (error) {
-
       const errorMessage = getErrorMessage(error);
       dispatch(showSnackbarError({ message: errorMessage }));
 
       return false;
-
-    } finally {
-      setIsLoading(false);
     }
   };
 

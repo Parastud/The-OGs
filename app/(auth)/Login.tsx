@@ -1,22 +1,17 @@
 import PrimaryButton from "@/src/components/buttons/PrimaryButton";
 import LabelTextInput from "@/src/components/inputs/LabelTextInput";
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { setAuthorizationStatus } from "@/src/redux/slices/auth.slice";
-import { setUser, UserState } from "@/src/redux/slices/user.slice";
+import useAuthApi from "@/src/hooks/apiHooks/useAuthApi";
 import {
-  showSnackbarSuccess,
-  showSnackbarError,
+  showSnackbarSuccess
 } from "@/src/redux/slices/snackbar.slice";
-import { saveTokenToSecureStore } from "@/src/utils/localStorageKey";
-import { getErrorMessage } from "@/src/utils/utils";
+import { UserState } from "@/src/redux/slices/user.slice";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, View, Alert } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { useDispatch } from "react-redux";
-import { useMutation } from "@apollo/client/react";
-import { SIGNIN_MUTATION, VERIFY_OTP_MUTATION } from "@/src/graphql/mutations";
 interface SigninResponse {
   signin: {
     success: boolean;
@@ -40,30 +35,24 @@ export default function Login() {
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [errors, setErrors] = useState({ phone: "", otp: "" });
 
+  const {requestOtp, verifyOtp, isLoading } = useAuthApi();
+
   const router = useRouter();
   const dispatch = useDispatch();
-
-  const [signin, { loading: signinLoading }] = useMutation<SigninResponse>(SIGNIN_MUTATION);
-  const [verifyOtp, { loading: verifyLoading }] =
-    useMutation<VerifyOtpResponse>(VERIFY_OTP_MUTATION);
 
   const handleSendOtp = async () => {
     if (!phone.trim()) {
       setErrors({ ...errors, phone: "Phone is required" });
       return;
     }
-    try {
-      const { data } = await signin({ variables: { phone: phone.trim() } });
-      if (data?.signin?.success) {
-        dispatch(showSnackbarSuccess({ message: data.signin.message }));
-        if (data.signin.debugOtp) {
-          Alert.alert("DEBUG OTP", data.signin.debugOtp);
+      const { data } = await requestOtp({ phone: phone.trim() });
+      if (data?.success) {
+        dispatch(showSnackbarSuccess({ message: data.message }));
+        if (data.debugOtp) {
+          Alert.alert("DEBUG OTP", data.debugOtp);
         }
         setStep("otp");
       }
-    } catch (e) {
-      dispatch(showSnackbarError({ message: getErrorMessage(e) }));
-    }
   };
 
   const handleVerifyOtp = async () => {
@@ -71,20 +60,12 @@ export default function Login() {
       setErrors({ ...errors, otp: "OTP is required" });
       return;
     }
-    try {
-      const { data } = await verifyOtp({
-        variables: { phone: phone.trim(), otp: otp.trim() },
+      const isSuccess = await verifyOtp({
+         phone: phone.trim(), otp: otp.trim()
       });
-      if (data?.verifyOtp?.success) {
-        await saveTokenToSecureStore(data.verifyOtp.token);
-        dispatch(setUser(data.verifyOtp.user));
-        dispatch(setAuthorizationStatus(true));
-        dispatch(showSnackbarSuccess({ message: data.verifyOtp.message }));
+      if (isSuccess) {
         router.replace("/(tabs)");
       }
-    } catch (e) {
-      dispatch(showSnackbarError({ message: getErrorMessage(e) }));
-    }
   };
 
   return (
