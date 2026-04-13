@@ -17,21 +17,17 @@ export default function ForgotPassword() {
 
   const [step, setStep] = useState<1 | 2>(1);
   const [debugOtp, setDebugOtp] = useState('');
-  const [email, setEmail] = useState(params?.email ? String(params.email) : '');
+  const [phone, setPhone] = useState(params?.phone ? String(params.phone) : '');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({ email: '', otp: '', password: '' });
+  const [errors, setErrors] = useState({ phone: '', otp: '', password: '' });
 
   const clearError = (field: keyof typeof errors) =>
     setErrors((p) => ({ ...p, [field]: '' }));
 
   const validateStep1 = () => {
-    if (!email.trim()) {
-      setErrors((e) => ({ ...e, email: 'Email is required' }));
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors((e) => ({ ...e, email: 'Please enter a valid email' }));
+    if (!phone.trim()) {
+      setErrors((e) => ({ ...e, phone: 'Phone is required' }));
       return false;
     }
     return true;
@@ -48,22 +44,22 @@ export default function ForgotPassword() {
 
   const handleRequestOtp = async () => {
     if (!validateStep1()) return;
-    const {success, debugOtp} = await requestOtp({ email });
+    const {success, debugOtp} = await requestOtp({ phone });
     setDebugOtp(debugOtp);
     if (success) { setOtp(''); setStep(2); }
   };
 
   const handleVerifyOtp = async () => {
     if (!validateStep2()) return;
-    const ok = await verifyOtp({ email, otp, password });
+    const ok = await verifyOtp({ phone, otp });
     if (ok) router.replace('/(tabs)');
   };
 
-  const handleEditEmail = () => {
+  const handleEditPhone = () => {
     setStep(1);
     setOtp('');
     setPassword('');
-    setErrors({ email: '', otp: '', password: '' });
+    setErrors({ phone: '', otp: '', password: '' });
   };
 
   return (
@@ -90,8 +86,8 @@ export default function ForgotPassword() {
         </Text>
         <Text style={styles.subtitle}>
           {step === 1
-            ? "Enter your email and we'll send a one-time code."
-            : 'Enter the code sent to your email and set a new password.'}
+            ? "Enter your phone and we'll send a one-time code."
+            : 'Enter the code sent to your phone and set a new password.'}
         </Text>
       </View>
 
@@ -100,19 +96,19 @@ export default function ForgotPassword() {
 
         {step === 1 ? (
           <LabelTextInput
-            label="Email"
-            placeholder="your@email.com"
-            value={email}
-            onChangeText={(t) => { setEmail(t); clearError('email'); }}
-            keyboardType="email-address"
+            label="Phone"
+            placeholder="your phone number"
+            value={phone}
+            onChangeText={(t) => { setPhone(t); clearError('phone'); }}
+            keyboardType="phone-pad"
             autoCapitalize="none"
-            error={errors.email}
+            error={errors.phone}
           />
         ) : (
-          /* Email chip with edit option */
+          /* Phone chip with edit option */
           <View style={styles.emailChip}>
-            <Text style={styles.chipEmail} numberOfLines={1}>{email}</Text>
-            <TouchableOpacity onPress={handleEditEmail} style={styles.chipEditBtn}>
+            <Text style={styles.chipEmail} numberOfLines={1}>{phone}</Text>
+            <TouchableOpacity onPress={handleEditPhone} style={styles.chipEditBtn}>
               <Text style={styles.chipEditText}>Edit</Text>
             </TouchableOpacity>
           </View>
