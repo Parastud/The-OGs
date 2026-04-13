@@ -1,5 +1,5 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import {
   ArrowLeft,
@@ -9,14 +9,18 @@ import {
   Star,
 } from "lucide-react-native";
 
+import { useRouter } from "@/.expo/types/router";
 import { ScreenWrapper } from "@/src/components/wrapper";
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
-import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
 
 export default function ProfileScreen() {
   const { getProviderProfile, isLoading } = useProviderApi();
   const [profileData, setProfileData] = useState<any>(null);
+
+  const router = useRouter()
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -172,6 +176,9 @@ export default function ProfileScreen() {
 
         <TouchableOpacity style={styles.editBtn}>
           <Text style={styles.editBtnText}>Edit Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.editBtn} onPress={async() => { await removeTokenFromSecureStore(); router.replace('/(auth)/Login') }}>
+          <Text style={styles.editBtnText}>Logout</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.contactBtn}>
           <MessageSquare size={18} color={COLORS.primary} />

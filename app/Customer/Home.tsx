@@ -1,24 +1,20 @@
+import { useRouter } from "expo-router";
+import {
+  Bell,
+  PlusCircle,
+  Search
+} from "lucide-react-native";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   FlatList,
-  TouchableOpacity,
   Image,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Search,
-  Bell,
-  Home,
-  Compass,
-  PlusCircle,
-  Briefcase,
-  User,
-  LucideIcon,
-} from "lucide-react-native";
 
 //
 // 🔷 TYPES
@@ -52,12 +48,6 @@ type Job = {
 
 type JobCardProps = {
   job: Job;
-};
-
-type NavItemProps = {
-  icon: LucideIcon;
-  label: string;
-  active?: boolean;
 };
 
 //
@@ -113,9 +103,14 @@ const jobs: Job[] = [
 // 🔷 MAIN SCREEN
 //
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.location}>📍 Mathura, UP</Text>
@@ -163,18 +158,12 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push("/Customer/PostJobScreen")}
+      >
         <PlusCircle color="#fff" size={28} />
       </TouchableOpacity>
-
-      {/* Bottom Nav */}
-      <View style={styles.nav}>
-        <NavItem icon={Home} label="Home" active />
-        <NavItem icon={Compass} label="Explore" />
-        <NavItem icon={PlusCircle} label="Post" />
-        <NavItem icon={Briefcase} label="Jobs" />
-        <NavItem icon={User} label="Profile" />
-      </View>
     </SafeAreaView>
   );
 }
@@ -217,24 +206,12 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => (
   </TouchableOpacity>
 );
 
-const NavItem: React.FC<NavItemProps> = ({
-  icon: Icon,
-  label,
-  active = false,
-}) => (
-  <View style={styles.navItem}>
-    <Icon size={20} color={active ? "#6C63FF" : "#999"} />
-    <Text style={{ color: active ? "#6C63FF" : "#999" }}>
-      {label}
-    </Text>
-  </View>
-);
-
 //
 // 🔷 STYLES
 //
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8F9FB" },
+  contentContainer: { paddingBottom: 112 },
 
   header: {
     flexDirection: "row",
@@ -334,13 +311,4 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
 
-  nav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
-    backgroundColor: "#fff",
-    borderTopWidth: 0.5,
-    borderColor: "#ddd",
-  },
-  navItem: { alignItems: "center" },
 });
