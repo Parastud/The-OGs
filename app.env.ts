@@ -1,5 +1,5 @@
-// export const BASEURL = 'https://ogs.codes';
-export const BASEURL = "http://172.16.94.200:4000";
+export const BASEURL = 'https://ogs.codes';
+// export const BASEURL = "http://172.16.94.200:4000";
 
 export const IS_DEV = true;
 

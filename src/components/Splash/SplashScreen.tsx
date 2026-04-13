@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
 import { useEffect, useRef } from 'react';
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 28,
-    backgroundColor: COLORS.logoBackground,
+    backgroundColor: COLORS.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 28,

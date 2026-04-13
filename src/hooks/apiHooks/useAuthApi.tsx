@@ -13,12 +13,33 @@ interface useAuthApiReturnType {
   verifyOtp: (payload: { phone: string; otp: string }) => any;
 }
 
+interface SigninResponse {
+  signin: {
+    success: boolean;
+    message: string;
+    debugOtp?: string;
+  };
+}
+
+interface VerifyOtpResponse {
+  verifyOtp: {
+    success: boolean;
+    message: string;
+    token?: string;
+    user?: {
+      fullname: string;
+      phone: string;
+    };
+  };
+}
+
+
 export default function useAuthApi(): useAuthApiReturnType {
 
   const dispatch = useDispatch();
 
-  const [signinMutation, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION);
-  const [verifyOtpMutation, { loading: verifyLoading }] = useMutation(VERIFY_OTP_MUTATION);
+  const [signinMutation, { loading: signinLoading }] = useMutation<SigninResponse>(SIGNIN_MUTATION);
+  const [verifyOtpMutation, { loading: verifyLoading }] = useMutation<VerifyOtpResponse>(VERIFY_OTP_MUTATION);
 
   const isLoading = signinLoading || verifyLoading;
 
@@ -29,7 +50,7 @@ export default function useAuthApi(): useAuthApiReturnType {
         variables: { phone },
       });
 
-      const { success, message, debugOtp } = data.signin;
+      const { success, message, debugOtp } = data?.signin || {};
 
       if (success) {
         dispatch(showSnackbarSuccess({ message }));
@@ -52,7 +73,7 @@ export default function useAuthApi(): useAuthApiReturnType {
         variables: { phone, otp },
       });
 
-      const { success, message, token, user } = data.verifyOtp;
+      const { success, message, token, user } = data?.verifyOtp || {};
 
       if (success) {
 
@@ -61,8 +82,8 @@ export default function useAuthApi(): useAuthApiReturnType {
 
         dispatch(
           setUser({
-            fullname: user.fullname,
-            phone: user.phone,
+            fullname: user?.fullname || "",
+            phone: user?.phone || "",
           })
         );
 
