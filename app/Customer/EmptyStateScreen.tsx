@@ -1,11 +1,4 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SearchX, Plus } from "lucide-react-native";
 
@@ -28,8 +21,8 @@ export default function EmptyStateScreen() {
         {/* TEXT */}
         <Text style={styles.title}>No jobs here yet</Text>
         <Text style={styles.subtitle}>
-          Try adjusting your filters or search for something else.
-          Your next big opportunity is just a refined search away.
+          Try adjusting your filters or search for something else. Your next big
+          opportunity is just a refined search away.
         </Text>
 
         {/* CTA BUTTON */}
@@ -40,9 +33,7 @@ export default function EmptyStateScreen() {
 
         {/* SECONDARY */}
         <TouchableOpacity>
-          <Text style={styles.secondaryText}>
-            Reset all filters
-          </Text>
+          <Text style={styles.secondaryText}>Reset all filters</Text>
         </TouchableOpacity>
       </View>
 
@@ -66,11 +57,7 @@ const NavItem = ({
 }: {
   label: string;
   active?: boolean;
-}) => (
-  <Text style={{ color: active ? "#6C63FF" : "#999" }}>
-    {label}
-  </Text>
-);
+}) => <Text style={{ color: active ? "#6C63FF" : "#999" }}>{label}</Text>;
 
 //
 // 🎨 STYLES

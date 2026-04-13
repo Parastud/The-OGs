@@ -23,7 +23,7 @@ export default function Index() {
   const hasRedirected = useRef(false);
   const dispatch = useDispatch();
 
-  const { profile, getProfile } = useProfileApi()
+  const { profile, getProfile } = useProfileApi();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -31,7 +31,7 @@ export default function Index() {
         const [token, onboardingFlag, profile] = await Promise.all([
           getAccessTokenFromSecureStore(),
           getOnboardingStatus(),
-          getProfile()
+          getProfile(),
         ]);
         dispatch(setAuthorizationStatus(!!token));
         setOnboardingDone(onboardingFlag === "true");
@@ -70,10 +70,9 @@ export default function Index() {
     }
 
     if (isAuthenticated) {
-      if(profile?.role === "provider") { 
-        
+      if (profile?.data?.role === "provider") {
         router.replace("/Provider/dashboard");
-      }else {
+      } else {
         router.replace("/Customer/Home");
       }
     } else {

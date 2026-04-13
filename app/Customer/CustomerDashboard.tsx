@@ -1,4 +1,3 @@
-import React from "react";
 import {
   View,
   Text,
@@ -8,13 +7,7 @@ import {
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Bell,
-  User,
-  CheckCircle,
-  Star,
-  Briefcase,
-} from "lucide-react-native";
+import { Bell, User, CheckCircle } from "lucide-react-native";
 
 //
 // 🔷 TYPES
@@ -82,9 +75,7 @@ export default function CustomerDashboard() {
 
         {/* Greeting */}
         <View style={styles.greeting}>
-          <Text style={styles.greetText}>
-            Good morning, Vaibhav 👋
-          </Text>
+          <Text style={styles.greetText}>Good morning, Vaibhav 👋</Text>
           <Text style={styles.subText}>
             You have <Text style={styles.link}>3 new matches</Text>
           </Text>
@@ -133,13 +124,7 @@ export default function CustomerDashboard() {
 //
 // 🔷 COMPONENTS
 //
-const StatCard = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) => (
+const StatCard = ({ label, value }: { label: string; value: string }) => (
   <View style={styles.statCard}>
     <Text style={styles.statLabel}>{label}</Text>
     <Text style={styles.statValue}>{value}</Text>

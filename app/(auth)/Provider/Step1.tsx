@@ -30,7 +30,6 @@ export default function ProviderOnboarding1() {
     setCity,
     setExperience,
     setBio,
-    setPhotoUri,
     setPhone,
     handleCategorySelect,
     toggleSkill,
@@ -49,41 +48,41 @@ export default function ProviderOnboarding1() {
     }
   }, [params?.fullname, setName]);
 
-const handleNext = () => {
-  if (!form.phone || form.phone.length < 10) {
-    console.log("❌ Invalid phone");
-    return;
-  }
+  const handleNext = () => {
+    if (!form.phone || form.phone.length < 10) {
+      console.log("❌ Invalid phone");
+      return;
+    }
 
-  Animated.sequence([
-    Animated.timing(btnScale, {
-      toValue: 0.95,
-      duration: 80,
-      useNativeDriver: true,
-    }),
-    Animated.timing(btnScale, {
-      toValue: 1,
-      duration: 120,
-      useNativeDriver: true,
-    }),
-  ]).start(() => {
-    router.push({
-      pathname: "/Provider/Step2",
-      params: {
-        name: form.name,
-        phone: form.phone, // ✅ USE THIS (NOT params)
-        email: String(params?.email || ""),
-        city: form.city,
-        category: form.selectedCategory,
-        skills: JSON.stringify(form.selectedSkills),
-        languages: JSON.stringify(form.selectedLanguages),
-        experience: form.experience,
-        bio: form.bio,
-        photoUri: form.photoUri ?? "",
-      },
+    Animated.sequence([
+      Animated.timing(btnScale, {
+        toValue: 0.95,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(btnScale, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      router.push({
+        pathname: "/Provider/Step2",
+        params: {
+          name: form.name,
+          phone: form.phone, // ✅ USE THIS (NOT params)
+          email: String(params?.email || ""),
+          city: form.city,
+          category: form.selectedCategory,
+          skills: JSON.stringify(form.selectedSkills),
+          languages: JSON.stringify(form.selectedLanguages),
+          experience: form.experience,
+          bio: form.bio,
+          photoUri: form.photoUri ?? "",
+        },
+      });
     });
-  });
-};
+  };
 
   return (
     <KeyboardAvoidingView

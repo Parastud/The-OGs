@@ -1,10 +1,5 @@
-import React, { useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from "react-native";
+import { useEffect } from "react";
+import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -13,8 +8,6 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-
-const { width } = Dimensions.get("window");
 
 export default function LoadingSkeletonScreen() {
   return (
@@ -34,10 +27,7 @@ export default function LoadingSkeletonScreen() {
           <Skeleton width="70%" height={16} />
           <Skeleton width="40%" height={14} style={{ marginTop: 6 }} />
 
-          <Skeleton
-            height={140}
-            style={{ marginTop: 10, borderRadius: 12 }}
-          />
+          <Skeleton height={140} style={{ marginTop: 10, borderRadius: 12 }} />
 
           <View style={styles.row}>
             <Skeleton width="40%" height={14} />
@@ -51,11 +41,7 @@ export default function LoadingSkeletonScreen() {
             <Skeleton width={44} height={44} radius={22} />
             <View style={{ flex: 1 }}>
               <Skeleton width="70%" height={14} />
-              <Skeleton
-                width="50%"
-                height={12}
-                style={{ marginTop: 6 }}
-              />
+              <Skeleton width="50%" height={12} style={{ marginTop: 6 }} />
             </View>
           </View>
         ))}
@@ -64,11 +50,7 @@ export default function LoadingSkeletonScreen() {
         {[1, 2].map((_, i) => (
           <View key={i} style={styles.smallCard}>
             <Skeleton width="60%" height={14} />
-            <Skeleton
-              width="80%"
-              height={12}
-              style={{ marginTop: 6 }}
-            />
+            <Skeleton width="80%" height={12} style={{ marginTop: 6 }} />
           </View>
         ))}
       </ScrollView>
@@ -79,19 +61,14 @@ export default function LoadingSkeletonScreen() {
 //
 // 🔷 REUSABLE SKELETON COMPONENT
 //
-const Skeleton = ({
-  width = "100%",
-  height = 20,
-  radius = 8,
-  style,
-}: any) => {
+const Skeleton = ({ width = "100%", height = 20, radius = 8, style }: any) => {
   const translateX = useSharedValue(-200);
 
   useEffect(() => {
     translateX.value = withRepeat(
       withTiming(300, { duration: 1200 }),
       -1,
-      false
+      false,
     );
   }, []);
 
