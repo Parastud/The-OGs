@@ -66,7 +66,7 @@ export default function Index() {
     }
 
     if (isAuthenticated) {
-      router.replace("/(tabs)");
+      router.replace("/Provider/dashboard");
     } else {
       router.replace("/(auth)/Login");
     }

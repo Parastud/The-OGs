@@ -383,7 +383,7 @@ export default function Login() {
     }
     const isSuccess = await verifyOtp({ phone: phone.trim(), otp: otp.trim() });
     if (isSuccess) {
-      router.replace("/(tabs)");
+      router.replace("/Provider/dashboard");
     } else {
       setErrors({ ...errors, otp: "Incorrect OTP. Please try again." });
     }

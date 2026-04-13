@@ -1,4 +1,4 @@
-import EnvFlag from "@/src/components/flags/EnvFlag";
+import { apolloClient } from "@/src/lib/apolloClient";
 import { hideSnackbar, SnackbarType } from "@/src/redux/slices/snackbar.slice";
 import { RootState, store } from "@/src/redux/store";
 import { Stack } from "expo-router";
@@ -18,7 +18,7 @@ function RootLayoutNav() {
       <Stack.Screen name="index" />
       <Stack.Screen name="Onboarding/index" />
       <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="Provider" />
     </Stack>
   );
 }
@@ -50,8 +50,6 @@ function AppContent() {
       >
         {message}
       </Snackbar>
-
-      <EnvFlag />
     </PaperProvider>
   );
 }
