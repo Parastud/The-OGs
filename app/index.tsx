@@ -68,7 +68,7 @@ export default function Index() {
     if (isAuthenticated) {
       router.replace("/Provider/dashboard");
     } else {
-      router.replace("/screen/SettingsScreen");
+      router.replace("/(auth)/Login");
     }
   }, [
     initialized,
