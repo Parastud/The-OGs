@@ -1,11 +1,13 @@
-<<<<<<< Dhvani
-import { Image, StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
+} from "react-native";
 import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-=======
-import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
->>>>>>> main
 
 import {
   ArrowLeft,
@@ -15,21 +17,13 @@ import {
   Star,
   CheckCircle2,
   Clock,
-  Settings
+  Settings,
 } from "lucide-react-native";
 
 import { ScreenWrapper } from "@/src/components/wrapper";
-<<<<<<< Dhvani
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
-import { router } from "expo-router";
-=======
-import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
-import { COLORS } from "@/src/theme/colors";
-import { FONTS } from "@/src/theme/fonts";
-import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
-import { useRouter } from "expo-router";
->>>>>>> main
+import { router, useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const { getProviderProfile, isLoading } = useProviderApi();
@@ -52,13 +46,16 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <ScreenWrapper contentContainerStyle={styles.scrollContent}>
         <LinearGradient
-            colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.header}
-          >
+          colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
           <View style={styles.headerTop}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.iconWrap}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.iconWrap}
+            >
               <ArrowLeft size={22} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.brand}>Profile</Text>
@@ -66,7 +63,10 @@ export default function ProfileScreen() {
               <TouchableOpacity style={styles.bellWrap}>
                 <Bell size={20} color="#000" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.bellWrap} onPress={() => router.push("/settings")}>
+              <TouchableOpacity
+                style={styles.bellWrap}
+                onPress={() => router.push("/settings")}
+              >
                 <Settings size={20} color="#000" />
               </TouchableOpacity>
             </View>
@@ -83,7 +83,9 @@ export default function ProfileScreen() {
           <Text style={styles.name}>
             {profileData?.fullname || "Provider Name"}
           </Text>
-          <Text style={styles.locationText}>{profileData?.location || "Mathura, UP"}</Text>
+          <Text style={styles.locationText}>
+            {profileData?.location || "Mathura, UP"}
+          </Text>
 
           <View style={styles.skills}>
             {profileData?.skills?.map((skill: string, idx: number) => (
@@ -98,36 +100,51 @@ export default function ProfileScreen() {
           <View style={styles.trustHeader}>
             <Star size={20} color="#F59E0B" fill="#F59E0B" />
             <Text style={styles.trustTitle}>Trust Score</Text>
-            <Text style={styles.trustScore}>{profileData?.trustScore || "92"}/100</Text>
+            <Text style={styles.trustScore}>
+              {profileData?.trustScore || "92"}/100
+            </Text>
           </View>
 
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${profileData?.trustScore || 92}%` }]} />
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${profileData?.trustScore || 92}%` },
+              ]}
+            />
           </View>
 
           <View style={styles.badgesRow}>
             <View style={styles.badge}>
-                <Clock size={16} color="#4B5563" />
-                <Text style={styles.badgeText}>On Time</Text>
+              <Clock size={16} color="#4B5563" />
+              <Text style={styles.badgeText}>On Time</Text>
             </View>
             <View style={styles.badge}>
-                <CheckCircle2 size={16} color="#4B5563" />
-                <Text style={styles.badgeText}>{profileData?.verified || true ? "Verified" : "Unverified"}</Text>
+              <CheckCircle2 size={16} color="#4B5563" />
+              <Text style={styles.badgeText}>
+                {profileData?.verified || true ? "Verified" : "Unverified"}
+              </Text>
             </View>
           </View>
         </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{profileData?.rating || "4.8"}</Text>
+            <Text style={styles.statNumber}>
+              {profileData?.rating || "4.8"}
+            </Text>
             <Text style={styles.statLabel}>RATING</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{profileData?.reviews || "120"}</Text>
+            <Text style={styles.statNumber}>
+              {profileData?.reviews || "120"}
+            </Text>
             <Text style={styles.statLabel}>REVIEWS</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{profileData?.jobsDone || "34"}</Text>
+            <Text style={styles.statNumber}>
+              {profileData?.jobsDone || "34"}
+            </Text>
             <Text style={styles.statLabel}>JOBS</Text>
           </View>
         </View>
@@ -172,7 +189,6 @@ export default function ProfileScreen() {
             </View>
           )}
 
-<<<<<<< Dhvani
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.editBtn}>
             <Text style={styles.editBtnText}>Edit Profile</Text>
@@ -182,24 +198,6 @@ export default function ProfileScreen() {
             <Text style={styles.contactBtnText}>Contact Support</Text>
           </TouchableOpacity>
         </View>
-=======
-        <TouchableOpacity style={styles.editBtn}>
-          <Text style={styles.editBtnText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.editBtn}
-          onPress={async () => {
-            await removeTokenFromSecureStore();
-            router.replace("/(auth)/Login");
-          }}
-        >
-          <Text style={styles.editBtnText}>Logout</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.contactBtn}>
-          <MessageSquare size={18} color={COLORS.primary} />
-          <Text style={styles.contactBtnText}>Contact Support</Text>
-        </TouchableOpacity>
->>>>>>> main
       </ScreenWrapper>
     </View>
   );

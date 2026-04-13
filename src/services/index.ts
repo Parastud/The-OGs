@@ -56,5 +56,17 @@ export const createConsumerJobService = async (payload: {
   return response.data;
 };
 
+export const completeConsumerJobService = async (jobId: string) => {
+  const response = await api.patch(
+    `/api/consumers/jobs/${jobId}/complete`,
+    {},
+    {
+      headers: await getAuthHeaders(),
+    },
+  );
+
+  return response.data;
+};
+
 export * from "./authServices";
 export * from "./providerServices";

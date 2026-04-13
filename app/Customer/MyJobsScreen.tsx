@@ -8,6 +8,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -17,7 +18,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { getConsumerJobsService } from "@/src/services";
+import {
+  completeConsumerJobService,
+  getConsumerJobsService,
+} from "@/src/services";
 
 type Job = {
   id: string;
@@ -37,6 +41,7 @@ export default function MyJobsScreen() {
   const [activeTab, setActiveTab] = useState<TabKey>("Active");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [completingJobId, setCompletingJobId] = useState<string | null>(null);
 
   const statusParam = useMemo(() => {
     if (activeTab === "Active") return "active" as const;
@@ -45,25 +50,68 @@ export default function MyJobsScreen() {
     return "all" as const;
   }, [activeTab]);
 
-  useEffect(() => {
-    const loadJobs = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getConsumerJobsService(statusParam);
-        if (response?.success && Array.isArray(response?.data)) {
-          setJobs(response.data);
-        } else {
-          setJobs([]);
-        }
-      } catch {
+  const loadJobs = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getConsumerJobsService(statusParam);
+      if (response?.success && Array.isArray(response?.data)) {
+        setJobs(response.data);
+      } else {
         setJobs([]);
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch {
+      setJobs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadJobs();
   }, [statusParam]);
+
+  const handleCompleteJob = async (jobId: string) => {
+    Alert.alert("Mark as completed?", "This job will be moved to Completed.", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Complete",
+        style: "default",
+        onPress: async () => {
+          try {
+            setCompletingJobId(jobId);
+            const response = await completeConsumerJobService(jobId);
+
+            if (!response?.success) {
+              Alert.alert(
+                "Unable to update",
+                response?.message || "Try again.",
+              );
+              return;
+            }
+
+            setJobs((prev) => {
+              if (activeTab === "Completed") return prev;
+
+              if (activeTab === "All") {
+                return prev.map((job) =>
+                  job.id === jobId ? { ...job, status: "Completed" } : job,
+                );
+              }
+
+              return prev.filter((job) => job.id !== jobId);
+            });
+          } catch {
+            Alert.alert("Unable to update", "Failed to mark job as completed.");
+          } finally {
+            setCompletingJobId(null);
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -157,7 +205,18 @@ export default function MyJobsScreen() {
                     <MessageCircle size={16} color="#6C63FF" />
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={styles.doneBtn}>
+                  <TouchableOpacity
+                    style={[
+                      styles.doneBtn,
+                      (job.status === "Completed" ||
+                        completingJobId === job.id) &&
+                        styles.doneBtnDisabled,
+                    ]}
+                    onPress={() => handleCompleteJob(job.id)}
+                    disabled={
+                      job.status === "Completed" || completingJobId === job.id
+                    }
+                  >
                     <CheckCircle size={16} color="#fff" />
                   </TouchableOpacity>
                 </View>
@@ -341,5 +400,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#6C63FF",
     padding: 10,
     borderRadius: 10,
+  },
+  doneBtnDisabled: {
+    opacity: 0.55,
   },
 });
