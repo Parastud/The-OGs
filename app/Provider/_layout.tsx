@@ -83,7 +83,6 @@ function TabIcon({
   );
 }
 
-/* -------------------- Main Layout -------------------- */
 export default function TabLayout() {
   return (
     <Tabs

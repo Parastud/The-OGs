@@ -1,4 +1,3 @@
-/* eslint-disable */
 import ProfilePhotoUpload from "@/src/components/avatar/Profilephotoupload";
 import ProgressBar from "@/src/components/Bar/ProgressBar";
 import ChipGroup from "@/src/components/chips/Chipgroup";
