@@ -20,7 +20,7 @@ export default function HomeScreen() {
     };
 
     loadDashboard();
-  }, [getDashboard]);
+  }, []);
 
   if (!dashboardData) {
     return (

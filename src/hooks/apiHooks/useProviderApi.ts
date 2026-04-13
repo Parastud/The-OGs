@@ -18,8 +18,8 @@ import {
 } from "@/src/redux/slices/snackbar.slice";
 
 import { getErrorMessage } from "@/src/utils/utils";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 
 interface UseProviderApiReturnType {
   isLoading: boolean;
@@ -50,11 +50,9 @@ interface UseProviderApiReturnType {
 export default function useProviderApi(): UseProviderApiReturnType {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  // Get token from redux store (you may need to adjust based on your store structure)
-  const token = useSelector((state: any) => state.auth?.token || "");
 
   // ✅ Get Categories
-  const getCategories = async () => {
+  const getCategories = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await getProviderCategoriesService();
@@ -66,98 +64,101 @@ export default function useProviderApi(): UseProviderApiReturnType {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
   // ✅ Get Skills by Category
-  const getSkills = async ({ category }: { category: string }) => {
-    try {
-      setIsLoading(true);
-      const data = await getProviderSkillsService({
-        category,
-      });
-      return data?.providerSkills || data?.data || data?.skills || [];
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getSkills = useCallback(
+    async ({ category }: { category: string }) => {
+      try {
+        setIsLoading(true);
+        const data = await getProviderSkillsService({
+          category,
+        });
+        return data?.providerSkills || data?.data || data?.skills || [];
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return [];
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
 
   // ✅ Update Provider Profile
-  const updateProviderProfile = async ({
-    phone,
-    input,
-  }: {
-    phone: string;
-    input: any;
-  }) => {
-    try {
-      setIsLoading(true);
-      const response = await signupProviderService({
-        phone,
-        input,
-      });
+  const updateProviderProfile = useCallback(
+    async ({ phone, input }: { phone: string; input: any }) => {
+      try {
+        setIsLoading(true);
+        const response = await signupProviderService({
+          phone,
+          input,
+        });
 
-      if (response?.success ?? response) {
-        dispatch(
-          showSnackbarSuccess({
-            message: response?.message || "Profile updated successfully",
-          }),
-        );
-        return { success: true, debugOtp: response?.debugOtp };
+        if (response?.success ?? response) {
+          dispatch(
+            showSnackbarSuccess({
+              message: response?.message || "Profile updated successfully",
+            }),
+          );
+          return { success: true, debugOtp: response?.debugOtp };
+        }
+
+        return { success: false, debugOtp: response?.debugOtp };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false, debugOtp: undefined };
+      } finally {
+        setIsLoading(false);
       }
-
-      return { success: false, debugOtp: response?.debugOtp };
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return { success: false, debugOtp: undefined };
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [dispatch],
+  );
 
   // ✅ Update Customer Profile
-  const updateCustomerProfile = async ({
-    phone,
-    input,
-  }: {
-    phone: string;
-    input: { fullname: string; email?: string };
-  }) => {
-    try {
-      setIsLoading(true);
-      const response = await signupCustomerService({
-        phone,
-        input,
-      });
+  const updateCustomerProfile = useCallback(
+    async ({
+      phone,
+      input,
+    }: {
+      phone: string;
+      input: { fullname: string; email?: string };
+    }) => {
+      try {
+        setIsLoading(true);
+        const response = await signupCustomerService({
+          phone,
+          input,
+        });
 
-      if (response?.success ?? response) {
-        dispatch(
-          showSnackbarSuccess({
-            message: response?.message || "Profile updated successfully",
-          }),
-        );
-        return { success: true, debugOtp: response?.debugOtp };
+        if (response?.success ?? response) {
+          dispatch(
+            showSnackbarSuccess({
+              message: response?.message || "Profile updated successfully",
+            }),
+          );
+          return { success: true, debugOtp: response?.debugOtp };
+        }
+
+        return { success: false, debugOtp: response?.debugOtp };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false, debugOtp: undefined };
+      } finally {
+        setIsLoading(false);
       }
-
-      return { success: false, debugOtp: response?.debugOtp };
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return { success: false, debugOtp: undefined };
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [dispatch],
+  );
 
   // ✅ Get Dashboard
-  const getDashboard = async () => {
+  const getDashboard = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getDashboardService(token);
+      const data = await getDashboardService();
       if (!data?.success)
         throw new Error(data?.message || "Failed to fetch dashboard");
       return data?.data || {};
@@ -168,77 +169,86 @@ export default function useProviderApi(): UseProviderApiReturnType {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
   // ✅ Get Available Jobs
-  const getAvailableJobs = async (filters?: {
-    category?: string;
-    search?: string;
-    distance?: number;
-  }) => {
-    try {
-      setIsLoading(true);
-      const data = await getAvailableJobsService(token, filters);
-      if (!data?.success)
-        throw new Error(data?.message || "Failed to fetch jobs");
-      return data?.data || [];
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getAvailableJobs = useCallback(
+    async (filters?: {
+      category?: string;
+      search?: string;
+      distance?: number;
+    }) => {
+      try {
+        setIsLoading(true);
+        const data = await getAvailableJobsService(filters);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to fetch jobs");
+        return data?.data || [];
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return [];
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
 
   // ✅ Place Bid
-  const placeBid = async (payload: {
-    jobId: string;
-    bidAmount: number;
-    bidMessage?: string;
-  }) => {
-    try {
-      setIsLoading(true);
-      const data = await placeBidService(token, payload);
-      if (!data?.success)
-        throw new Error(data?.message || "Failed to place bid");
-      dispatch(
-        showSnackbarSuccess({
-          message: data?.message || "Bid placed successfully",
-        }),
-      );
-      return { success: true, data: data?.data };
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return { success: false };
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const placeBid = useCallback(
+    async (payload: {
+      jobId: string;
+      bidAmount: number;
+      bidMessage?: string;
+    }) => {
+      try {
+        setIsLoading(true);
+        const data = await placeBidService(payload);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to place bid");
+        dispatch(
+          showSnackbarSuccess({
+            message: data?.message || "Bid placed successfully",
+          }),
+        );
+        return { success: true, data: data?.data };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
 
   // ✅ Get Provider Bids
-  const getProviderBids = async (status?: string) => {
-    try {
-      setIsLoading(true);
-      const data = await getProviderBidsService(token, status);
-      if (!data?.success)
-        throw new Error(data?.message || "Failed to fetch bids");
-      return data?.data || [];
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getProviderBids = useCallback(
+    async (status?: string) => {
+      try {
+        setIsLoading(true);
+        const data = await getProviderBidsService(status);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to fetch bids");
+        return data?.data || [];
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return [];
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
 
   // ✅ Get Earnings
-  const getEarnings = async () => {
+  const getEarnings = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getEarningsService(token);
+      const data = await getEarningsService();
       if (!data?.success)
         throw new Error(data?.message || "Failed to fetch earnings");
       return data?.data || {};
@@ -249,13 +259,13 @@ export default function useProviderApi(): UseProviderApiReturnType {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
   // ✅ Get Provider Profile
-  const getProviderProfile = async () => {
+  const getProviderProfile = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getProviderProfileService(token);
+      const data = await getProviderProfileService();
       if (!data?.success)
         throw new Error(data?.message || "Failed to fetch profile");
       return data?.data || {};
@@ -266,29 +276,32 @@ export default function useProviderApi(): UseProviderApiReturnType {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
   // ✅ Update Profile Data
-  const updateProfileData = async (payload: any) => {
-    try {
-      setIsLoading(true);
-      const data = await updateProviderProfileService(token, payload);
-      if (!data?.success)
-        throw new Error(data?.message || "Failed to update profile");
-      dispatch(
-        showSnackbarSuccess({
-          message: data?.message || "Profile updated successfully",
-        }),
-      );
-      return { success: true, data: data?.data };
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(showSnackbarError({ message: errorMessage }));
-      return { success: false };
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const updateProfileData = useCallback(
+    async (payload: any) => {
+      try {
+        setIsLoading(true);
+        const data = await updateProviderProfileService(payload);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to update profile");
+        dispatch(
+          showSnackbarSuccess({
+            message: data?.message || "Profile updated successfully",
+          }),
+        );
+        return { success: true, data: data?.data };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
 
   return {
     isLoading,

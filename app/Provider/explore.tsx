@@ -13,7 +13,7 @@ import { ScreenWrapper } from "@/src/components/wrapper";
 import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import { MapPin, Search, SlidersHorizontal } from "lucide-react-native";
-import { useState, useEffect } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
 const CATEGORIES = [
@@ -30,12 +30,13 @@ export default function ExploreScreen() {
   const [searchFocused, setSearchFocused] = useState(false);
   const [jobs, setJobs] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   useEffect(() => {
     const loadJobs = async () => {
       const filters: any = {};
       if (activeCategory) filters.category = activeCategory;
-      if (searchQuery) filters.search = searchQuery;
+      if (deferredSearchQuery) filters.search = deferredSearchQuery;
 
       const jobsData = await getAvailableJobs(filters);
       if (jobsData) {
@@ -44,7 +45,7 @@ export default function ExploreScreen() {
     };
 
     loadJobs();
-  }, [activeCategory, searchQuery, getAvailableJobs]);
+  }, [activeCategory, deferredSearchQuery, getAvailableJobs]);
 
   return (
     <ScreenWrapper
