@@ -1,16 +1,16 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { scale } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../../theme/colors';
-import { BOLD_TEXT } from '../../../theme/styles.global';
-import { BHKBreakdownCard, CircularProgress } from '../../cards';
-import { hapticOptions } from '../../../navigation/rootBottomNavigation';
-import HapticFeedback from 'react-native-haptic-feedback';
-import { DashboardDataTypes } from '../../../types/dashboard.types';
-import { SkeletonLoader } from '../../skeleton/SkeletonLoader';
-import { useSelector } from 'react-redux';
-import { ALL_SITES, getSelectedSite } from '../../../redux/slices/sites.slice';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { scale } from "react-native-size-matters";
+import { useNavigation } from "@react-navigation/native";
+import { COLORS } from "../../../theme/colors";
+import { BOLD_TEXT } from "../../../theme/styles.global";
+import { BHKBreakdownCard, CircularProgress } from "../../cards";
+import { hapticOptions } from "../../../navigation/rootBottomNavigation";
+import HapticFeedback from "react-native-haptic-feedback";
+import { DashboardDataTypes } from "../../../types/dashboard.types";
+import { SkeletonLoader } from "../../skeleton/SkeletonLoader";
+import { useSelector } from "react-redux";
+import { ALL_SITES, getSelectedSite } from "../../../redux/slices/sites.slice";
 
 interface RoomStatisticsContainerProps {
   isLoading: boolean;
@@ -23,19 +23,20 @@ export const RoomStatisticsContainer = ({
   dashboardSummaryData,
   onDetailsPress,
 }: RoomStatisticsContainerProps) => {
-  const { rooms, tenants, occupancy, vacant, total_online_devices } = dashboardSummaryData;
+  const { rooms, tenants, occupancy, vacant, total_online_devices } =
+    dashboardSummaryData;
   const selectedSite = useSelector(getSelectedSite);
-  const siteName = selectedSite === ALL_SITES ? 'All Sites' : selectedSite.site_name;
-
+  const siteName =
+    selectedSite === ALL_SITES ? "All Sites" : selectedSite.site_name;
 
   const navigation = useNavigation();
 
   const handleDetailsPress = () => {
-    HapticFeedback.trigger('soft', hapticOptions);
+    HapticFeedback.trigger("soft", hapticOptions);
     if (onDetailsPress) {
       onDetailsPress();
     } else {
-      navigation.navigate('RoomTabScreen' as never);
+      navigation.navigate("RoomTabScreen" as never);
     }
   };
 
@@ -74,9 +75,7 @@ export const RoomStatisticsContainer = ({
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.header}>
-          <Text style={BOLD_TEXT(14, COLORS.textPrimary)}>
-            ROOM STATISTICS
-          </Text>
+          <Text style={BOLD_TEXT(14, COLORS.textPrimary)}>ROOM STATISTICS</Text>
           <TouchableOpacity
             style={styles.detailsButton}
             onPress={handleDetailsPress}
@@ -112,7 +111,13 @@ export const RoomStatisticsContainer = ({
           />
         </View>
 
-        <BHKBreakdownCard vacant={vacant ?? 0} occupied={occupancy ?? 0} total={rooms ?? 0} title={siteName} units={total_online_devices ?? 0} />
+        <BHKBreakdownCard
+          vacant={vacant ?? 0}
+          occupied={occupancy ?? 0}
+          total={rooms ?? 0}
+          title={siteName}
+          units={total_online_devices ?? 0}
+        />
       </View>
     </View>
   );
@@ -128,9 +133,9 @@ const styles = StyleSheet.create({
     padding: scale(16),
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: scale(16),
   },
   detailsButton: {
@@ -140,8 +145,8 @@ const styles = StyleSheet.create({
     borderRadius: scale(14),
   },
   statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: scale(8),
   },
 });

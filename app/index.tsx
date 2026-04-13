@@ -1,13 +1,17 @@
-import SplashScreen from '@/src/components/Splash/SplashScreen';
-import { setAuthorizationStatus, setInitialized } from '@/src/redux/slices/auth.slice';
-import { getAccessTokenFromSecureStore } from '@/src/utils/localStorageKey';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { View } from 'react-native';
+import SplashScreen from "@/src/components/Splash/SplashScreen";
+import {
+  setAuthorizationStatus,
+  setInitialized,
+} from "@/src/redux/slices/auth.slice";
+import { getAccessTokenFromSecureStore } from "@/src/utils/localStorageKey";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Index() {
-  const { initialized, isAuthenticated } = useSelector((state: any) => state.auth);
+  const { initialized, isAuthenticated } = useSelector(
+    (state: any) => state.auth,
+  );
   const router = useRouter();
   const [isSplashVisible, setSplashVisible] = useState(true);
   const dispatch = useDispatch();
@@ -17,7 +21,7 @@ export default function Index() {
       try {
         const token = await getAccessTokenFromSecureStore();
         dispatch(setAuthorizationStatus(!!token));
-      } catch (error) {
+      } catch {
         dispatch(setAuthorizationStatus(false));
       } finally {
         dispatch(setInitialized(true));
@@ -31,22 +35,17 @@ export default function Index() {
     }, 2000);
 
     return () => clearTimeout(splashTimeout);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!initialized || isSplashVisible) return;
 
     if (isAuthenticated) {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     } else {
-      router.replace('/(auth)/Login');
+      router.replace("/(auth)/Login");
     }
-  }, [initialized, isAuthenticated, isSplashVisible]);
+  }, [initialized, isAuthenticated, isSplashVisible, router]);
 
-  // 👇 important fix
-  if (isSplashVisible || !initialized) {
-    return <SplashScreen />;
-  }
-
-  return <View />;
+  return <SplashScreen />;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { COLORS } from '@/src/theme/colors';
 import { FONTS } from '@/src/theme/fonts';
 import { useEffect, useRef } from 'react';

@@ -64,7 +64,7 @@ export default function VerifyOTP() {
 
     <TouchableOpacity>
       <Text style={styles.resendText}>
-        Didn't receive OTP? <Text style={styles.resend}>Resend</Text>
+        Didn&apos;t receive OTP? <Text style={styles.resend}>Resend</Text>
       </Text>
     </TouchableOpacity>
 

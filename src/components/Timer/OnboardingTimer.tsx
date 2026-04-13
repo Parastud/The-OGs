@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';

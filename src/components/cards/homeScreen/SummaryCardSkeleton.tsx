@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { scale } from 'react-native-size-matters';
-import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
-import LinearGradient from 'react-native-linear-gradient';
-import { COLORS } from '../../../theme/colors';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { scale } from "react-native-size-matters";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
+import LinearGradient from "react-native-linear-gradient";
+import { COLORS } from "../../../theme/colors";
 
 export const SummaryCardLargeSkeleton = () => {
   return (
@@ -79,22 +79,22 @@ export const SummaryCardsSkeleton = () => {
 
 const styles = StyleSheet.create({
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: scale(10),
     marginBottom: scale(12),
   },
   containerLarge: {
-    width: '48%',
+    width: "48%",
     backgroundColor: COLORS.white,
     borderRadius: scale(12),
     padding: scale(12),
     gap: scale(4),
   },
   topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: scale(4),
   },
   iconSkeleton: {
@@ -118,12 +118,12 @@ const styles = StyleSheet.create({
     borderRadius: scale(4),
   },
   containerSmall: {
-    width: '48%',
+    width: "48%",
     backgroundColor: COLORS.white,
     borderRadius: scale(10),
     padding: scale(10),
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: scale(8),
   },
   iconSkeletonSmall: {

@@ -1,24 +1,21 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { scale } from 'react-native-size-matters';
-import { ChevronDown, Calendar } from 'lucide-react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { COLORS } from '../../theme/colors';
-import {
-  BOLD_TEXT,
-  REGULAR_TEXT,
-} from '../../theme/styles.global';
-import { RootState } from '../../redux/store';
-import { setTimeFrame } from '../../redux/slices/timeFrame.slice';
+import React, { useMemo, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { scale } from "react-native-size-matters";
+import { ChevronDown, Calendar } from "lucide-react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { COLORS } from "../../theme/colors";
+import { BOLD_TEXT, REGULAR_TEXT } from "../../theme/styles.global";
+import { RootState } from "../../redux/store";
+import { setTimeFrame } from "../../redux/slices/timeFrame.slice";
 import {
   setSelectedSiteId,
   selectAllSites,
   getSelectedSite,
   getAllSiteList,
   ALL_SITES,
-} from '../../redux/slices/sites.slice';
-import DateFilterSelectorModal from '../modal/DateFilterSelectorModal';
-import ItemSelectionModal from '../modal/ItemSelectionModal';
+} from "../../redux/slices/sites.slice";
+import DateFilterSelectorModal from "../modal/DateFilterSelectorModal";
+import ItemSelectionModal from "../modal/ItemSelectionModal";
 
 // Special value for "All Sites" option in modal
 const ALL_SITES_VALUE = null;
@@ -40,7 +37,7 @@ export const HomeScreenHeader = (props: Props) => {
 
   // Derive display name
   const siteName =
-    selectedSite === ALL_SITES ? 'All Sites' : selectedSite.site_name;
+    selectedSite === ALL_SITES ? "All Sites" : selectedSite.site_name;
 
   // Modal visibility state
   const [showDateModal, setShowDateModal] = useState(false);
@@ -48,8 +45,8 @@ export const HomeScreenHeader = (props: Props) => {
 
   // Convert site list to ItemSelectionModal format with "All Sites" option
   const siteListForModal = useMemo(() => {
-    const allSitesOption = { label: 'All Sites', value: ALL_SITES_VALUE };
-    const siteOptions = allSiteList.map(site => ({
+    const allSitesOption = { label: "All Sites", value: ALL_SITES_VALUE };
+    const siteOptions = allSiteList.map((site) => ({
       label: site.site_name,
       value: site.site_id,
     }));
@@ -143,10 +140,7 @@ export const HomeScreenHeader = (props: Props) => {
               strokeWidth={2}
               color={COLORS.blueAccent}
             />
-            <Text
-              style={BOLD_TEXT(10, COLORS.blueAccent)}
-              numberOfLines={1}
-            >
+            <Text style={BOLD_TEXT(10, COLORS.blueAccent)} numberOfLines={1}>
               {timeFrameType}
             </Text>
             <ChevronDown
@@ -179,31 +173,31 @@ export const HomeScreenHeader = (props: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: scale(16),
   },
   leftSection: {
     flex: 1,
-    maxWidth: '50%',
+    maxWidth: "50%",
   },
   rightSection: {
     flex: 1,
-    maxWidth: '50%',
-    alignItems: 'flex-end',
+    maxWidth: "50%",
+    alignItems: "flex-end",
   },
   siteSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: scale(4),
   },
   siteText: {
     flexShrink: 1,
   },
   dateSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: scale(4),
     backgroundColor: COLORS.white,
     paddingHorizontal: scale(10),
@@ -211,8 +205,8 @@ const styles = StyleSheet.create({
     borderRadius: scale(16),
   },
   profileSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   avatarContainer: {
@@ -222,15 +216,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.primary,
     padding: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarInner: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 18,
-    backgroundColor: '#E8F4FD',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E8F4FD",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
