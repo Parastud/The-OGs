@@ -17,6 +17,22 @@ import { StyleSheet, Text, View, Alert } from "react-native";
 import { useDispatch } from "react-redux";
 import { useMutation } from "@apollo/client/react";
 import { SIGNIN_MUTATION, VERIFY_OTP_MUTATION } from "@/src/graphql/mutations";
+interface SigninResponse {
+  signin: {
+    success: boolean;
+    message: string;
+    debugOtp?: string;
+  };
+}
+
+interface VerifyOtpResponse {
+  verifyOtp: {
+    success: boolean;
+    message: string;
+    token: string;
+    user: Record<string, unknown>;
+  };
+}
 
 export default function Login() {
   const [phone, setPhone] = useState("");
@@ -27,9 +43,9 @@ export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION);
+  const [signin, { loading: signinLoading }] = useMutation<SigninResponse>(SIGNIN_MUTATION);
   const [verifyOtp, { loading: verifyLoading }] =
-    useMutation(VERIFY_OTP_MUTATION);
+    useMutation<VerifyOtpResponse>(VERIFY_OTP_MUTATION);
 
   const handleSendOtp = async () => {
     if (!phone.trim()) {
