@@ -7,8 +7,12 @@ import { COLORS } from "@/src/theme/colors";
 import { FONTS } from "@/src/theme/fonts";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router/build/hooks";
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import OtpVerify from "react-native-otp-verify";
+
+// Regex to extract a 4–6 digit OTP from an SMS body
+const OTP_REGEX = /\b(\d{4,6})\b/;
 
 export default function VerifyOTP() {
   const params = useLocalSearchParams();
@@ -22,25 +26,88 @@ export default function VerifyOTP() {
 
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const hasAutoSubmitted = useRef(false); // prevent double-submit
 
-  const handleVerifyOtp = async () => {
-    if (!otp.trim()) {
-      setError("OTP is required");
-      return;
+// ─── Android: SMS Retriever API ──────────────────────────────────────────
+useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    let active = true;
+
+    const startRetriever = async () => {
+        try {
+            const hash = await OtpVerify.getHash();
+            console.log("App hash:", hash);
+
+            await OtpVerify.startOtpListener((message: string) => {
+                if (!active) return;
+
+                const match = message?.match(OTP_REGEX);
+                if (match?.[1]) {
+                    const extracted = match[1];
+
+                    // ✅ Set OTP and immediately trigger submit
+                    // Don't rely on useEffect to catch this — call directly
+                    setOtp(extracted);
+                    setError("");
+
+                    // Directly submit after a tick to let state settle
+                    setTimeout(() => {
+                        if (active) handleVerifyOtp(extracted);
+                    }, 100);
+                }
+            });
+        } catch (e) {
+            console.warn("SMS Retriever error:", e);
+        }
+    };
+
+    startRetriever();
+
+    return () => {
+        active = false;
+        OtpVerify.removeListener();
+    };
+}, []); // ← handleVerifyOtp must be stable or use useCallback
+
+// ─── Auto-submit once OTP is fully filled (for iOS / manual entry) ────────
+useEffect(() => {
+    const OTP_LENGTH = 4;
+
+    if (otp.length === OTP_LENGTH && !hasAutoSubmitted.current) {
+        hasAutoSubmitted.current = true;
+        handleVerifyOtp(otp);
     }
+}, [otp]);
 
+// ─── Stable verify handler via useCallback ────────────────────────────────
+const handleVerifyOtp = useCallback(async (otpValue = otp) => {
+    if (!otpValue.trim()) {
+        setError("OTP is required");
+        return;
+    }
     setError("");
 
-    const ok = await verifyOtp({ phone, otp });
+    const ok = await verifyOtp({ phone, otp: otpValue });
 
     if (!ok) {
-      setError("Invalid OTP. Please try again.");
-      return;
+        hasAutoSubmitted.current = false;
+        setError("Invalid OTP. Please try again.");
+        return;
     }
 
-    // ✅ Just redirect
     router.replace("/");
-  };
+}, [otp, phone]); // include stable deps
+
+  // ─── Auto-submit once OTP is fully filled ────────────────────────────────
+  useEffect(() => {
+    const OTP_LENGTH = 4; // adjust to match your OTP length
+
+    if (otp.length === OTP_LENGTH && !hasAutoSubmitted.current) {
+      hasAutoSubmitted.current = true;
+      handleVerifyOtp(otp);
+    }
+  }, [otp]);
 
   return (
     <ScreenWrapper contentContainerStyle={styles.container} safeArea>
@@ -50,7 +117,6 @@ export default function VerifyOTP() {
       </View>
 
       <View style={styles.otpSection}>
-        {/* Debug OTP (optional) */}
         {!!debugOtp && (
           <View style={styles.debugContainer}>
             <Text style={styles.debugLabel}>Test OTP</Text>
@@ -58,24 +124,33 @@ export default function VerifyOTP() {
           </View>
         )}
 
-        <OtpInput value={otp} onChange={(val) => {
-          setOtp(val);
-          if (error) setError("");
-        }} />
+        <OtpInput
+          value={otp}
+          // ✅ iOS: triggers the native "From Messages" autofill banner
+          textContentType="oneTimeCode"
+          hasError={!!error}
+          onChange={(val) => {
+            setOtp(val);
+            hasAutoSubmitted.current = false; // reset on manual edit
+            if (error) setError("");
+          }}
+        />
 
         {!!error && <Text style={styles.errorText}>{error}</Text>}
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <PrimaryButton
           text="Verify OTP"
-          onPress={handleVerifyOtp}
+          onPress={() => handleVerifyOtp()}
           isLoading={isLoading || isProfileLoading}
           disabled={isLoading || isProfileLoading || otp.length < 4}
         />
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => {
+          hasAutoSubmitted.current = false;
+          setOtp("");
+        }}>
           <Text style={styles.resendText}>
             Didn&apos;t receive OTP? <Text style={styles.resend}>Resend</Text>
           </Text>

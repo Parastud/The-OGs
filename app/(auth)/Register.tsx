@@ -145,14 +145,18 @@ export default function Register() {
     <ScreenWrapper safeArea>
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"} // ✅ "height" on Android too
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.watermark}>Gigly</Text>
+          {/* ✅ Watermark moved INSIDE scroll, positioned relative to heroWrap */}
+          <View style={styles.watermarkContainer} pointerEvents="none">
+            <Text style={styles.watermark}>Gigly</Text>
+          </View>
 
           <DetailsStep
             name={name}
@@ -181,43 +185,70 @@ const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
   },
+
   scrollContent: {
     paddingHorizontal: 24,
-    paddingVertical: 20,
-    justifyContent: "space-between",
+    paddingTop: 20,
+    paddingBottom: 32,         // ✅ replaces minHeight hack; gives bottom breathing room
     flexGrow: 1,
-    minHeight: "100%",
   },
 
-  watermark: {
+  // ✅ Watermark: contained in its own absolutely-positioned wrapper
+  // so it never pushes layout or overlaps interactive elements
+  watermarkContainer: {
     position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: -1,                // ✅ always behind everything
+  },
+  watermark: {
     fontSize: 110,
     fontFamily: FONTS.BOLD,
     color: "rgba(59,48,196,0.04)",
-    top: "28%",
-    alignSelf: "center",
     letterSpacing: -4,
-    pointerEvents: "none",
   },
 
-  heroWrap: { marginTop: 16 },
+  heroWrap: {
+    marginTop: 16,
+    marginBottom: 40,          // ✅ consistent gap between hero and form
+  },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 28,
   },
-  logoText: { fontFamily: FONTS.BOLD, fontSize: 22, color: BRAND },
-  closeBtn: { fontSize: 18, color: COLORS.textSecondary },
+  logoText: {
+    fontFamily: FONTS.BOLD,
+    fontSize: 22,
+    color: BRAND,
+  },
+  closeBtn: {
+    fontSize: 18,
+    color: COLORS.textSecondary,
+    padding: 4,                // ✅ bigger tap area
+  },
   heroTitle: {
     fontFamily: FONTS.BOLD,
     fontSize: 44,
     color: COLORS.textPrimary,
-    lineHeight: 50,
+    lineHeight: 54,            // ✅ was 50 — too tight for 2-line text
     marginBottom: 14,
   },
-  heroSubRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  sparkle: { fontSize: 18, color: BRAND, marginTop: 2 },
+  heroSubRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  sparkle: {
+    fontSize: 18,
+    color: BRAND,
+    marginTop: 2,
+  },
   heroSubText: {
     flex: 1,
     fontFamily: FONTS.REGULAR,
@@ -226,10 +257,20 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  formWrap: { flex: 1, justifyContent: "center", gap: 16 },
+  // ✅ Removed flex:1 + justifyContent:center — these fight ScrollView's flexGrow
+  formWrap: {
+    gap: 16,
+    marginBottom: 40,          // ✅ pushes actions down cleanly
+  },
 
-  actionsWrap: { paddingBottom: 8 },
-  loginRow: { alignItems: "center", marginTop: 24, gap: 12 },
+  actionsWrap: {
+    paddingBottom: 8,
+  },
+  loginRow: {
+    alignItems: "center",
+    marginTop: 24,
+    gap: 12,
+  },
   loginLabel: {
     fontFamily: FONTS.BOLD,
     fontSize: 11,
