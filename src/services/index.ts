@@ -28,6 +28,14 @@ export const searchConsumerProvidersService = async (params: {
   return response.data;
 };
 
+export const getConsumerProviderDetailsService = async (providerId: string) => {
+  const response = await api.get(`/api/consumers/providers/${providerId}`, {
+    headers: await getAuthHeaders(),
+  });
+
+  return response.data;
+};
+
 export const getConsumerJobsService = async (
   status?: "all" | "active" | "pending" | "completed",
 ) => {
@@ -58,7 +66,6 @@ export const createConsumerJobService = async (payload: {
 
 export const generateConsumerJobDescriptionService = async (payload: {
   title: string;
-  category: string;
   urgency?: "normal" | "urgent";
   budgetMax?: number;
   locationCity?: string;

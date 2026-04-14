@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { ArrowLeft, Search, ShieldCheck } from "lucide-react-native";
+import { ArrowLeft, Search, ShieldCheck, Sparkles } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -25,6 +25,7 @@ type ProviderResult = {
   yearsOfExperience: number | null;
   verified: boolean;
   imageUrl: string;
+  aiRecommended?: boolean;
 };
 
 export default function SearchScreen() {
@@ -110,12 +111,21 @@ export default function SearchScreen() {
               <View style={styles.content}>
                 <View style={styles.nameRow}>
                   <Text style={styles.name}>{item.name}</Text>
-                  {item.verified ? (
-                    <View style={styles.verifiedPill}>
-                      <ShieldCheck size={12} color="#4F46E5" />
-                      <Text style={styles.verifiedText}>Verified</Text>
-                    </View>
-                  ) : null}
+                  <View style={styles.pillsRow}>
+                    {item.aiRecommended ? (
+                      <View style={styles.aiPill}>
+                        <Sparkles size={12} color="#0B7660" />
+                        <Text style={styles.aiPillText}>AI Recommended</Text>
+                      </View>
+                    ) : null}
+
+                    {item.verified ? (
+                      <View style={styles.verifiedPill}>
+                        <ShieldCheck size={12} color="#4F46E5" />
+                        <Text style={styles.verifiedText}>Verified</Text>
+                      </View>
+                    ) : null}
+                  </View>
                 </View>
 
                 <Text style={styles.meta}>{item.category}</Text>
@@ -218,11 +228,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
+  pillsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   name: {
     fontSize: 15,
     fontWeight: "700",
     color: "#111",
     flexShrink: 1,
+  },
+  aiPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "#E8FBF6",
+  },
+  aiPillText: {
+    fontSize: 11,
+    color: "#0B7660",
+    fontWeight: "600",
   },
   verifiedPill: {
     flexDirection: "row",

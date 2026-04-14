@@ -52,7 +52,6 @@ const getDateChoices = (): DateChoice[] => {
 
 const buildLocalDescription = (input: {
   title: string;
-  category: string;
   urgency: Urgency;
   budget?: number;
   city: string;
@@ -69,7 +68,6 @@ const buildLocalDescription = (input: {
 
   return [
     `I need help with ${input.title}.`,
-    `Category: ${input.category}.`,
     `Location: ${input.city}, ${input.area}.`,
     urgencyLine,
     budgetLine,
@@ -182,15 +180,9 @@ export default function PostJobScreen() {
       return;
     }
 
-    if (!selectedCategory) {
-      Alert.alert("Missing category", "Please select a category first.");
-      return;
-    }
-
     const parsedBudget = Number(budget.replace(/[^0-9.]/g, ""));
     const fallbackText = buildLocalDescription({
       title: cleanedTitle,
-      category: selectedCategory,
       urgency,
       budget: Number.isNaN(parsedBudget) ? undefined : parsedBudget,
       city: "Mathura",
@@ -202,7 +194,6 @@ export default function PostJobScreen() {
 
       const response = await generateConsumerJobDescriptionService({
         title: cleanedTitle,
-        category: selectedCategory,
         urgency,
         budgetMax: Number.isNaN(parsedBudget) ? undefined : parsedBudget,
         locationCity: "Mathura",
@@ -424,7 +415,7 @@ export default function PostJobScreen() {
             {isSubmitting ? "Posting..." : "Post Job ->"}
           </Text>
         </TouchableOpacity>
-        <View style={{ height: 30 }} />
+        <View style={{ height: 50 }} />
       </ScrollView>
     </SafeAreaView>
   );
