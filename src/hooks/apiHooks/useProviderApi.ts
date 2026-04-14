@@ -8,6 +8,10 @@ import {
   getProviderJobDetailsService,
   placeBidService,
   getProviderBidsService,
+  updateProviderBidService,
+  deleteProviderBidService,
+  acceptConsumerBidService,
+  deleteConsumerBidService,
   getEarningsService,
   getProviderProfileService,
   updateProviderProfileService,
@@ -44,6 +48,19 @@ interface UseProviderApiReturnType {
     bidMessage?: string;
   }) => Promise<any>;
   getProviderBids: (status?: string) => Promise<any>;
+  updateProviderBid: (
+    bidId: string,
+    payload: { bidAmount?: number; bidMessage?: string },
+  ) => Promise<any>;
+  deleteProviderBid: (bidId: string) => Promise<any>;
+  acceptConsumerBid: (payload: {
+    jobId: string;
+    bidId: string;
+  }) => Promise<any>;
+  deleteConsumerBid: (payload: {
+    jobId: string;
+    bidId: string;
+  }) => Promise<any>;
   getEarnings: () => Promise<any>;
   getProviderProfile: () => Promise<any>;
   updateProfileData: (payload: any) => Promise<any>;
@@ -265,6 +282,105 @@ export default function useProviderApi(): UseProviderApiReturnType {
     [dispatch],
   );
 
+  const updateProviderBid = useCallback(
+    async (
+      bidId: string,
+      payload: { bidAmount?: number; bidMessage?: string },
+    ) => {
+      try {
+        setIsLoading(true);
+        const data = await updateProviderBidService(bidId, payload);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to update bid");
+        dispatch(
+          showSnackbarSuccess({
+            message: data?.message || "Bid updated successfully",
+          }),
+        );
+        return { success: true, data: data?.data };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
+
+  const deleteProviderBid = useCallback(
+    async (bidId: string) => {
+      try {
+        setIsLoading(true);
+        const data = await deleteProviderBidService(bidId);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to delete bid");
+        dispatch(
+          showSnackbarSuccess({
+            message: data?.message || "Bid deleted successfully",
+          }),
+        );
+        return { success: true };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
+
+  const acceptConsumerBid = useCallback(
+    async (payload: { jobId: string; bidId: string }) => {
+      try {
+        setIsLoading(true);
+        const data = await acceptConsumerBidService(payload);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to accept bid");
+        dispatch(
+          showSnackbarSuccess({
+            message: data?.message || "Bid accepted successfully",
+          }),
+        );
+        return { success: true, data: data?.data };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
+
+  const deleteConsumerBid = useCallback(
+    async (payload: { jobId: string; bidId: string }) => {
+      try {
+        setIsLoading(true);
+        const data = await deleteConsumerBidService(payload);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to delete bid");
+        dispatch(
+          showSnackbarSuccess({
+            message: data?.message || "Bid deleted successfully",
+          }),
+        );
+        return { success: true };
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return { success: false };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
+
   // ✅ Get Earnings
   const getEarnings = useCallback(async () => {
     try {
@@ -335,6 +451,10 @@ export default function useProviderApi(): UseProviderApiReturnType {
     getProviderJobDetails,
     placeBid,
     getProviderBids,
+    updateProviderBid,
+    deleteProviderBid,
+    acceptConsumerBid,
+    deleteConsumerBid,
     getEarnings,
     getProviderProfile,
     updateProfileData,

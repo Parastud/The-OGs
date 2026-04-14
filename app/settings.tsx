@@ -21,6 +21,7 @@ import {
 import { ScreenWrapper } from "@/src/components/wrapper";
 import { FONTS } from "@/src/theme/fonts";
 import { useState } from "react";
+import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -93,7 +94,15 @@ export default function SettingsScreen() {
 
           <View style={styles.divider} />
 
-          {renderSettingItem(LogOut, "Log Out", undefined, true)}
+          {renderSettingItem(
+            LogOut,
+            "Log Out",
+            async () => {
+              await removeTokenFromSecureStore();
+              router.replace("/(auth)/Login");
+            },
+            true,
+          )}
         </View>
       </ScreenWrapper>
     </View>

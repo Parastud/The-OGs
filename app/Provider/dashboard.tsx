@@ -18,6 +18,7 @@ import {
 } from "lucide-react-native";
 
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { router } from "expo-router";
 
 export default function Dashboard() {
   const { getDashboard } = useProviderApi();
@@ -75,9 +76,12 @@ export default function Dashboard() {
           </View>
 
           <View style={styles.headerRight}>
-            <View style={styles.bellWrap}>
+            <TouchableOpacity
+              style={styles.bellWrap}
+              onPress={() => router.push("/Provider/NotificationsScreen")}
+            >
               <Bell size={20} color="#000" />
-            </View>
+            </TouchableOpacity>
 
             <Image
               source={{ uri: "https://i.pravatar.cc/100" }}

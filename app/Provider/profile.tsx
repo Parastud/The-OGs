@@ -96,7 +96,10 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <Text style={styles.brand}>Profile</Text>
             <View style={styles.headerRight}>
-              <TouchableOpacity style={styles.bellWrap}>
+              <TouchableOpacity
+                style={styles.bellWrap}
+                onPress={() => router.push("/Provider/NotificationsScreen")}
+              >
                 <Bell size={20} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity

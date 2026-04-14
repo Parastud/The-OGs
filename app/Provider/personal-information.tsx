@@ -183,6 +183,7 @@ export default function PersonalInformationScreen() {
             </TouchableOpacity>
           </View>
         )}
+        <View style={{ height: 80 }} />
       </ScreenWrapper>
     </View>
   );

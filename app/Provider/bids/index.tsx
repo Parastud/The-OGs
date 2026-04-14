@@ -56,7 +56,20 @@ export default function BidsScreen() {
         : bidsData.rejected;
 
   const handleChat = (item: any) => {
-    Alert.alert("Coming soon", `Chat for ${item.title} will be enabled soon.`);
+    if (!item?.jobId || !item?.customerId) {
+      Alert.alert("Error", "Chat details are missing for this bid.");
+      return;
+    }
+
+    router.push({
+      pathname: "/Provider/ChatScreen",
+      params: {
+        jobId: String(item.jobId),
+        otherUserId: String(item.customerId),
+        otherUserName: String(item.customerName || "Customer"),
+        jobTitle: String(item.title || "Job"),
+      },
+    });
   };
 
   const handleViewJob = (item: any) => {
@@ -72,10 +85,7 @@ export default function BidsScreen() {
   };
 
   const handleResumeChat = (item: any) => {
-    Alert.alert(
-      "Coming soon",
-      `Resume chat for ${item.title} will be enabled soon.`,
-    );
+    handleChat(item);
   };
 
   return (
@@ -96,9 +106,12 @@ export default function BidsScreen() {
               <Text style={styles.headerSubtitle}>My Bids</Text>
             </View>
             <View style={styles.headerRight}>
-              <View style={styles.bellWrap}>
+              <TouchableOpacity
+                style={styles.bellWrap}
+                onPress={() => router.push("/Provider/NotificationsScreen")}
+              >
                 <Bell size={20} color="#000" />
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </LinearGradient>

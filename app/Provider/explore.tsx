@@ -28,7 +28,6 @@ type ExploreJob = {
   match: number;
   imageUrl?: string;
   category?: string;
-  hasBid?: boolean;
 };
 
 const ALL_CATEGORY = "All";
@@ -71,7 +70,6 @@ export default function Explore() {
           : Number.parseInt(String(job?.match || "94"), 10) || 94,
       imageUrl: typeof job?.imageUrl === "string" ? job.imageUrl : undefined,
       category: typeof job?.category === "string" ? job.category : undefined,
-      hasBid: Boolean(job?.hasBid),
     }));
 
     setJobs(normalizedJobs);
@@ -163,11 +161,6 @@ export default function Explore() {
               <View style={styles.jobFooter}>
                 <Text style={styles.price}>{item.price}</Text>
                 <View style={styles.badgesRow}>
-                  {item.hasBid && (
-                    <View style={styles.bidPlacedBadge}>
-                      <Text style={styles.bidPlacedText}>Bid Placed</Text>
-                    </View>
-                  )}
                   <View style={styles.matchBadge}>
                     <Text style={styles.matchText}>{item.match}%</Text>
                   </View>
@@ -183,9 +176,7 @@ export default function Explore() {
                   })
                 }
               >
-                <Text style={styles.bidText}>
-                  {item.hasBid ? "View Bid" : "View & Bid"}
-                </Text>
+                <Text style={styles.bidText}>View & Bid</Text>
               </TouchableOpacity>
             </View>
           ))
@@ -358,19 +349,6 @@ const styles = StyleSheet.create({
   matchText: {
     color: "#16A34A",
     fontFamily: FONTS.SEMIBOLD,
-  },
-
-  bidPlacedBadge: {
-    backgroundColor: "#DBEAFE",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-
-  bidPlacedText: {
-    color: "#1D4ED8",
-    fontFamily: FONTS.SEMIBOLD,
-    fontSize: 12,
   },
 
   bidBtn: {

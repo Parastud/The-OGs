@@ -31,14 +31,22 @@ type JobDetails = {
   customerName: string;
   hasBid?: boolean;
   myBid?: {
+    id?: string;
     amount?: number;
     message?: string;
+    status?: "pending" | "accepted" | "rejected" | "completed";
   } | null;
 };
 
 export default function JobDetailsScreen() {
   const { id } = useLocalSearchParams();
-  const { getProviderJobDetails, placeBid, isLoading } = useProviderApi();
+  const {
+    getProviderJobDetails,
+    placeBid,
+    updateProviderBid,
+    deleteProviderBid,
+    isLoading,
+  } = useProviderApi();
   const [bidAmount, setBidAmount] = useState("");
   const [proposal, setProposal] = useState("");
   const [jobDetails, setJobDetails] = useState<JobDetails | null>(null);
@@ -112,6 +120,66 @@ export default function JobDetailsScreen() {
 
     router.back();
   };
+
+  const handleUpdateBid = async () => {
+    if (!jobDetails?.myBid?.id) {
+      Alert.alert("Error", "Bid details are not available.");
+      return;
+    }
+
+    const amount = Number.parseInt(bidAmount.trim(), 10);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      Alert.alert("Invalid bid", "Please enter a valid bid amount.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const response = await updateProviderBid(jobDetails.myBid.id, {
+      bidAmount: amount,
+      bidMessage: proposal.trim(),
+    });
+    setIsSubmitting(false);
+
+    if (!response?.success) return;
+
+    const refreshed = await getProviderJobDetails(jobDetails.id);
+    if (refreshed) {
+      setJobDetails((prev) =>
+        prev
+          ? {
+              ...prev,
+              hasBid: Boolean(refreshed.hasBid),
+              myBid: refreshed.myBid || prev.myBid,
+            }
+          : prev,
+      );
+    }
+  };
+
+  const handleDeleteBid = () => {
+    if (!jobDetails?.myBid?.id) {
+      Alert.alert("Error", "Bid details are not available.");
+      return;
+    }
+
+    Alert.alert("Delete Bid", "Are you sure you want to delete this bid?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          setIsSubmitting(true);
+          const response = await deleteProviderBid(jobDetails.myBid!.id!);
+          setIsSubmitting(false);
+          if (!response?.success) return;
+          router.back();
+        },
+      },
+    ]);
+  };
+
+  const canModifyBid =
+    Boolean(jobDetails?.hasBid) && jobDetails?.myBid?.status === "pending";
 
   return (
     <View style={styles.container}>
@@ -194,7 +262,7 @@ export default function JobDetailsScreen() {
                 value={bidAmount}
                 onChangeText={setBidAmount}
                 placeholderTextColor="#9CA3AF"
-                editable={!jobDetails.hasBid && !isSubmitting}
+                editable={(!jobDetails.hasBid || canModifyBid) && !isSubmitting}
               />
 
               <Text style={styles.inputLabel}>Cover Letter / Message</Text>
@@ -206,7 +274,7 @@ export default function JobDetailsScreen() {
                 value={proposal}
                 onChangeText={setProposal}
                 placeholderTextColor="#9CA3AF"
-                editable={!jobDetails.hasBid && !isSubmitting}
+                editable={(!jobDetails.hasBid || canModifyBid) && !isSubmitting}
               />
 
               <View style={styles.alertBox}>
@@ -232,6 +300,41 @@ export default function JobDetailsScreen() {
                     <Text style={styles.submitBtnText}>Place Bid</Text>
                   )}
                 </TouchableOpacity>
+              )}
+
+              {jobDetails.hasBid && canModifyBid && (
+                <View style={styles.rowActions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.submitBtn,
+                      styles.flexBtn,
+                      isSubmitting && styles.submitBtnDisabled,
+                    ]}
+                    onPress={handleUpdateBid}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={styles.submitBtnText}>Update Bid</Text>
+                    )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.deleteBtn}
+                    onPress={handleDeleteBid}
+                    disabled={isSubmitting}
+                  >
+                    <Text style={styles.deleteBtnText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {jobDetails.hasBid && !canModifyBid && (
+                <Text style={styles.lockedHint}>
+                  This bid is {jobDetails?.myBid?.status || "submitted"} and
+                  cannot be edited.
+                </Text>
               )}
             </View>
           </>
@@ -378,6 +481,36 @@ const styles = StyleSheet.create({
   submitBtnText: { fontSize: 16, fontFamily: FONTS.BOLD, color: "#fff" },
   submitBtnDisabled: {
     opacity: 0.7,
+  },
+  rowActions: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  flexBtn: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  deleteBtn: {
+    borderWidth: 1,
+    borderColor: "#EF4444",
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
+  },
+  deleteBtnText: {
+    color: "#EF4444",
+    fontSize: 15,
+    fontFamily: FONTS.SEMIBOLD,
+  },
+  lockedHint: {
+    marginTop: 8,
+    marginBottom: 20,
+    fontSize: 12,
+    color: "#6B7280",
+    fontFamily: FONTS.REGULAR,
   },
   loaderWrap: {
     marginTop: 60,

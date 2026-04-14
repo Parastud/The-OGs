@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   RefreshControl,
   ScrollView,
@@ -14,11 +15,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
   BadgeCheck,
+  Check,
+  Trash2,
   IndianRupee,
   MessageCircle,
 } from "lucide-react-native";
 
 import { getConsumerJobBidsService } from "@/src/services";
+import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 
 type Bid = {
   id: string;
@@ -59,6 +63,7 @@ export default function JobBidsScreen() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { acceptConsumerBid, deleteConsumerBid } = useProviderApi();
 
   const loadBids = useCallback(async () => {
     if (!jobId) {
@@ -92,6 +97,43 @@ export default function JobBidsScreen() {
     await loadBids();
     setRefreshing(false);
   }, [loadBids]);
+
+  const handleAcceptBid = (bid: Bid) => {
+    Alert.alert("Accept Bid", `Accept bid from ${bid.providerName}?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Accept",
+        onPress: async () => {
+          const response = await acceptConsumerBid({
+            jobId,
+            bidId: bid.id,
+          });
+          if (response?.success) {
+            await loadBids();
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteBid = (bid: Bid) => {
+    Alert.alert("Delete Bid", `Delete bid from ${bid.providerName}?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          const response = await deleteConsumerBid({
+            jobId,
+            bidId: bid.id,
+          });
+          if (response?.success) {
+            await loadBids();
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,10 +215,47 @@ export default function JobBidsScreen() {
                   {new Date(bid.createdAt).toLocaleDateString()}
                 </Text>
 
-                <TouchableOpacity style={styles.chatBtn}>
-                  <MessageCircle size={16} color="#6C63FF" />
-                  <Text style={styles.chatText}>Chat</Text>
-                </TouchableOpacity>
+                <View style={styles.actionsRight}>
+                  {bid.status === "pending" && (
+                    <>
+                      <TouchableOpacity
+                        style={styles.acceptBtn}
+                        onPress={() => handleAcceptBid(bid)}
+                      >
+                        <Check size={14} color="#0F766E" />
+                        <Text style={styles.acceptText}>Accept</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.deleteBtn}
+                        onPress={() => handleDeleteBid(bid)}
+                      >
+                        <Trash2 size={14} color="#B91C1C" />
+                        <Text style={styles.deleteText}>Delete</Text>
+                      </TouchableOpacity>
+                    </>
+                  )}
+
+                  <TouchableOpacity
+                    style={styles.chatBtn}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/Customer/ChatScreen",
+                        params: {
+                          jobId: String(job?.id || jobId),
+                          otherUserId: String(bid.providerId),
+                          otherUserName: String(bid.providerName),
+                          jobTitle: String(
+                            job?.title || fallbackTitle || "Job",
+                          ),
+                        },
+                      })
+                    }
+                  >
+                    <MessageCircle size={16} color="#6C63FF" />
+                    <Text style={styles.chatText}>Chat</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           ))
@@ -306,6 +385,45 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  actionsRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
+  },
+  acceptBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    backgroundColor: "#ECFEFF",
+  },
+  acceptText: {
+    color: "#0F766E",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  deleteBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    backgroundColor: "#FEF2F2",
+  },
+  deleteText: {
+    color: "#B91C1C",
+    fontSize: 12,
+    fontWeight: "600",
   },
   dateText: {
     fontSize: 11,

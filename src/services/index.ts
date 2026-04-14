@@ -78,3 +78,5 @@ export const getConsumerJobBidsService = async (jobId: string) => {
 
 export * from "./authServices";
 export * from "./providerServices";
+export * from "./profileServices";
+export * from "./chatServices";
