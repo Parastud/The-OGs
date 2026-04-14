@@ -173,7 +173,11 @@ export default function NotificationsScreen() {
       >
         {/* HEADER */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => { /* Menu action */ }}>
+          <TouchableOpacity
+            onPress={() => {
+              /* Menu action */
+            }}
+          >
             <Menu size={22} color="#333" />
           </TouchableOpacity>
           <Text style={styles.logo}>Gigly</Text>
@@ -313,15 +317,19 @@ const styles = StyleSheet.create({
   contentContainer: { paddingBottom: 112 },
 
   header: {
-    flexDirection: "row", justifyContent: "space-between",
-    alignItems: "center", marginTop: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 4,
   },
   logo: { fontWeight: "bold", fontSize: 18, color: "#6C63FF" },
   avatar: { width: 34, height: 34, borderRadius: 17 },
 
   titleRow: {
-    flexDirection: "row", justifyContent: "space-between",
-    alignItems: "center", marginTop: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 12,
   },
   title: { fontSize: 22, fontWeight: "800", color: "#111" },
   unreadPill: {
@@ -351,15 +359,25 @@ const styles = StyleSheet.create({
 
   tabs: { flexDirection: "row", gap: 8, marginBottom: 12 },
   tab: {
-    flexDirection: "row", alignItems: "center", gap: 4,
-    backgroundColor: "#eee", paddingHorizontal: 12,
-    paddingVertical: 7, borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#eee",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
   },
   activeTab: { backgroundColor: "#6C63FF" },
   tabText: { color: "#666", fontSize: 12 },
   activeTabText: { color: "#fff", fontWeight: "600" },
 
-  section: { marginTop: 20, fontSize: 11, color: "#999", fontWeight: "600", letterSpacing: 0.8 },
+  section: {
+    marginTop: 20,
+    fontSize: 11,
+    color: "#999",
+    fontWeight: "600",
+    letterSpacing: 0.8,
+  },
 
   loadingBox: {
     marginTop: 20,
@@ -376,8 +394,11 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#fff", borderRadius: 14,
-    padding: 14, marginTop: 10, borderLeftWidth: 4,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 10,
+    borderLeftWidth: 4,
   },
 
   row: {
