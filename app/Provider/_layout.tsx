@@ -115,7 +115,7 @@ export default function TabLayout() {
         name="bids"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={Briefcase} label="Jobs" focused={focused} />
+            <TabIcon Icon={Briefcase} label="Bids" focused={focused} />
           ),
         }}
       />
@@ -137,6 +137,8 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="job/[id]" options={{ href: null }} />
+      <Tabs.Screen name="personal-information" options={{ href: null }} />
     </Tabs>
   );
 }

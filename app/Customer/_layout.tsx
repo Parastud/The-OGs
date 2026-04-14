@@ -129,6 +129,7 @@ export default function CustomerTabLayout() {
       />
 
       <Tabs.Screen name="ChatScreen" options={hiddenScreenOptions} />
+      <Tabs.Screen name="JobBidsScreen" options={hiddenScreenOptions} />
       <Tabs.Screen name="CustomerDashboard" options={hiddenScreenOptions} />
       <Tabs.Screen name="CustomerProfileSetup" options={hiddenScreenOptions} />
       <Tabs.Screen name="CustomerSignup" options={hiddenScreenOptions} />

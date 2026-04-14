@@ -108,9 +108,7 @@ export default function JobDetailScreen() {
         {/* CHAT CTA */}
         <TouchableOpacity style={styles.chatAll}>
           <MessageCircle size={18} color="#6C63FF" />
-          <Text style={styles.chatAllText}>
-            Chat with top bidder
-          </Text>
+          <Text style={styles.chatAllText}>Chat with top bidder</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -129,22 +127,14 @@ const Tag = ({ label, color = "#6C63FF" }: any) => (
 const Step = ({ label, active = false }: any) => (
   <View style={styles.step}>
     <View
-      style={[
-        styles.dot,
-        { backgroundColor: active ? "#6C63FF" : "#ddd" },
-      ]}
+      style={[styles.dot, { backgroundColor: active ? "#6C63FF" : "#ddd" }]}
     />
     <Text style={{ fontSize: 10 }}>{label}</Text>
   </View>
 );
 
 const BidCard = ({ bid }: { bid: Bid }) => (
-  <View
-    style={[
-      styles.card,
-      bid.best && styles.bestCard,
-    ]}
-  >
+  <View style={[styles.card, bid.best && styles.bestCard]}>
     {/* TOP */}
     <View style={styles.cardHeader}>
       <Image source={{ uri: bid.image }} style={styles.avatar} />
@@ -164,12 +154,7 @@ const BidCard = ({ bid }: { bid: Bid }) => (
 
     {/* MATCH BAR */}
     <View style={styles.progressBar}>
-      <View
-        style={[
-          styles.progressFill,
-          { width: `${bid.match}%` },
-        ]}
-      />
+      <View style={[styles.progressFill, { width: `${bid.match}%` }]} />
     </View>
 
     {/* FOOTER */}

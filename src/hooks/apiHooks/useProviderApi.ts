@@ -5,6 +5,7 @@ import {
   signupProviderService,
   getDashboardService,
   getAvailableJobsService,
+  getProviderJobDetailsService,
   placeBidService,
   getProviderBidsService,
   getEarningsService,
@@ -36,6 +37,7 @@ interface UseProviderApiReturnType {
     search?: string;
     distance?: number;
   }) => Promise<any>;
+  getProviderJobDetails: (jobId: string) => Promise<any>;
   placeBid: (payload: {
     jobId: string;
     bidAmount: number;
@@ -195,6 +197,25 @@ export default function useProviderApi(): UseProviderApiReturnType {
     [dispatch],
   );
 
+  const getProviderJobDetails = useCallback(
+    async (jobId: string) => {
+      try {
+        setIsLoading(true);
+        const data = await getProviderJobDetailsService(jobId);
+        if (!data?.success)
+          throw new Error(data?.message || "Failed to fetch job details");
+        return data?.data || null;
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        dispatch(showSnackbarError({ message: errorMessage }));
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
+
   // ✅ Place Bid
   const placeBid = useCallback(
     async (payload: {
@@ -311,6 +332,7 @@ export default function useProviderApi(): UseProviderApiReturnType {
     updateProviderProfile,
     getDashboard,
     getAvailableJobs,
+    getProviderJobDetails,
     placeBid,
     getProviderBids,
     getEarnings,
