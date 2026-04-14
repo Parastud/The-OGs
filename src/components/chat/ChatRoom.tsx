@@ -32,10 +32,10 @@ import {
   sendChatMessageService,
   getProviderJobDetailsService,
   updateProviderBidService,
-  deleteProviderBidService,
+  rejectProviderBidService,
   getConsumerJobBidsService,
   acceptConsumerBidService,
-  deleteConsumerBidService,
+  rejectConsumerBidService,
 } from "@/src/services";
 import { getAccessTokenFromSecureStore } from "@/src/utils/localStorageKey";
 import { FONTS } from "@/src/theme/fonts";
@@ -318,18 +318,18 @@ export function ChatRoom({
     }
   };
 
-  const handleDeleteProviderBid = () => {
+  const handleRejectProviderBid = () => {
     if (!bidContext?.id) return;
 
-    Alert.alert("Delete Bid", "Are you sure you want to delete this bid?", [
+    Alert.alert("Reject Bid", "Are you sure you want to reject this bid?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Delete",
+        text: "Reject",
         style: "destructive",
         onPress: async () => {
           setIsBidSubmitting(true);
           try {
-            const response = await deleteProviderBidService(bidContext.id);
+            const response = await rejectProviderBidService(bidContext.id);
             if (response?.success) {
               setBidContext(null);
             }
@@ -358,18 +358,18 @@ export function ChatRoom({
     }
   };
 
-  const handleDeleteConsumerBid = () => {
+  const handleRejectConsumerBid = () => {
     if (!bidContext?.id) return;
 
-    Alert.alert("Delete Bid", "Delete this bid from the conversation?", [
+    Alert.alert("Reject Bid", "Reject this bid from the conversation?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Delete",
+        text: "Reject",
         style: "destructive",
         onPress: async () => {
           setIsBidSubmitting(true);
           try {
-            const response = await deleteConsumerBidService({
+            const response = await rejectConsumerBidService({
               jobId,
               bidId: bidContext.id,
             });
@@ -507,10 +507,10 @@ export function ChatRoom({
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.dangerBidAction}
-                          onPress={handleDeleteProviderBid}
+                          onPress={handleRejectProviderBid}
                           disabled={isBidSubmitting}
                         >
-                          <Text style={styles.dangerBidActionText}>Delete</Text>
+                          <Text style={styles.dangerBidActionText}>Reject</Text>
                         </TouchableOpacity>
                       </View>
                     </>
@@ -529,10 +529,10 @@ export function ChatRoom({
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.dangerBidAction}
-                        onPress={handleDeleteConsumerBid}
+                        onPress={handleRejectConsumerBid}
                         disabled={isBidSubmitting}
                       >
-                        <Text style={styles.dangerBidActionText}>Delete</Text>
+                        <Text style={styles.dangerBidActionText}>Reject</Text>
                       </TouchableOpacity>
                     </View>
                   )}

@@ -56,6 +56,25 @@ export const createConsumerJobService = async (payload: {
   return response.data;
 };
 
+export const generateConsumerJobDescriptionService = async (payload: {
+  title: string;
+  category: string;
+  urgency?: "normal" | "urgent";
+  budgetMax?: number;
+  locationCity?: string;
+  locationArea?: string;
+}) => {
+  const response = await api.post(
+    "/api/consumers/jobs/generate-description",
+    payload,
+    {
+      headers: await getAuthHeaders(),
+    },
+  );
+
+  return response.data;
+};
+
 export const completeConsumerJobService = async (jobId: string) => {
   const response = await api.patch(
     `/api/consumers/jobs/${jobId}/complete`,

@@ -16,7 +16,7 @@ import {
   ArrowLeft,
   BadgeCheck,
   Check,
-  Trash2,
+  X,
   IndianRupee,
   MessageCircle,
 } from "lucide-react-native";
@@ -63,7 +63,7 @@ export default function JobBidsScreen() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const { acceptConsumerBid, deleteConsumerBid } = useProviderApi();
+  const { acceptConsumerBid, rejectConsumerBid } = useProviderApi();
 
   const loadBids = useCallback(async () => {
     if (!jobId) {
@@ -116,14 +116,14 @@ export default function JobBidsScreen() {
     ]);
   };
 
-  const handleDeleteBid = (bid: Bid) => {
-    Alert.alert("Delete Bid", `Delete bid from ${bid.providerName}?`, [
+  const handleRejectBid = (bid: Bid) => {
+    Alert.alert("Reject Bid", `Reject bid from ${bid.providerName}?`, [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Delete",
+        text: "Reject",
         style: "destructive",
         onPress: async () => {
-          const response = await deleteConsumerBid({
+          const response = await rejectConsumerBid({
             jobId,
             bidId: bid.id,
           });
@@ -228,10 +228,10 @@ export default function JobBidsScreen() {
 
                       <TouchableOpacity
                         style={styles.deleteBtn}
-                        onPress={() => handleDeleteBid(bid)}
+                        onPress={() => handleRejectBid(bid)}
                       >
-                        <Trash2 size={14} color="#B91C1C" />
-                        <Text style={styles.deleteText}>Delete</Text>
+                        <X size={14} color="#B91C1C" />
+                        <Text style={styles.deleteText}>Reject</Text>
                       </TouchableOpacity>
                     </>
                   )}

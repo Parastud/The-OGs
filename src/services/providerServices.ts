@@ -113,11 +113,15 @@ export const updateProviderBidService = async (
   return response.data;
 };
 
-export const deleteProviderBidService = async (bidId: string) => {
+export const rejectProviderBidService = async (bidId: string) => {
   const headers = await getAuthHeaders();
-  const response = await api.delete(`/api/providers/bids/${bidId}`, {
-    headers,
-  });
+  const response = await api.patch(
+    `/api/providers/bids/${bidId}/reject`,
+    {},
+    {
+      headers,
+    },
+  );
   return response.data;
 };
 
@@ -136,13 +140,14 @@ export const acceptConsumerBidService = async (payload: {
   return response.data;
 };
 
-export const deleteConsumerBidService = async (payload: {
+export const rejectConsumerBidService = async (payload: {
   jobId: string;
   bidId: string;
 }) => {
   const headers = await getAuthHeaders();
-  const response = await api.delete(
-    `/api/consumers/jobs/${payload.jobId}/bids/${payload.bidId}`,
+  const response = await api.patch(
+    `/api/consumers/jobs/${payload.jobId}/bids/${payload.bidId}/reject`,
+    {},
     {
       headers,
     },

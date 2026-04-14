@@ -9,9 +9,9 @@ import {
   placeBidService,
   getProviderBidsService,
   updateProviderBidService,
-  deleteProviderBidService,
+  rejectProviderBidService,
   acceptConsumerBidService,
-  deleteConsumerBidService,
+  rejectConsumerBidService,
   getEarningsService,
   getProviderProfileService,
   updateProviderProfileService,
@@ -52,12 +52,12 @@ interface UseProviderApiReturnType {
     bidId: string,
     payload: { bidAmount?: number; bidMessage?: string },
   ) => Promise<any>;
-  deleteProviderBid: (bidId: string) => Promise<any>;
+  rejectProviderBid: (bidId: string) => Promise<any>;
   acceptConsumerBid: (payload: {
     jobId: string;
     bidId: string;
   }) => Promise<any>;
-  deleteConsumerBid: (payload: {
+  rejectConsumerBid: (payload: {
     jobId: string;
     bidId: string;
   }) => Promise<any>;
@@ -309,16 +309,16 @@ export default function useProviderApi(): UseProviderApiReturnType {
     [dispatch],
   );
 
-  const deleteProviderBid = useCallback(
+  const rejectProviderBid = useCallback(
     async (bidId: string) => {
       try {
         setIsLoading(true);
-        const data = await deleteProviderBidService(bidId);
+        const data = await rejectProviderBidService(bidId);
         if (!data?.success)
-          throw new Error(data?.message || "Failed to delete bid");
+          throw new Error(data?.message || "Failed to reject bid");
         dispatch(
           showSnackbarSuccess({
-            message: data?.message || "Bid deleted successfully",
+            message: data?.message || "Bid rejected successfully",
           }),
         );
         return { success: true };
@@ -357,16 +357,16 @@ export default function useProviderApi(): UseProviderApiReturnType {
     [dispatch],
   );
 
-  const deleteConsumerBid = useCallback(
+  const rejectConsumerBid = useCallback(
     async (payload: { jobId: string; bidId: string }) => {
       try {
         setIsLoading(true);
-        const data = await deleteConsumerBidService(payload);
+        const data = await rejectConsumerBidService(payload);
         if (!data?.success)
-          throw new Error(data?.message || "Failed to delete bid");
+          throw new Error(data?.message || "Failed to reject bid");
         dispatch(
           showSnackbarSuccess({
-            message: data?.message || "Bid deleted successfully",
+            message: data?.message || "Bid rejected successfully",
           }),
         );
         return { success: true };
@@ -452,9 +452,9 @@ export default function useProviderApi(): UseProviderApiReturnType {
     placeBid,
     getProviderBids,
     updateProviderBid,
-    deleteProviderBid,
+    rejectProviderBid,
     acceptConsumerBid,
-    deleteConsumerBid,
+    rejectConsumerBid,
     getEarnings,
     getProviderProfile,
     updateProfileData,

@@ -44,7 +44,7 @@ export default function JobDetailsScreen() {
     getProviderJobDetails,
     placeBid,
     updateProviderBid,
-    deleteProviderBid,
+    rejectProviderBid,
     isLoading,
   } = useProviderApi();
   const [bidAmount, setBidAmount] = useState("");
@@ -156,20 +156,20 @@ export default function JobDetailsScreen() {
     }
   };
 
-  const handleDeleteBid = () => {
+  const handleRejectBid = () => {
     if (!jobDetails?.myBid?.id) {
       Alert.alert("Error", "Bid details are not available.");
       return;
     }
 
-    Alert.alert("Delete Bid", "Are you sure you want to delete this bid?", [
+    Alert.alert("Reject Bid", "Are you sure you want to reject this bid?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Delete",
+        text: "Reject",
         style: "destructive",
         onPress: async () => {
           setIsSubmitting(true);
-          const response = await deleteProviderBid(jobDetails.myBid!.id!);
+          const response = await rejectProviderBid(jobDetails.myBid!.id!);
           setIsSubmitting(false);
           if (!response?.success) return;
           router.back();
@@ -322,10 +322,10 @@ export default function JobDetailsScreen() {
 
                   <TouchableOpacity
                     style={styles.deleteBtn}
-                    onPress={handleDeleteBid}
+                    onPress={handleRejectBid}
                     disabled={isSubmitting}
                   >
-                    <Text style={styles.deleteBtnText}>Delete</Text>
+                    <Text style={styles.deleteBtnText}>Reject</Text>
                   </TouchableOpacity>
                 </View>
               )}
