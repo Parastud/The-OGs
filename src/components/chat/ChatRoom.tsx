@@ -42,11 +42,12 @@ import { FONTS } from "@/src/theme/fonts";
 import { ScreenWrapper } from "../wrapper";
 
 type ChatRouteParams = {
-  jobId: string;
+  jobId?: string;
   otherUserId: string;
   otherUserName?: string;
   jobTitle?: string;
   headerSubtitle?: string;
+  conversationType?: "job" | "direct";
 };
 
 type ChatMessage = {
@@ -81,6 +82,7 @@ export function ChatRoom({
   otherUserName,
   jobTitle,
   headerSubtitle,
+  conversationType = "job",
 }: ChatRouteParams) {
   const { height: windowHeight } = useWindowDimensions();
   const socketRef = useRef<Socket | null>(null);
@@ -97,10 +99,11 @@ export function ChatRoom({
   const [isBidPanelOpen, setIsBidPanelOpen] = useState(false);
   const [bidAmountInput, setBidAmountInput] = useState("");
   const [bidMessageInput, setBidMessageInput] = useState("");
+  const isDirectChat = conversationType === "direct" || !jobId;
 
   const roomLabel = useMemo(
-    () => jobTitle || headerSubtitle || "Chat",
-    [headerSubtitle, jobTitle],
+    () => jobTitle || (isDirectChat ? "Direct chat" : headerSubtitle || "Chat"),
+    [headerSubtitle, isDirectChat, jobTitle],
   );
 
   const keyboardVerticalOffset = useMemo(() => {
@@ -113,7 +116,10 @@ export function ChatRoom({
     try {
       const [profileResponse, chatResponse] = await Promise.all([
         getProfileService(),
-        getChatMessagesService({ jobId, otherUserId }),
+        getChatMessagesService({
+          jobId: isDirectChat ? undefined : jobId,
+          otherUserId,
+        }),
       ]);
 
       if (profileResponse?.success && profileResponse?.data) {
@@ -132,13 +138,19 @@ export function ChatRoom({
     } finally {
       setIsLoading(false);
     }
-  }, [jobId, otherUserId]);
+  }, [isDirectChat, jobId, otherUserId]);
 
   useEffect(() => {
     loadChat();
   }, [loadChat]);
 
   const loadBidContext = useCallback(async () => {
+    if (isDirectChat || !jobId || !currentUser?.role) {
+      setBidContext(null);
+      setIsBidLoading(false);
+      return;
+    }
+
     if (!currentUser?.role) return;
 
     setIsBidLoading(true);
@@ -185,7 +197,7 @@ export function ChatRoom({
     } finally {
       setIsBidLoading(false);
     }
-  }, [currentUser?.role, jobId, otherUserId]);
+  }, [currentUser?.role, isDirectChat, jobId, otherUserId]);
 
   useEffect(() => {
     loadBidContext();
@@ -342,7 +354,7 @@ export function ChatRoom({
   };
 
   const handleAcceptBid = async () => {
-    if (!bidContext?.id) return;
+    if (!jobId || !bidContext?.id) return;
 
     setIsBidSubmitting(true);
     try {
@@ -359,7 +371,7 @@ export function ChatRoom({
   };
 
   const handleRejectConsumerBid = () => {
-    if (!bidContext?.id) return;
+    if (!jobId || !bidContext?.id) return;
 
     Alert.alert("Reject Bid", "Reject this bid from the conversation?", [
       { text: "Cancel", style: "cancel" },
@@ -443,16 +455,23 @@ export function ChatRoom({
             </View>
           </LinearGradient>
 
-          <View style={styles.jobCard}>
-            <Text style={styles.jobTitle}>{jobTitle || "Job"}</Text>
-            <Text style={styles.jobSubtitle}>{roomLabel}</Text>
-          </View>
+          {!isDirectChat ? (
+            <View style={styles.jobCard}>
+              <Text style={styles.jobTitle}>{jobTitle || "Job"}</Text>
+              <Text style={styles.jobSubtitle}>{roomLabel}</Text>
+            </View>
+          ) : (
+            <View style={styles.jobCard}>
+              <Text style={styles.jobTitle}>{otherUserName || "Provider"}</Text>
+              <Text style={styles.jobSubtitle}>Direct chat</Text>
+            </View>
+          )}
 
-          {isBidLoading ? (
+          {!isDirectChat && isBidLoading ? (
             <View style={styles.bidCard}>
               <ActivityIndicator size="small" color="#6D5DF6" />
             </View>
-          ) : bidContext ? (
+          ) : !isDirectChat && bidContext ? (
             <View style={styles.bidCard}>
               <TouchableOpacity
                 style={styles.bidHeaderRow}

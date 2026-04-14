@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, ShieldCheck } from "lucide-react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, MessageCircle, ShieldCheck } from "lucide-react-native";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -26,6 +26,8 @@ type ProviderDetails = {
   startingPrice: number | null;
   skills: string[];
   languagesSpoken: string[];
+  aiScore?: number | null;
+  aiFeedback?: string;
   availability: {
     availableDays: string[];
     preferredWorkHours: string[];
@@ -91,7 +93,10 @@ export default function ProviderDetailScreen() {
       ) : error ? (
         <View style={styles.centerWrap}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={loadProviderDetails}>
+          <TouchableOpacity
+            style={styles.retryBtn}
+            onPress={loadProviderDetails}
+          >
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -121,13 +126,67 @@ export default function ProviderDetailScreen() {
                 ) : null}
               </View>
 
-              <Text style={styles.meta}>{provider.category || "General Services"}</Text>
-              <Text style={styles.meta}>{provider.location || "Location not shared"}</Text>
+              <Text style={styles.meta}>
+                {provider.category || "General Services"}
+              </Text>
+              <Text style={styles.meta}>
+                {provider.location || "Location not shared"}
+              </Text>
               <Text style={styles.meta}>
                 {provider.yearsOfExperience ?? 0} yrs exp • Starts from{" "}
-                {provider.startingPrice ? `INR ${provider.startingPrice}` : "N/A"}
+                {provider.startingPrice
+                  ? `INR ${provider.startingPrice}`
+                  : "N/A"}
               </Text>
             </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.chatCta}
+            onPress={() =>
+              router.push({
+                pathname: "/Customer/ChatScreen",
+                params: {
+                  otherUserId: provider.id,
+                  otherUserName: provider.name,
+                  conversationType: "direct",
+                },
+              })
+            }
+          >
+            <MessageCircle size={18} color="#fff" />
+            <Text style={styles.chatCtaText}>Message provider</Text>
+          </TouchableOpacity>
+
+          <View style={styles.aiCard}>
+            <View style={styles.aiHeader}>
+              <View style={styles.aiBadge}>
+                <Text style={styles.aiBadgeText}>AI</Text>
+              </View>
+              <View style={styles.aiHeaderTextWrap}>
+                <Text style={styles.aiTitle}>AI Score & Feedback</Text>
+                <Text style={styles.aiSubtitle}>
+                  Generated once and stored for future visits
+                </Text>
+              </View>
+              <Text style={styles.aiScoreValue}>
+                {provider.aiScore ?? "--"}/100
+              </Text>
+            </View>
+
+            <View style={styles.aiProgressTrack}>
+              <View
+                style={[
+                  styles.aiProgressFill,
+                  { width: `${provider.aiScore ?? 0}%` },
+                ]}
+              />
+            </View>
+
+            <Text style={styles.aiFeedbackText}>
+              {provider.aiFeedback ||
+                "AI feedback will appear here after the first profile analysis."}
+            </Text>
           </View>
 
           {provider.bio ? (
@@ -141,11 +200,15 @@ export default function ProviderDetailScreen() {
             <Text style={styles.sectionTitle}>Highlights</Text>
             <View style={styles.statsGrid}>
               <View style={styles.statBox}>
-                <Text style={styles.statValue}>{provider.stats.completedJobs}</Text>
+                <Text style={styles.statValue}>
+                  {provider.stats.completedJobs}
+                </Text>
                 <Text style={styles.statLabel}>Jobs Done</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={styles.statValue}>{provider.stats.acceptanceRate}%</Text>
+                <Text style={styles.statValue}>
+                  {provider.stats.acceptanceRate}%
+                </Text>
                 <Text style={styles.statLabel}>Acceptance</Text>
               </View>
               <View style={styles.statBox}>
@@ -248,6 +311,83 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 30,
     gap: 12,
+  },
+  chatCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#6C63FF",
+    borderRadius: 14,
+    paddingVertical: 14,
+    shadowColor: "#6C63FF",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  chatCtaText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  aiCard: {
+    backgroundColor: "#111827",
+    borderRadius: 18,
+    padding: 16,
+    gap: 12,
+  },
+  aiHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  aiBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#6C63FF",
+  },
+  aiBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  aiHeaderTextWrap: {
+    flex: 1,
+    gap: 2,
+  },
+  aiTitle: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  aiSubtitle: {
+    color: "#9CA3AF",
+    fontSize: 12,
+  },
+  aiScoreValue: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  aiProgressTrack: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "#374151",
+    overflow: "hidden",
+  },
+  aiProgressFill: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "#6C63FF",
+  },
+  aiFeedbackText: {
+    color: "#E5E7EB",
+    fontSize: 13,
+    lineHeight: 20,
   },
   profileCard: {
     flexDirection: "row",

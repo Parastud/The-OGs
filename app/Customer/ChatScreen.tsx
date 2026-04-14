@@ -8,6 +8,7 @@ export default function CustomerChatScreen() {
     otherUserId?: string;
     otherUserName?: string;
     jobTitle?: string;
+    conversationType?: "job" | "direct";
   }>();
 
   const jobId = Array.isArray(params.jobId)
@@ -22,6 +23,9 @@ export default function CustomerChatScreen() {
   const jobTitle = Array.isArray(params.jobTitle)
     ? params.jobTitle[0] || ""
     : params.jobTitle || "";
+  const conversationType = Array.isArray(params.conversationType)
+    ? params.conversationType[0] || "job"
+    : params.conversationType || "job";
 
   return (
     <ChatRoom
@@ -29,6 +33,7 @@ export default function CustomerChatScreen() {
       otherUserId={otherUserId}
       otherUserName={otherUserName}
       jobTitle={jobTitle}
+      conversationType={conversationType}
       headerSubtitle="Customer Chat"
     />
   );

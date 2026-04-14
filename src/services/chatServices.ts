@@ -7,28 +7,39 @@ const getAuthHeaders = async () => {
 };
 
 export const getChatMessagesService = async (payload: {
-  jobId: string;
+  jobId?: string;
   otherUserId: string;
 }) => {
-  const response = await api.get(
-    `/api/chats/jobs/${payload.jobId}/with/${payload.otherUserId}/messages`,
-    { headers: await getAuthHeaders() },
-  );
+  const path = payload.jobId
+    ? `/api/chats/jobs/${payload.jobId}/with/${payload.otherUserId}/messages`
+    : `/api/chats/direct/with/${payload.otherUserId}/messages`;
+
+  const response = await api.get(path, { headers: await getAuthHeaders() });
 
   return response.data;
 };
 
 export const sendChatMessageService = async (payload: {
-  jobId: string;
+  jobId?: string;
   otherUserId: string;
   text?: string;
   imageUrl?: string;
 }) => {
-  const response = await api.post(
-    `/api/chats/jobs/${payload.jobId}/with/${payload.otherUserId}/messages`,
-    payload,
-    { headers: await getAuthHeaders() },
-  );
+  const path = payload.jobId
+    ? `/api/chats/jobs/${payload.jobId}/with/${payload.otherUserId}/messages`
+    : `/api/chats/direct/with/${payload.otherUserId}/messages`;
+
+  const response = await api.post(path, payload, {
+    headers: await getAuthHeaders(),
+  });
+
+  return response.data;
+};
+
+export const getChatThreadsService = async () => {
+  const response = await api.get("/api/chats/threads", {
+    headers: await getAuthHeaders(),
+  });
 
   return response.data;
 };

@@ -27,7 +27,8 @@ type NotificationType = "message";
 type Notification = {
   id: string;
   otherUserId: string;
-  jobId: string;
+  jobId?: string;
+  conversationType: "job" | "direct";
   title: string;
   subtitle?: string;
   time: Date;
@@ -40,10 +41,12 @@ type Notification = {
 };
 
 type OfflineMessageNotificationApi = {
+  roomId: string;
   senderId: string;
   senderName: string;
   senderRole: "customer" | "provider";
-  latestJobId: string;
+  conversationType: "job" | "direct";
+  latestJobId: string | null;
   latestText: string;
   latestCreatedAt: string;
   count: number;
@@ -79,9 +82,10 @@ export default function NotificationsScreen() {
         : [];
 
       const mapped: Notification[] = data.map((item) => ({
-        id: `offline-msg-${item.senderId}`,
+        id: `offline-msg-${item.roomId}`,
         otherUserId: item.senderId,
-        jobId: item.latestJobId,
+        jobId: item.latestJobId || undefined,
+        conversationType: item.conversationType,
         title:
           item.count === 1
             ? `${item.senderName} sent you a message`
@@ -152,10 +156,12 @@ export default function NotificationsScreen() {
     router.push({
       pathname: "/Customer/ChatScreen",
       params: {
-        jobId: notification.jobId,
         otherUserId: notification.otherUserId,
         otherUserName: notification.senderName || "User",
-        jobTitle: "Job",
+        ...(notification.jobId ? { jobId: notification.jobId } : {}),
+        ...(notification.conversationType === "direct"
+          ? { conversationType: "direct" as const }
+          : { jobTitle: "Job" }),
       },
     });
   };
