@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,6 +19,7 @@ import {
 import { ScreenWrapper } from "@/src/components/wrapper";
 import { FONTS } from "@/src/theme/fonts";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { router } from "expo-router";
 
 type WeeklyPoint = {
   label: string;
@@ -107,9 +114,12 @@ export default function EarningsScreen() {
               <Text style={styles.headerSubtitle}>Earnings Overview</Text>
             </View>
             <View style={styles.headerRight}>
-              <View style={styles.bellWrap}>
+              <TouchableOpacity
+                style={styles.bellWrap}
+                onPress={() => router.push("/Provider/NotificationsScreen")}
+              >
                 <Bell size={20} color="#000" />
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </LinearGradient>

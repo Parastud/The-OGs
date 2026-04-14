@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Bell,
   CalendarCheck,
+  MessageCircle,
   MessageSquare,
   Star,
   CheckCircle2,
@@ -24,6 +25,7 @@ import {
 
 import { ScreenWrapper } from "@/src/components/wrapper";
 import { FONTS } from "@/src/theme/fonts";
+import { getChatThreadsService } from "@/src/services";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
 import { useRouter } from "expo-router";
 
@@ -33,6 +35,8 @@ type ProviderProfile = {
   location?: string;
   skills?: string[];
   trustScore?: number;
+  aiScore?: number;
+  aiFeedback?: string;
   verified?: boolean;
   rating?: number;
   reviews?: number;
@@ -45,10 +49,36 @@ type ProviderProfile = {
   portfolioPhotos?: string[];
 };
 
+type InboxThread = {
+  roomId: string;
+  otherUserId: string;
+  otherUserName: string;
+  latestText: string;
+  latestCreatedAt: Date;
+  jobId?: string;
+  conversationType: "job" | "direct";
+  count: number;
+};
+
+type OfflineMessageNotificationApi = {
+  roomId: string;
+  otherUserId: string;
+  otherUserName: string;
+  otherUserRole: "customer" | "provider";
+  conversationType: "job" | "direct";
+  latestJobId: string | null;
+  latestText: string;
+  latestCreatedAt: string;
+  count: number;
+  unreadCount: number;
+};
+
 export default function ProfileScreen() {
   const { getProviderProfile } = useProviderApi();
   const [profileData, setProfileData] = useState<ProviderProfile | null>(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [isInboxLoading, setIsInboxLoading] = useState(true);
+  const [inboxThreads, setInboxThreads] = useState<InboxThread[]>([]);
 
   const router = useRouter();
 
@@ -61,14 +91,47 @@ export default function ProfileScreen() {
     setIsFetching(false);
   }, [getProviderProfile]);
 
+  const loadInbox = useCallback(async () => {
+    setIsInboxLoading(true);
+    try {
+      const response = await getChatThreadsService();
+      const data: OfflineMessageNotificationApi[] = Array.isArray(
+        response?.data,
+      )
+        ? response.data
+        : [];
+
+      setInboxThreads(
+        data.map((item) => ({
+          roomId: item.roomId,
+          otherUserId: item.otherUserId,
+          otherUserName: item.otherUserName || "User",
+          latestText: item.latestText || "You have a new message",
+          latestCreatedAt: new Date(item.latestCreatedAt),
+          jobId: item.latestJobId || undefined,
+          conversationType: item.conversationType,
+          count: item.count,
+        })),
+      );
+    } catch {
+      setInboxThreads([]);
+    } finally {
+      setIsInboxLoading(false);
+    }
+  }, []);
+
+  const loadDashboard = useCallback(async () => {
+    await Promise.all([loadProfile(), loadInbox()]);
+  }, [loadInbox, loadProfile]);
+
   useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+    loadDashboard();
+  }, [loadDashboard]);
 
   useFocusEffect(
     useCallback(() => {
-      loadProfile();
-    }, [loadProfile]),
+      loadDashboard();
+    }, [loadDashboard]),
   );
 
   const handleContactSupport = () => {
@@ -79,7 +142,7 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <ScreenWrapper
         contentContainerStyle={styles.scrollContent}
-        onRefresh={loadProfile}
+        onRefresh={loadDashboard}
       >
         <LinearGradient
           colors={["#6D5DF6", "#8A6DFF", "#B088FF"]}
@@ -96,7 +159,10 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <Text style={styles.brand}>Profile</Text>
             <View style={styles.headerRight}>
-              <TouchableOpacity style={styles.bellWrap}>
+              <TouchableOpacity
+                style={styles.bellWrap}
+                onPress={() => router.push("/Provider/NotificationsScreen")}
+              >
                 <Bell size={20} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity
@@ -143,9 +209,9 @@ export default function ProfileScreen() {
             <View style={styles.sectionCard}>
               <View style={styles.trustHeader}>
                 <Star size={20} color="#F59E0B" fill="#F59E0B" />
-                <Text style={styles.trustTitle}>Trust Score</Text>
+                <Text style={styles.trustTitle}>AI Score</Text>
                 <Text style={styles.trustScore}>
-                  {profileData?.trustScore || "92"}/100
+                  {profileData?.aiScore ?? profileData?.trustScore ?? "92"}/100
                 </Text>
               </View>
 
@@ -153,10 +219,17 @@ export default function ProfileScreen() {
                 <View
                   style={[
                     styles.progressFill,
-                    { width: `${profileData?.trustScore || 92}%` },
+                    {
+                      width: `${profileData?.aiScore ?? profileData?.trustScore ?? 92}%`,
+                    },
                   ]}
                 />
               </View>
+
+              <Text style={styles.aiFeedbackText}>
+                {profileData?.aiFeedback ||
+                  "AI feedback will appear here after the first profile analysis."}
+              </Text>
 
               <View style={styles.badgesRow}>
                 <View style={styles.badge}>
@@ -191,6 +264,84 @@ export default function ProfileScreen() {
                 </Text>
                 <Text style={styles.statLabel}>JOBS</Text>
               </View>
+            </View>
+
+            <View style={styles.inboxCard}>
+              <View style={styles.inboxHeader}>
+                <View style={styles.inboxHeaderLeft}>
+                  <View style={styles.inboxIconWrap}>
+                    <MessageCircle size={18} color="#6D5DF6" />
+                  </View>
+                  <View>
+                    <Text style={styles.sectionTitle}>Inbox</Text>
+                    <Text style={styles.inboxSubtitle}>
+                      {inboxThreads.length > 0
+                        ? `${inboxThreads.length} active chat${
+                            inboxThreads.length === 1 ? "" : "s"
+                          }`
+                        : "No active chats"}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => router.push("/Provider/NotificationsScreen")}
+                >
+                  <Text style={styles.viewAllText}>View all</Text>
+                </TouchableOpacity>
+              </View>
+
+              {isInboxLoading ? (
+                <View style={styles.inboxLoadingRow}>
+                  <ActivityIndicator size="small" color="#6D5DF6" />
+                  <Text style={styles.inboxLoadingText}>Loading inbox...</Text>
+                </View>
+              ) : inboxThreads.length > 0 ? (
+                inboxThreads.slice(0, 3).map((thread) => (
+                  <TouchableOpacity
+                    key={thread.roomId}
+                    style={styles.inboxItem}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/Provider/ChatScreen",
+                        params: {
+                          otherUserId: thread.otherUserId,
+                          otherUserName: thread.otherUserName,
+                          ...(thread.jobId ? { jobId: thread.jobId } : {}),
+                          ...(thread.conversationType === "direct"
+                            ? { conversationType: "direct" as const }
+                            : { jobTitle: "Job" }),
+                        },
+                      })
+                    }
+                  >
+                    <View style={styles.inboxItemTopRow}>
+                      <Text style={styles.inboxName}>
+                        {thread.otherUserName}
+                      </Text>
+                      <Text style={styles.inboxTime}>
+                        {formatInboxTime(thread.latestCreatedAt)}
+                      </Text>
+                    </View>
+                    <Text style={styles.inboxPreview} numberOfLines={1}>
+                      {thread.latestText}
+                    </Text>
+                    <Text style={styles.inboxMeta}>
+                      {thread.conversationType === "direct"
+                        ? "Direct chat"
+                        : "Job chat"}
+                      {" • "}
+                      {thread.count} message{thread.count === 1 ? "" : "s"}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={styles.inboxEmptyState}>
+                  <Text style={styles.inboxEmptyTitle}>Inbox is empty</Text>
+                  <Text style={styles.inboxEmptyText}>
+                    Messages from customers will appear here.
+                  </Text>
+                </View>
+              )}
             </View>
 
             <View style={styles.sectionCard}>
@@ -255,6 +406,17 @@ export default function ProfileScreen() {
     </View>
   );
 }
+
+const formatInboxTime = (date: Date) => {
+  const deltaMs = Date.now() - date.getTime();
+  const mins = Math.floor(deltaMs / (60 * 1000));
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -362,6 +524,111 @@ const styles = StyleSheet.create({
     color: "#1F2937",
     marginBottom: 12,
   },
+  inboxCard: {
+    marginHorizontal: 20,
+    marginVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  inboxHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  inboxHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  inboxIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EEF2FF",
+  },
+  inboxSubtitle: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 2,
+    fontFamily: FONTS.REGULAR,
+  },
+  viewAllText: {
+    fontSize: 13,
+    color: "#6D5DF6",
+    fontFamily: FONTS.BOLD,
+  },
+  inboxLoadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 8,
+  },
+  inboxLoadingText: {
+    fontSize: 13,
+    color: "#6B7280",
+    fontFamily: FONTS.REGULAR,
+  },
+  inboxItem: {
+    borderRadius: 14,
+    padding: 14,
+    backgroundColor: "#F9FAFB",
+    marginBottom: 10,
+  },
+  inboxItemTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  inboxName: {
+    fontSize: 15,
+    color: "#111827",
+    fontFamily: FONTS.BOLD,
+    flex: 1,
+  },
+  inboxTime: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontFamily: FONTS.REGULAR,
+  },
+  inboxPreview: {
+    marginTop: 6,
+    fontSize: 13,
+    color: "#374151",
+    fontFamily: FONTS.REGULAR,
+  },
+  inboxMeta: {
+    marginTop: 8,
+    fontSize: 11,
+    color: "#6B7280",
+    fontFamily: FONTS.REGULAR,
+  },
+  inboxEmptyState: {
+    borderRadius: 14,
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    backgroundColor: "#F9FAFB",
+  },
+  inboxEmptyTitle: {
+    fontSize: 14,
+    color: "#111827",
+    fontFamily: FONTS.BOLD,
+    marginBottom: 4,
+  },
+  inboxEmptyText: {
+    fontSize: 13,
+    color: "#6B7280",
+    lineHeight: 18,
+    fontFamily: FONTS.REGULAR,
+  },
   trustHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -388,6 +655,13 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: "#6D5DF6",
     borderRadius: 6,
+  },
+  aiFeedbackText: {
+    fontSize: 13,
+    fontFamily: FONTS.REGULAR,
+    color: "#4B5563",
+    lineHeight: 20,
+    marginBottom: 12,
   },
   badgesRow: {
     flexDirection: "row",

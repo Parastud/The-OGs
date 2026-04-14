@@ -28,6 +28,14 @@ export const searchConsumerProvidersService = async (params: {
   return response.data;
 };
 
+export const getConsumerProviderDetailsService = async (providerId: string) => {
+  const response = await api.get(`/api/consumers/providers/${providerId}`, {
+    headers: await getAuthHeaders(),
+  });
+
+  return response.data;
+};
+
 export const getConsumerJobsService = async (
   status?: "all" | "active" | "pending" | "completed",
 ) => {
@@ -56,6 +64,24 @@ export const createConsumerJobService = async (payload: {
   return response.data;
 };
 
+export const generateConsumerJobDescriptionService = async (payload: {
+  title: string;
+  urgency?: "normal" | "urgent";
+  budgetMax?: number;
+  locationCity?: string;
+  locationArea?: string;
+}) => {
+  const response = await api.post(
+    "/api/consumers/jobs/generate-description",
+    payload,
+    {
+      headers: await getAuthHeaders(),
+    },
+  );
+
+  return response.data;
+};
+
 export const completeConsumerJobService = async (jobId: string) => {
   const response = await api.patch(
     `/api/consumers/jobs/${jobId}/complete`,
@@ -78,3 +104,5 @@ export const getConsumerJobBidsService = async (jobId: string) => {
 
 export * from "./authServices";
 export * from "./providerServices";
+export * from "./profileServices";
+export * from "./chatServices";

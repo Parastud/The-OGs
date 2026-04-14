@@ -2,7 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 
 import { ChatRoom } from "@/src/components/chat/ChatRoom";
 
-export default function CustomerChatScreen() {
+export default function ProviderChatScreen() {
   const params = useLocalSearchParams<{
     jobId?: string;
     otherUserId?: string;
@@ -34,7 +34,7 @@ export default function CustomerChatScreen() {
       otherUserName={otherUserName}
       jobTitle={jobTitle}
       conversationType={conversationType}
-      headerSubtitle="Customer Chat"
+      headerSubtitle="Provider Chat"
     />
   );
 }

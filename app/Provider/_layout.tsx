@@ -84,6 +84,11 @@ function TabIcon({
 }
 
 export default function TabLayout() {
+  const hiddenScreenOptions = {
+    href: null,
+    tabBarStyle: { display: "none" },
+  } as const;
+
   return (
     <Tabs
       screenOptions={{
@@ -137,8 +142,10 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="job/[id]" options={{ href: null }} />
-      <Tabs.Screen name="personal-information" options={{ href: null }} />
+      <Tabs.Screen name="job/[id]" options={hiddenScreenOptions} />
+      <Tabs.Screen name="ChatScreen" options={hiddenScreenOptions} />
+      <Tabs.Screen name="NotificationsScreen" options={hiddenScreenOptions} />
+      <Tabs.Screen name="personal-information" options={hiddenScreenOptions} />
     </Tabs>
   );
 }

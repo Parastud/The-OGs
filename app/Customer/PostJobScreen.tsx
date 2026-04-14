@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import axios from "axios";
 import { ArrowLeft, ChevronDown, MapPin, Sparkles } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -14,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   createConsumerJobService,
+  generateConsumerJobDescriptionService,
   getProviderCategoriesService,
 } from "@/src/services";
 
@@ -48,6 +50,31 @@ const getDateChoices = (): DateChoice[] => {
   });
 };
 
+const buildLocalDescription = (input: {
+  title: string;
+  urgency: Urgency;
+  budget?: number;
+  city: string;
+  area: string;
+}) => {
+  const budgetLine = input.budget
+    ? `My budget is up to INR ${Math.round(input.budget)}.`
+    : "Please share your estimate before starting.";
+
+  const urgencyLine =
+    input.urgency === "urgent"
+      ? "This is urgent and I need it done as early as possible."
+      : "Timing is flexible, but I would like this completed soon.";
+
+  return [
+    `I need help with ${input.title}.`,
+    `Location: ${input.city}, ${input.area}.`,
+    urgencyLine,
+    budgetLine,
+    "Please bring the required tools and let me know the expected duration before starting.",
+  ].join(" ");
+};
+
 export default function PostJobScreen() {
   const router = useRouter();
   const dateChoices = useMemo(() => getDateChoices(), []);
@@ -62,6 +89,7 @@ export default function PostJobScreen() {
   const [selectedCategory, setSelectedCategory] = useState("Home Maintenance");
   const [showCategories, setShowCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -144,6 +172,65 @@ export default function PostJobScreen() {
     }
   };
 
+  const handleGenerateDescription = async () => {
+    const cleanedTitle = title.trim();
+
+    if (!cleanedTitle) {
+      Alert.alert("Missing title", "Please enter a job title first.");
+      return;
+    }
+
+    const parsedBudget = Number(budget.replace(/[^0-9.]/g, ""));
+    const fallbackText = buildLocalDescription({
+      title: cleanedTitle,
+      urgency,
+      budget: Number.isNaN(parsedBudget) ? undefined : parsedBudget,
+      city: "Mathura",
+      area: "UP",
+    });
+
+    try {
+      setIsGeneratingDescription(true);
+
+      const response = await generateConsumerJobDescriptionService({
+        title: cleanedTitle,
+        urgency,
+        budgetMax: Number.isNaN(parsedBudget) ? undefined : parsedBudget,
+        locationCity: "Mathura",
+        locationArea: "UP",
+      });
+
+      const generatedText =
+        response?.data?.description || response?.description || "";
+
+      if (generatedText) {
+        setDescription(generatedText);
+        return;
+      }
+
+      setDescription(fallbackText);
+      Alert.alert(
+        "Using smart draft",
+        response?.message || "AI response was empty, so a draft was generated.",
+      );
+    } catch (error) {
+      setDescription(fallbackText);
+
+      if (axios.isAxiosError(error)) {
+        const serverMessage =
+          (error.response?.data as { message?: string } | undefined)?.message ||
+          "Could not reach AI service";
+
+        Alert.alert("Using smart draft", serverMessage);
+        return;
+      }
+
+      Alert.alert("Using smart draft", "Generated a local draft instead.");
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -176,9 +263,16 @@ export default function PostJobScreen() {
 
         <View style={styles.rowBetween}>
           <Text style={styles.label}>JOB DESCRIPTION</Text>
-          <TouchableOpacity style={styles.aiBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.aiBtn}
+            activeOpacity={0.8}
+            onPress={handleGenerateDescription}
+            disabled={isGeneratingDescription}
+          >
             <Sparkles size={14} color="#6C63FF" />
-            <Text style={styles.aiText}>Write with AI</Text>
+            <Text style={styles.aiText}>
+              {isGeneratingDescription ? "Writing..." : "Write with AI"}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -321,7 +415,7 @@ export default function PostJobScreen() {
             {isSubmitting ? "Posting..." : "Post Job ->"}
           </Text>
         </TouchableOpacity>
-        <View style={{ height: 30 }} />
+        <View style={{ height: 50 }} />
       </ScrollView>
     </SafeAreaView>
   );
