@@ -1,32 +1,34 @@
-import {
-  ActivityIndicator,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-} from "react-native";
-import { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useEffect, useState } from "react";
+import {
+    ActivityIndicator,
+    Alert,
+    Image,
+    Linking,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 import {
-  ArrowLeft,
-  Bell,
-  CalendarCheck,
-  MessageCircle,
-  MessageSquare,
-  Star,
-  CheckCircle2,
-  Clock,
-  Settings,
+    ArrowLeft,
+    Bell,
+    CalendarCheck,
+    CheckCircle2,
+    Clock,
+    MessageCircle,
+    MessageSquare,
+    Settings,
+    Star,
 } from "lucide-react-native";
 
+import { ACCOUNT_DELETION_URL, PRIVACY_POLICY_URL } from "@/app.env";
 import { ScreenWrapper } from "@/src/components/wrapper";
-import { FONTS } from "@/src/theme/fonts";
-import { getChatThreadsService } from "@/src/services";
 import useProviderApi from "@/src/hooks/apiHooks/useProviderApi";
+import { getChatThreadsService } from "@/src/services";
+import { FONTS } from "@/src/theme/fonts";
 import { useRouter } from "expo-router";
 
 type ProviderProfile = {
@@ -136,6 +138,13 @@ export default function ProfileScreen() {
 
   const handleContactSupport = () => {
     Alert.alert("Support", "Support chat will be available soon.");
+  };
+
+  const openExternalUrl = async (url: string) => {
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
   };
 
   return (
@@ -397,6 +406,18 @@ export default function ProfileScreen() {
               >
                 <MessageSquare size={18} color="#6D5DF6" />
                 <Text style={styles.contactBtnText}>Contact Support</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.contactBtn}
+                onPress={() => openExternalUrl(PRIVACY_POLICY_URL)}
+              >
+                <Text style={styles.contactBtnText}>Privacy Policy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.contactBtn}
+                onPress={() => openExternalUrl(ACCOUNT_DELETION_URL)}
+              >
+                <Text style={styles.contactBtnText}>Account Deletion</Text>
               </TouchableOpacity>
             </View>
           </>

@@ -26,6 +26,8 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="theogs"/>
         <data android:scheme="exp+the-ogs"/>
+        <data android:scheme="gigly"/>
+        <data android:scheme="exp+gigly"/>
       </intent-filter>
     </activity>
   </application>

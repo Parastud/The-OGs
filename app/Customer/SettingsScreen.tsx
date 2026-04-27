@@ -1,3 +1,4 @@
+import { ACCOUNT_DELETION_URL, PRIVACY_POLICY_URL } from "@/app.env";
 import { removeTokenFromSecureStore } from "@/src/utils/localStorageKey";
 import { useRouter } from "expo-router";
 import {
@@ -19,6 +20,7 @@ import { useState } from "react";
 import {
   Alert,
   Image,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -75,18 +77,14 @@ export default function SettingsScreen() {
   }
 
   function handleDeleteAccount() {
-    Alert.alert(
-      "Delete Account",
-      "This will permanently delete your account and all data. This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => Alert.alert("Account deleted."),
-        },
-      ]
-    );
+    openExternalUrl(ACCOUNT_DELETION_URL);
+  }
+
+  async function openExternalUrl(url: string) {
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
   }
 
   function saveProfile() {
@@ -223,6 +221,12 @@ export default function SettingsScreen() {
 
         {/* APP */}
         <Section title="App">
+          <SettingItem
+            icon={<FileText size={17} color="#6C63FF" />}
+            label="Privacy Policy"
+            onPress={() => openExternalUrl(PRIVACY_POLICY_URL)}
+          />
+          <Divider />
           <SettingItem
             icon={<Globe size={17} color="#6C63FF" />}
             label="Language"
